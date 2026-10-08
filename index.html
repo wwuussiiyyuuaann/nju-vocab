@@ -112,14 +112,31 @@ label.sw.on{color:var(--accent);border-color:var(--accent)}
 .spk{opacity:.32;font-size:13px;padding:2px 4px;border-radius:6px}
 .spk:hover{opacity:1;background:var(--accent-soft)}
 .c-mean{color:var(--text);font-size:14px;word-break:break-word}
-.c-mean.masked{color:transparent;background:var(--mask);border-radius:6px;cursor:pointer;user-select:none;
+.row.masked{cursor:pointer}
+.row.masked.mask-zh .c-mean,
+.row.masked.mask-en .c-word .w{color:transparent;background:var(--mask);border-radius:6px;user-select:none;
   text-shadow:none;box-shadow:inset 0 0 0 100px var(--mask)}
-.c-mean.masked::selection{background:transparent}
-.c-mean.masked .ex{visibility:hidden}                 /* 自测遮罩时，例句一起被盖住 */
+.row.masked.mask-zh .c-mean::selection,
+.row.masked.mask-en .c-word .w::selection{background:transparent}
+.row.masked .ex{visibility:hidden}                    /* 遮罩时例句一起盖住（例句里含答案） */
+.row.masked.mask-en .c-word .spk{opacity:.35}
 .ex{display:block;margin-top:4px;padding-left:7px;border-left:2px solid var(--line)}
 .ex-en{display:block;font-family:Georgia,"Times New Roman",serif;font-size:12.5px;line-height:1.45;color:#3c4a5e}
 .ex-zh{display:block;font-size:12px;line-height:1.45;color:var(--muted);margin-top:1px}
 html[data-theme="dark"] .ex-en{color:#c3d0e2}
+.scard{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:22px 18px;max-width:660px;margin:0 auto}
+.scard .smeta{color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:8px;line-height:1.7}
+.scard .szh{font-size:23px;font-weight:700;text-align:center;margin:8px 0;line-height:1.55;word-break:break-word}
+.scard .sex{font-family:Georgia,"Times New Roman",serif;font-size:14px;color:var(--muted);text-align:center;margin:4px 0 14px;line-height:1.6}
+.scard .sword{font-family:Georgia,serif;font-size:28px;font-weight:700;text-align:center;margin:6px 0 12px;word-break:break-word}
+.scard input.sp{width:100%;font:inherit;font-size:17px;text-align:center;letter-spacing:.5px;padding:12px;
+  background:var(--card2);color:var(--text);border:2px solid var(--line);border-radius:12px;outline:none}
+.scard input.sp:focus{border-color:var(--accent)}
+.scard input.sp.ok{border-color:var(--b);color:var(--b)}
+.scard input.sp.bad{border-color:#e5484d;color:#e5484d}
+.sfeed{text-align:center;font-size:14px;min-height:22px;margin:10px 0;line-height:1.7}
+.sfeed.ok{color:var(--b)} .sfeed.bad{color:#e5484d}
+.srow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px}
 .rex{margin:4px auto 10px;max-width:560px;text-align:left}
 .rex-en{font-family:Georgia,"Times New Roman",serif;font-size:14.5px;line-height:1.5;color:var(--text)}
 .rex-zh{font-size:13px;line-height:1.5;color:var(--muted);margin-top:2px}
@@ -250,7 +267,11 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
       <div class="tline">
         <input type="search" id="q" placeholder="搜索单词或释义（按 / 聚焦，Esc 清空）">
         <label class="sw" id="swHide"><input type="checkbox" id="cbHide">隐藏已入词库</label>
-        <label class="sw" id="swMask"><input type="checkbox" id="cbMask">释义遮罩（自测）</label>
+        <select id="selMask" title="自测遮罩">
+          <option value="off">遮罩：关</option>
+          <option value="zh">遮中文（看英忆中）</option>
+          <option value="en">遮英文（看中忆英）</option>
+        </select>
         <label class="sw" id="swEx"><input type="checkbox" id="cbEx">显示例句</label>
         <label class="sw" id="swBatch"><input type="checkbox" id="cbBatch">批量筛选</label>
         <button class="btn ghost" id="btnClearFilter">重置筛选</button>
@@ -292,10 +313,16 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <div id="reviewBox"></div>
   </section>
 
+  <!-- ========== 拼写自测 ========== -->
+  <section id="v-spell" hidden>
+    <nav class="tabs" id="tabs4"></nav>
+    <div id="spellBox"></div>
+  </section>
+
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-08 13:58 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-08 14:03 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -319,8 +346,12 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <label class="sw" id="swDark"><input type="checkbox" id="cbDark"></label></div>
   <div class="setrow"><div><div class="lbl">点击自动朗读</div><div class="sub">点单词时用浏览器语音朗读（无需联网）</div></div>
     <label class="sw" id="swSpeak"><input type="checkbox" id="cbSpeak"></label></div>
-  <div class="setrow"><div><div class="lbl">释义遮罩（自测模式）</div><div class="sub">盖住中文，点击才显示</div></div>
-    <label class="sw" id="swMask2"><input type="checkbox" id="cbMask2"></label></div>
+  <div class="setrow"><div><div class="lbl">自测遮罩</div><div class="sub">遮中文＝看英忆中；遮英文＝看中忆英。点击该行揭晓</div></div>
+    <select id="selMask2" style="min-width:150px">
+      <option value="off">关</option>
+      <option value="zh">遮中文</option>
+      <option value="en">遮英文</option>
+    </select></div>
   <div class="setrow"><div><div class="lbl">打开时回到上次位置</div><div class="sub">自动记住你看到哪个词，下次打开直接接上；顶部会提示，可一键回到顶部</div></div>
     <label class="sw" id="swResume"><input type="checkbox" id="cbResume"></label></div>
   <div class="hr"></div>
@@ -431,8 +462,9 @@ const PAGE_SIZES = [20, 30, 50, 100, 200, 0];        // 0 表示「全部」
 const pageCount = (total, size) => (size ? Math.max(1, Math.ceil(total / size)) : 1);
 const state = {
   view:"home", level:"ALL", letter:"", q:"", hideBanked:false, mask:false, batch:false, showEx:true,
-  sort:"index", page:1, pageSize:50, bankLevel:"ALL", bankQ:"", selected:new Set(), revealed:new Set(),
-  reviewHide:false, reviewIndex:0
+  sort:"index", page:1, pageSize:50, maskMode:"off", bankLevel:"ALL", bankQ:"", selected:new Set(), revealed:new Set(),
+  reviewHide:false, reviewIndex:0,
+  spellIdx:0, spellOrder:null, spellStat:{right:0, wrong:0}, spellResult:null, spellHintN:0, spellGiven:""
 };
 const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
 const DAY = 86400000;
@@ -514,13 +546,13 @@ function exHTML(word){
 function rowsHTML(list, slice){
   return slice.map(e => {
     const banked = !!store.bank[e.word];
-    const hidden = state.mask && !state.revealed.has(e.id);
+    const masked = state.maskMode !== "off" && !state.revealed.has(e.id);
     const sel = state.selected.has(e.word) ? " sel" : "";
-    return '<div class="row'+sel+'" data-w="'+esc(e.word)+'" data-id="'+e.id+'">'
+    return '<div class="row'+sel+(masked ? " masked mask-" + state.maskMode : "")+'" data-w="'+esc(e.word)+'" data-id="'+e.id+'">'
       + (state.batch ? '<div class="c-no"><input type="checkbox" class="chk" '+(state.selected.has(e.word)?"checked":"")+' data-w="'+esc(e.word)+'"></div>'
                     : '<div class="c-no">'+e.no+'</div>')
       + '<div class="c-word"><span class="w">'+esc(e.word)+'</span><button class="spk" data-spk="'+esc(e.word)+'" title="朗读">🔊</button></div>'
-      + '<div class="c-mean'+(hidden?" masked":"")+'" data-mean="'+e.id+'">'+esc(e.meaning)+exHTML(e.word)+'</div>'
+      + '<div class="c-mean" data-mean="'+e.id+'">'+esc(e.meaning)+exHTML(e.word)+'</div>'
       + '<div>' + (e.level ? '<span class="badge ' + e.level.toLowerCase() + '">' + e.level + '</span>' : '<span class="badge none">—</span>') + '</div>'
       + '<div class="c-act"><button class="star'+(banked?" on":"")+'" data-star="'+esc(e.word)+'" data-lv="'+e.level+'" title="'+(banked?"移出个人词库":"加入个人词库")+'">'+starSVG(banked)+'</button></div>'
       + '</div>';
@@ -567,13 +599,15 @@ function chipsHTML(el, list){
     + '<span class="chip">其中 A <b>'+cnt.A+'</b> · B <b>'+cnt.B+'</b> · C <b>'+cnt.C+'</b></span>'
     + '<span class="chip">带例句 <b>'+exN+'</b>'+(exN < list.length ? ' / '+list.length : '')+'</span>'
     + '<span class="chip">个人词库 <b>'+bank+'</b></span>'
-    + (state.mask ? '<span class="chip" style="border-color:var(--accent);color:var(--accent)">遮罩自测中 · 点击释义显示</span>' : "");
+    + (state.maskMode === "zh" ? '<span class="chip" style="border-color:var(--accent);color:var(--accent)">遮中文 · 看英忆中，点击揭晓</span>'
+       : state.maskMode === "en" ? '<span class="chip" style="border-color:var(--accent);color:var(--accent)">遮英文 · 看中忆英，点击揭晓</span>' : "");
 }
 function tabsHTML(el){
   const due = dueWords().length;
   el.innerHTML = tab("list","📖 词表阅读","")
     + tab("bank","⭐ 个人词库", bankWords().length)
     + tab("review","🔄 今日复习", due)
+    + tab("spell","✍️ 拼写","")
     + '<span class="spacer" style="flex:1"></span>'
     + '<button class="btn ghost btnHome">← 返回首页</button>';
   el.querySelectorAll(".tab").forEach(b => b.onclick = () => go(b.dataset.v));
@@ -616,22 +650,26 @@ function bindRows(root){
     b.title = on ? "移出个人词库" : "加入个人词库";
     refreshCounts();
   });
-  root.querySelectorAll(".c-mean.masked").forEach(d => d.onclick = () => {
-    const id = +d.dataset.mean; state.revealed.add(id); d.classList.remove("masked");
-  });
+
   root.querySelectorAll(".chk").forEach(c => c.onchange = () => {
     if (c.checked) state.selected.add(c.dataset.w); else state.selected.delete(c.dataset.w);
     batchInfo();
   });
   root.querySelectorAll(".row").forEach(r => r.onclick = ev => {
     if (ev.target.closest("button") || ev.target.closest("input")) return;
+    if (r.classList.contains("masked")) {                 // 自测中：点一下揭晓这一行
+      state.revealed.add(+r.dataset.id);
+      r.classList.remove("masked", "mask-zh", "mask-en");
+      return;
+    }
     if (state.batch) { const w = r.dataset.w; if (state.selected.has(w)) state.selected.delete(w); else state.selected.add(w);
       const c = r.querySelector(".chk"); if (c) c.checked = state.selected.has(w); batchInfo(); r.classList.toggle("sel", state.selected.has(w)); return; }
     if (store.settings.autoSpeak) speak(r.dataset.w);
   });
 }
 function refreshCounts(){ tabsHTML($("#tabs")); if (state.view === "bank") renderBank(); }
-function rerender(){ if (state.view === "bank") renderBank(); else if (state.view === "list") renderList(); else if (state.view === "review") renderReview(); }
+function rerender(){ if (state.view === "bank") renderBank(); else if (state.view === "list") renderList();
+  else if (state.view === "review") renderReview(); else if (state.view === "spell") renderSpell(); }
 
 function renderReview(){
   tabsHTML($("#tabs3"));
@@ -666,10 +704,13 @@ function renderReview(){
 function go(view, opts){
   state.view = view; state.revealed.clear(); state.selected.clear(); batchInfo();
   if (opts !== false) syncHash();
-  ["home","list","bank","review"].forEach(v => $("#v-"+v).hidden = (v !== view));
+  ["home","list","bank","review","spell"].forEach(v => $("#v-"+v).hidden = (v !== view));
+  const pb = $("#pagerBar");                      // 翻页条只在列表/词库视图出现
+  if (pb && view !== "list" && view !== "bank") pb.hidden = true;
   if (view === "list") renderList();
   else if (view === "bank") renderBank();
   else if (view === "review") renderReview();
+  else if (view === "spell") renderSpell();
   window.scrollTo(0,0);
 }
 function syncHash(){
@@ -678,7 +719,7 @@ function syncHash(){
   if (state.letter) p.set("letter", state.letter);
   if (state.q) p.set("q", state.q);
   if (state.hideBanked) p.set("hide", "1");
-  if (state.mask) p.set("mask", "1");
+  if (state.maskMode !== "off") p.set("mask", state.maskMode);
   if (state.sort !== "index") p.set("sort", state.sort);
   if (state.view !== "home") p.set("view", state.view);
   const s = p.toString();
@@ -691,7 +732,7 @@ function readHash(){
   if (p.get("letter")) state.letter = p.get("letter");
   if (p.get("q")) state.q = p.get("q");
   state.hideBanked = p.get("hide") === "1";
-  state.mask = p.get("mask") === "1";
+  const mv = p.get("mask"); if (mv) state.maskMode = (mv === "en") ? "en" : "zh";
   if (p.get("sort")) state.sort = p.get("sort");
   state.view = p.get("view") || "home";
 }
@@ -777,7 +818,7 @@ function currentAnchor(){
 }
 function buildResume(){
   return { at: Date.now(), view: state.view, deck: CUR, level: state.level, letter: state.letter, q: state.q,
-    sort: state.sort, page: state.page, pageSize: state.pageSize, bankLevel: state.bankLevel, hideBanked: state.hideBanked,
+    sort: state.sort, page: state.page, pageSize: state.pageSize, spellIdx: state.spellIdx, bankLevel: state.bankLevel, hideBanked: state.hideBanked,
     anchor: currentAnchor() };
 }
 function applyResume(r){
@@ -787,7 +828,8 @@ function applyResume(r){
   state.hideBanked = !!r.hideBanked;
   if (r.pageSize !== undefined && PAGE_SIZES.indexOf(r.pageSize) >= 0) state.pageSize = r.pageSize;
   state.page = Math.max(1, r.page || 1);
-  state.view = (r.view === "bank" || r.view === "review") ? r.view : "list";
+  state.spellIdx = Math.max(0, r.spellIdx || 0);
+  state.view = (r.view === "bank" || r.view === "review" || r.view === "spell") ? r.view : "list";
   return true;
 }
 let resumeTimer = null;
@@ -833,13 +875,15 @@ function restoreResume(){
   set("#qb", state.bankQ || "");
   go(state.view, false);
   requestAnimationFrame(() => {
-    if (state.pageSize) { window.scrollTo(0, 0); showResumeTip("第 " + state.page + " 页"); }
+    if (state.view === "spell") showResumeTip("第 " + (state.spellIdx + 1) + " 题");
+    else if (state.pageSize) { window.scrollTo(0, 0); showResumeTip("第 " + state.page + " 页"); }
     else if (r.anchor && scrollToAnchor(r.anchor)) showResumeTip(r.anchor);
   });
   return true;
 }
-function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checked = state.mask;
-  $("#swMask").classList.toggle("on", state.mask); $("#swMask2").classList.toggle("on", state.mask);
+function applyMaskUI(){
+  const a = $("#selMask"), b = $("#selMask2");
+  if (a) a.value = state.maskMode; if (b) b.value = state.maskMode;
   state.revealed.clear();
   if (state.view === "list") renderList(); else if (state.view === "bank") renderBank();
 }
@@ -852,7 +896,8 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
   letters.forEach(l => { const o = document.createElement("option"); o.value = l; o.textContent = "首字母 " + l.toUpperCase(); sel.appendChild(o); });
 
   readHash(); applyTheme();
-  $("#cbMask").checked = state.mask; $("#cbMask2").checked = state.mask;
+  if ($("#selMask")) $("#selMask").value = state.maskMode;
+  if ($("#selMask2")) $("#selMask2").value = state.maskMode;
   $("#cbHide").checked = state.hideBanked;
   $("#cbSort") && ($("#selSort").value = state.sort);
   $("#selLetter").value = state.letter;
@@ -873,9 +918,10 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
   $("#swSpeak").classList.toggle("on", !!store.settings.autoSpeak);
   $("#cbResume").checked = store.settings.resume !== false;
   $("#swResume").classList.toggle("on", store.settings.resume !== false);
-  $("#swMask").classList.toggle("on", state.mask);
-  $("#swMask2").classList.toggle("on", state.mask);
+
   $("#swHide").classList.toggle("on", state.hideBanked);
+  if (store.settings.maskMode) state.maskMode = store.settings.maskMode;
+  else if (store.settings.mask === true) state.maskMode = "zh";     // 兼容旧版本
   state.showEx = store.settings.ex !== false;
   syncExUI();
   if (!storageOK) { console.warn("localStorage 不可用，本次修改不会保存"); warnNoStorage(); }
@@ -912,8 +958,9 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
     if (!store.settings.resume) delete store.resume;
     save(true);
   };
-  const toggleMask = () => { state.mask = !state.mask; store.settings.mask = state.mask; save(); applyMaskUI(); syncHash(); };
-  $("#cbMask").onchange = toggleMask; $("#cbMask2").onchange = toggleMask;
+  const setMask = v => { state.maskMode = v; store.settings.maskMode = v; save(true); applyMaskUI(); syncHash(); };
+  if ($("#selMask")) $("#selMask").onchange = () => setMask($("#selMask").value);
+  if ($("#selMask2")) $("#selMask2").onchange = () => { setMask($("#selMask2").value); $("#selMask").value = state.maskMode; };
   $("#cbHide").onchange = () => { state.hideBanked = $("#cbHide").checked; $("#swHide").classList.toggle("on", state.hideBanked); state.page = 1; renderList(); syncHash(); };
   $("#cbEx").onchange = toggleEx;
   $("#cbBatch").onchange = () => { state.batch = $("#cbBatch").checked; $("#swBatch").classList.toggle("on", state.batch);
@@ -963,7 +1010,11 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
       if (inField) { ev.target.value = ""; if (ev.target.id === "q") { state.q = ""; renderList(); } if (ev.target.id === "qb") { state.bankQ = ""; renderBank(); } ev.target.blur(); return; }
       go("home"); return; }
     if (inField) return;
-    if (ev.key === "m") { toggleMask(); return; }
+    if (ev.key === "m") {                                   // m 键循环切换遮罩方向
+      const seq = ["off", "zh", "en"];
+      setMask(seq[(seq.indexOf(state.maskMode) + 1) % 3]);
+      return;
+    }
     if (ev.key === "e") { toggleEx(); return; }
     if (ev.key === "1" || ev.key === "2" || ev.key === "3") { state.level = ["A","B","C"][+ev.key-1]; state.page = 1;
       if (state.view !== "list" && state.view !== "bank") go("list", false); else renderList(); syncHash(); }
@@ -1164,6 +1215,8 @@ function switchDeck(id){
   useDeck(id);
   state.level = "ALL"; state.letter = ""; state.page = 1;
   state.revealed.clear(); state.selected.clear();
+  state.spellIdx = 0; state.spellOrder = null; state.spellStat = { right:0, wrong:0 };
+  state.spellResult = null; state.spellHintN = 0; state.spellGiven = "";
   renderDeckUI();
   if (state.view === "home") renderHome(); else rerender();
   batchInfo();
@@ -1215,6 +1268,107 @@ function renderHome(){
   if ($("#selDeck")) $("#selDeck").onchange = () => switchDeck($("#selDeck").value);
 })();
 
+/* ================= 拼写自测：看中文，默写英文 ================= */
+function spellList(){
+  const base = baseList();
+  if (!state.spellOrder) return base;
+  const map = Object.create(null); base.forEach(e => map[e.word] = e);
+  return state.spellOrder.map(w => map[w]).filter(Boolean);
+}
+function spellReset(shuffle){
+  state.spellIdx = 0; state.spellStat = { right:0, wrong:0 };
+  state.spellResult = null; state.spellHintN = 0; state.spellGiven = "";
+  if (shuffle) {
+    const arr = baseList().map(e => e.word);
+    for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+    state.spellOrder = arr;
+  } else state.spellOrder = null;
+  renderSpell(); scheduleResumeSave();
+}
+function spellBlank(text, word){
+  if (!text) return "";
+  const re = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "ig");
+  return esc(text.replace(re, "＿＿＿"));
+}
+function spellCheck(){
+  const list = spellList(), e = list[state.spellIdx];
+  const inp = $("#spIn"); if (!e || !inp) return;
+  const v = (inp.value || "").trim().toLowerCase().replace(/\s+/g, " ");
+  if (!v) { inp.focus(); return; }
+  state.spellGiven = inp.value;
+  if (v === e.word.trim().toLowerCase()) {
+    state.spellResult = "ok"; state.spellStat.right++;
+    renderSpell();
+    const mine = state.spellIdx;
+    setTimeout(() => { if (state.view === "spell" && state.spellResult === "ok" && state.spellIdx === mine) spellNext(); }, 900);
+  } else {
+    state.spellResult = "bad"; state.spellStat.wrong++;
+    if (store.settings.spellBank !== false) bankAdd(e.word, e.level, e);
+    renderSpell();
+  }
+}
+function spellNext(){
+  state.spellIdx++; state.spellResult = null; state.spellHintN = 0; state.spellGiven = "";
+  renderSpell(); scheduleResumeSave();
+}
+function renderSpell(){
+  tabsHTML($("#tabs4"));
+  const list = spellList(), box = $("#spellBox");
+  if (!box) return;
+  if (!list.length) { box.innerHTML = emptyHTML("没有可拼写的单词", "换个筛选条件再看看"); return; }
+  if (state.spellIdx >= list.length) {
+    const t = state.spellStat.right + state.spellStat.wrong;
+    const rate = t ? Math.round(state.spellStat.right / t * 100) : 0;
+    box.innerHTML = '<div class="scard"><div class="szh">🎉 本轮拼写完成</div>'
+      + '<div class="smeta">共 ' + t + ' 词 · 正确 <b style="color:var(--b)">' + state.spellStat.right + '</b> · 错误 <b style="color:#e5484d">'
+      + state.spellStat.wrong + '</b> · 正确率 ' + rate + '%</div>'
+      + '<div class="srow"><button class="btn" id="spAgain" style="letter-spacing:0">再来一轮</button>'
+      + '<button class="btn ghost" id="spShuffle2">乱序重来</button>'
+      + '<button class="btn ghost" id="spBank">去个人词库看看</button></div></div>';
+    $("#spAgain").onclick = () => spellReset(false);
+    $("#spShuffle2").onclick = () => spellReset(true);
+    $("#spBank").onclick = () => go("bank");
+    return;
+  }
+  const e = list[state.spellIdx], res = state.spellResult;
+  const hint = state.spellHintN > 0 ? e.word.slice(0, Math.min(2 * state.spellHintN, e.word.length)) : "";
+  const ex = EX[e.word] ? EX[e.word].en : "";
+  box.innerHTML = '<div class="scard">'
+    + '<div class="smeta">第 ' + (state.spellIdx + 1) + ' / ' + list.length + ' 词　·　✅ ' + state.spellStat.right + '　❌ ' + state.spellStat.wrong
+      + '　·　' + (LEVEL_INFO[e.level] ? LEVEL_INFO[e.level].label + ' · ' : '') + (state.spellOrder ? "乱序" : "顺序") + '</div>'
+    + '<div class="szh">' + esc(e.meaning) + '</div>'
+    + (ex ? '<div class="sex">' + spellBlank(ex, e.word) + '</div>' : '')
+    + (res ? '<div class="sword"' + (res === "bad" ? ' style="color:#e5484d"' : '') + '>' + esc(e.word)
+        + ' <button class="spk" data-spk="' + esc(e.word) + '" title="朗读">🔊</button></div>' : '')
+    + '<input class="sp' + (res === "ok" ? " ok" : res === "bad" ? " bad" : "") + '" id="spIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" '
+      + 'value="' + esc(state.spellGiven) + '" placeholder="' + (hint ? hint + "…（共 " + e.word.length + " 个字母）" : "在这里拼出这个单词，回车提交") + '">'
+    + '<div class="sfeed' + (res === "ok" ? " ok" : res === "bad" ? " bad" : "") + '" id="spFeed">'
+      + (res === "ok" ? "✅ 拼对了！" : res === "bad" ? "❌ 正确拼写是 <b>" + esc(e.word) + "</b>"
+          + (store.settings.spellBank !== false ? "　（已加入个人词库）" : "") : "") + '</div>'
+    + '<div class="srow">'
+      + (res ? '<button class="btn" id="spNext" style="letter-spacing:0">下一题 →</button>'
+             : '<button class="btn" id="spCheck" style="letter-spacing:0">检查</button>')
+      + '<button class="btn ghost" id="spHint">提示</button>'
+      + '<button class="btn ghost" id="spSkip">跳过</button>'
+      + '<button class="btn ghost" id="spShuffle">乱序重来</button>'
+    + '</div>'
+    + '<div class="smeta" style="margin:12px 0 0"><label class="sw" style="display:inline-flex"><input type="checkbox" id="spAuto"'
+      + (store.settings.spellBank !== false ? " checked" : "") + '> 答错的词自动加入个人词库</label></div>'
+    + '</div>';
+  const inp = $("#spIn");
+  if (inp) {
+    inp.onkeydown = ev => { if (ev.key === "Enter") { ev.preventDefault(); if (state.spellResult) spellNext(); else spellCheck(); } };
+    if (!state.spellResult) inp.focus();
+  }
+  const spk = box.querySelector("[data-spk]"); if (spk) spk.onclick = () => speak(spk.dataset.spk);
+  if ($("#spCheck")) $("#spCheck").onclick = spellCheck;
+  if ($("#spNext")) $("#spNext").onclick = spellNext;
+  $("#spSkip").onclick = () => { if (!state.spellResult) { state.spellStat.wrong++; if (store.settings.spellBank !== false) bankAdd(e.word, e.level, e); } spellNext(); };
+  $("#spHint").onclick = () => { state.spellHintN++; const v = inp ? inp.value : ""; renderSpell(); const i2 = $("#spIn"); if (i2) { i2.value = v; i2.focus(); } };
+  $("#spShuffle").onclick = () => spellReset(true);
+  $("#spAuto").onchange = () => { store.settings.spellBank = $("#spAuto").checked; save(true); };
+}
+
 /* ================= 演示数据 / 自检 ================= */
 function seedDemo(){
   store.bank = {};
@@ -1263,11 +1417,36 @@ function selfTest(){
     const j = JSON.parse(JSON.stringify({app:"nju-vocab-tool", bank:store.bank}));
     ok("导出 JSON 结构", !!j.bank["abstract"] && j.bank["abstract"].level === "A");
     const three = baseList().slice(0, 3);
-    state.mask = true; state.revealed.clear();
+    state.maskMode = "zh"; state.revealed.clear();
     const mh = rowsHTML(three, three);
-    ok("遮罩渲染 masked", mh.includes("c-mean masked"));
+    ok("遮中文：整行打上遮罩类", mh.includes("masked mask-zh"));
+    state.maskMode = "en"; state.revealed.clear();
+    const me = rowsHTML(three, three);
+    ok("遮英文：整行按方向打遮罩", me.includes("masked mask-en"));
+    state.revealed.add(three[0].id);
+    ok("已揭晓的那一行不再遮罩", (rowsHTML(three, three).match(/masked mask-en/g) || []).length === 2,
+      (rowsHTML(three, three).match(/masked mask-en/g) || []).length);
+    state.revealed.clear();
+    state.maskMode = "off";
+    ok("关掉遮罩后不带遮罩类", !rowsHTML(three, three).includes("masked"));
+    // ---- 拼写自测 ----
+    state.level = "ALL"; state.q = ""; state.letter = ""; state.page = 1; state.pageSize = 50;
+    state.spellOrder = null; state.spellIdx = 0; state.spellStat = { right:0, wrong:0 }; state.spellResult = null;
+    const sl = spellList();
+    ok("拼写：题源＝当前筛选结果", sl.length === ALL.length, sl.length);
+    ok("拼写：例句里的答案被挖空", (function () {
+      const e = sl.filter(x => x.en)[0] || sl[0];
+      return !e.en || spellBlank(e.en, e.word).indexOf("＿＿＿") >= 0;
+    })());
+    state.spellOrder = sl.slice(0, 5).map(x => x.word).reverse();
+    ok("拼写：可按自定义顺序出题", spellList()[0].word === state.spellOrder[0], spellList()[0].word);
+    state.spellOrder = null;
+    state.spellIdx = 0;
+    spellNext();
+    ok("拼写：下一题会前进", state.spellIdx === 1 && state.spellResult === null, state.spellIdx);
+    state.spellIdx = 0; state.spellStat = { right:0, wrong:0 };
     ok("一次渲染 3 行", (mh.match(/class="row/g) || []).length === 3);
-    state.mask = false; state.batch = false;
+    state.maskMode = "off"; state.batch = false;
     ok("例句已内嵌 570 条", Object.keys(EX).length === 570, Object.keys(EX).length);
     ok("例句可按单词索引", new Set(ALL.filter(x => EX[x.word]).map(x => x.word)).size === 570,
       new Set(ALL.filter(x => EX[x.word]).map(x => x.word)).size);
