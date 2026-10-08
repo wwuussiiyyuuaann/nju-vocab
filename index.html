@@ -169,6 +169,9 @@ footer.foot{text-align:center;color:var(--muted);font-size:12.5px;padding:28px 0
 kbd{background:var(--card2);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;font-size:12px}
 .warn{margin:0 0 12px;padding:10px 14px;border-radius:12px;border:1px solid #f0c36d;background:#fff8e6;color:#7a5a12;font-size:13.5px;line-height:1.7}
 html[data-theme="dark"] .warn{border-color:#6b5a2a;background:#2a2413;color:#e8d9a8}
+.resumetip{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:36;
+  background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:12px;
+  padding:8px 12px;font-size:13px;color:var(--text);max-width:92vw;display:flex;align-items:center;gap:6px}
 .ioshint{margin:0 0 12px;padding:10px 14px;border-radius:12px;border:1px solid #a9c6ee;background:#eef4fd;color:#27456e;font-size:13.5px;line-height:1.8}
 html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#c7dbf7}
 @media (max-width:720px){
@@ -273,7 +276,7 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     共 3,086 词 · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
     数据来源：《南京大学大学英语通用词汇》 · 本工具为个人学习用途的整理版本<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v3 · 2026-10-08 13:26 · 例句 570 词</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v3 · 2026-10-08 13:31 · 例句 570 词</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -298,6 +301,8 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <label class="sw" id="swSpeak"><input type="checkbox" id="cbSpeak"></label></div>
   <div class="setrow"><div><div class="lbl">释义遮罩（自测模式）</div><div class="sub">盖住中文，点击才显示</div></div>
     <label class="sw" id="swMask2"><input type="checkbox" id="cbMask2"></label></div>
+  <div class="setrow"><div><div class="lbl">打开时回到上次位置</div><div class="sub">自动记住你看到哪个词，下次打开直接接上；顶部会提示，可一键回到顶部</div></div>
+    <label class="sw" id="swResume"><input type="checkbox" id="cbResume"></label></div>
   <div class="hr"></div>
   <div class="setrow"><div><div class="lbl">艾宾浩斯复习间隔</div><div class="sub">1 · 2 · 4 · 7 · 15 · 30 天</div></div></div>
   <div class="setrow"><div><div class="lbl">个人词库</div><div class="sub" id="setBankInfo">0 词</div></div></div>
@@ -356,10 +361,10 @@ const entryOf = w => BY_LW[((store.bank[w] || {}).level || "") + "|" + w] || BY_
 const KEY = "nju-vocab-tool-v1";
 const INTERVALS = [1,2,4,7,15,30];
 let storageOK = true;
-let store = { bank:{}, tomb:{}, settings:{theme:"light", autoSpeak:false, mask:false, ex:true} };
+let store = { bank:{}, tomb:{}, settings:{theme:"light", autoSpeak:false, mask:false, ex:true, resume:true} };
 try {
   const raw = localStorage.getItem(KEY);
-  if (raw) { const o = JSON.parse(raw); store.bank = o.bank||{}; store.tomb = o.tomb||{}; Object.assign(store.settings, o.settings||{}); }
+  if (raw) { const o = JSON.parse(raw); store.bank = o.bank||{}; store.tomb = o.tomb||{}; if (o.resume) store.resume = o.resume; Object.assign(store.settings, o.settings||{}); }
 } catch(e){ storageOK = false; }
 try { localStorage.setItem(KEY + "__probe", "1"); localStorage.removeItem(KEY + "__probe"); } catch(e){ storageOK = false; }
 function save(skipSync){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){ storageOK=false; } if (!skipSync) scheduleSync(); }
@@ -676,6 +681,90 @@ function toggleEx(){
   store.settings.ex = state.showEx;
   save(true); syncExUI(); rerender();
 }
+
+/* ---- 断点续学：记住上次看到哪儿，下次打开自动回到那个词 ---- */
+const RESUME_MAX_AGE = 60 * 24 * 60 * 60 * 1000;   // 超过 60 天就不续了
+function findRowEl(word){
+  const rows = document.querySelectorAll("#rows .row, #rowsBank .row");
+  for (const el of rows) if (el.dataset.w === word) return el;
+  return null;
+}
+function currentAnchor(){
+  const rows = document.querySelectorAll("#rows .row, #rowsBank .row");
+  const top = 100;                                  // 让开吸顶栏
+  for (const el of rows) {
+    const b = el.getBoundingClientRect();
+    if (b.bottom > top) return el.dataset.w;
+  }
+  return null;
+}
+function buildResume(){
+  return { at: Date.now(), view: state.view, level: state.level, letter: state.letter, q: state.q,
+    sort: state.sort, shown: state.shown, bankLevel: state.bankLevel, hideBanked: state.hideBanked,
+    anchor: currentAnchor() };
+}
+function applyResume(r){
+  if (!r) return false;
+  state.level = r.level || "ALL"; state.letter = r.letter || ""; state.q = r.q || "";
+  state.sort = r.sort || "index"; state.bankLevel = r.bankLevel || "ALL";
+  state.hideBanked = !!r.hideBanked;
+  state.shown = Math.max(CHUNK, r.shown || CHUNK);
+  state.view = (r.view === "bank" || r.view === "review") ? r.view : "list";
+  return true;
+}
+let resumeTimer = null;
+function scheduleResumeSave(){
+  if (resumeTimer || !store.settings.resume) return;
+  resumeTimer = setTimeout(() => {
+    resumeTimer = null;
+    if (!store.settings.resume) return;
+    store.resume = buildResume();
+    save(true);                                     // 只存本地，不触发云同步
+  }, 700);
+}
+function scrollToAnchor(word){
+  const el = findRowEl(word);
+  if (!el) return false;
+  window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.scrollY - 96));
+  return true;
+}
+function showResumeTip(word){
+  const old = $("#resumeTip"); if (old) old.remove();
+  const d = document.createElement("div");
+  d.id = "resumeTip"; d.className = "resumetip";
+  d.innerHTML = '<span>已回到上次位置' + (word ? '：<b>' + esc(word) + '</b>' : '') + '</span>'
+    + '<button class="btn ghost" style="padding:3px 10px;font-size:12.5px">回到顶部</button>';
+  d.querySelector("button").onclick = () => { window.scrollTo(0, 0); d.remove(); };
+  document.body.appendChild(d);
+  setTimeout(() => { if (d.parentNode) d.remove(); }, 6000);
+}
+function restoreResume(){
+  const r = store.resume;
+  if (!store.settings.resume || !r) return false;
+  if (Date.now() - (r.at || 0) > RESUME_MAX_AGE) return false;
+  if (!r.anchor && r.view === "home") return false;          // 上次就在首页，不必续
+  // 关掉浏览器自带的滚动恢复，避免和我们的定位打架
+  if ("scrollRestoration" in history) { try { history.scrollRestoration = "manual"; } catch(e){} }
+  applyResume(r);
+  // 让界面控件与恢复出来的筛选状态一致
+  const set = (sel, v) => { const el = $(sel); if (el) el.value = v; };
+  set("#selLetter", state.letter); set("#selSort", state.sort); set("#q", state.q);
+  const cb = $("#cbHide"); if (cb) cb.checked = state.hideBanked;
+  const sw = $("#swHide"); if (sw) sw.classList.toggle("on", state.hideBanked);
+  set("#qb", state.bankQ || "");
+  // 锚点行必须已经渲染出来
+  if (r.anchor && state.view === "list") {
+    const idx = baseList().findIndex(e => e.word === r.anchor);
+    if (idx >= 0) state.shown = Math.max(state.shown, idx + 5);
+  }
+  go(state.view, false);
+  if (r.anchor) {
+    requestAnimationFrame(() => {
+      if (scrollToAnchor(r.anchor)) showResumeTip(r.anchor);
+    });
+  }
+  return true;
+}
 function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checked = state.mask;
   $("#swMask").classList.toggle("on", state.mask); $("#swMask2").classList.toggle("on", state.mask);
   state.revealed.clear();
@@ -698,6 +787,8 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
   $("#q").value = state.q;
   $("#cbSpeak").checked = !!store.settings.autoSpeak;
   $("#swSpeak").classList.toggle("on", !!store.settings.autoSpeak);
+  $("#cbResume").checked = store.settings.resume !== false;
+  $("#swResume").classList.toggle("on", store.settings.resume !== false);
   $("#swMask").classList.toggle("on", state.mask);
   $("#swMask2").classList.toggle("on", state.mask);
   $("#swHide").classList.toggle("on", state.hideBanked);
@@ -705,7 +796,21 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
   syncExUI();
   if (!storageOK) { console.warn("localStorage 不可用，本次修改不会保存"); warnNoStorage(); }
 
-  go(state.view, false);
+  // 打开时：只有 URL 里带了「真正的筛选参数」才优先按参数走；
+  // 单纯 #view=list（应用自己写的）不阻止断点续学。
+  const hp = new URLSearchParams((location.hash || "").replace(/^#/, ""));
+  const explicit = ["level", "letter", "q", "mask", "sort", "hide"].some(k => hp.has(k));
+  if (explicit || !restoreResume()) go(state.view, false);
+  // 不让浏览器自带的滚动恢复跟我们的定位打架
+  if (store.settings.resume && "scrollRestoration" in history) {
+    try { history.scrollRestoration = "manual"; } catch(e){}
+  }
+
+  // 记录进度：滚动时节流保存；切到后台或关闭时再存一次（手机端更可靠）
+  window.addEventListener("scroll", scheduleResumeSave, { passive: true });
+  const saveNow = () => { if (store.settings.resume) { store.resume = buildResume(); save(true); } };
+  window.addEventListener("pagehide", saveNow);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") saveNow(); });
 
   // 首页
   $("#btnEnter").onclick = () => go("list");
@@ -717,6 +822,12 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
   $("#cbDark").onchange = () => { store.settings.theme = $("#cbDark").checked ? "dark" : "light"; save(); applyTheme(); };
   $("#cbSpeak").onchange = () => { store.settings.autoSpeak = $("#cbSpeak").checked; save();
     $("#swSpeak").classList.toggle("on", store.settings.autoSpeak); };
+  $("#cbResume").onchange = () => {
+    store.settings.resume = $("#cbResume").checked;
+    $("#swResume").classList.toggle("on", store.settings.resume);
+    if (!store.settings.resume) delete store.resume;
+    save(true);
+  };
   const toggleMask = () => { state.mask = !state.mask; store.settings.mask = state.mask; save(); applyMaskUI(); syncHash(); };
   $("#cbMask").onchange = toggleMask; $("#cbMask2").onchange = toggleMask;
   $("#cbHide").onchange = () => { state.hideBanked = $("#cbHide").checked; $("#swHide").classList.toggle("on", state.hideBanked); state.shown = CHUNK; renderList(); syncHash(); };
@@ -1028,6 +1139,27 @@ function selfTest(){
     state.level = "A"; state.q = "abandon";
     ok("例句内容可被搜索命中", /class="ex-en"/.test(rowsHTML(baseList().slice(0, 1), baseList().slice(0, 1))));
     state.level = "ALL"; state.q = "";
+    // ---- 断点续学 ----
+    const keep = { level:state.level, letter:state.letter, q:state.q, sort:state.sort,
+      view:state.view, shown:state.shown, hideBanked:state.hideBanked, bankLevel:state.bankLevel };
+    state.level = "A"; state.letter = "c"; state.q = "con"; state.sort = "alpha";
+    state.hideBanked = true; state.shown = 321; state.view = "list";
+    const rr = buildResume();
+    state.level = "ALL"; state.letter = ""; state.q = ""; state.sort = "index";
+    state.hideBanked = false; state.shown = CHUNK; state.view = "home";
+    applyResume(rr);
+    ok("断点续学：筛选条件可还原", state.level === "A" && state.letter === "c" && state.q === "con" && state.sort === "alpha" && state.hideBanked,
+      state.level + "/" + state.letter + "/" + state.q + "/" + state.sort);
+    ok("断点续学：展开进度可还原", state.shown === 321, state.shown);
+    ok("断点续学：视图可还原", state.view === "list", state.view);
+    applyResume({ view:"review" });
+    ok("断点续学：复习页也能还原", state.view === "review", state.view);
+    ok("断点续学：空记录不会误触发", applyResume(null) === false);
+    store.resume = { at: Date.now(), view:"list", anchor:"abandon", shown:200, level:"A" };
+    save(true);
+    const rawBack = JSON.parse(localStorage.getItem(KEY) || "{}");
+    ok("断点记录写盘可读回（曾漏存此项）", !!rawBack.resume && rawBack.resume.anchor === "abandon", (rawBack.resume || {}).anchor);
+    Object.assign(state, keep);
     ok("默认不出复选框", !rowsHTML(three, three).includes('type="checkbox"'));
     state.batch = true;
     ok("批量模式出复选框", rowsHTML(three, three).includes('type="checkbox"'));
