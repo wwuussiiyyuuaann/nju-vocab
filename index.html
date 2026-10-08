@@ -132,7 +132,13 @@ html[data-theme="dark"] .ex-en{color:#c3d0e2}
 .star:hover{background:var(--accent-soft)}
 .star.on{color:#f0a500}
 .chk{width:16px;height:16px;accent-color:var(--accent)}
-.more{padding:14px;text-align:center;color:var(--muted);font-size:13.5px}
+.pagerbar{position:fixed;left:0;right:0;bottom:0;z-index:34;background:var(--card);border-top:1px solid var(--line);
+  box-shadow:0 -6px 20px rgba(0,0,0,.08);padding:8px 12px calc(8px + env(safe-area-inset-bottom))}
+.pagerbar .in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.pagerbar .pgbtn{padding:8px 14px;font-weight:600}
+.pagerbar .pgbtn[disabled]{opacity:.4}
+.pgtxt{font-size:13px;color:var(--muted);text-align:center;flex:1}
+.pgtxt b{color:var(--text)}
 .empty{padding:48px 16px;text-align:center;color:var(--muted)}
 .empty .big{font-size:32px;margin-bottom:8px}
 
@@ -238,6 +244,7 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
           <button data-lv="B">B 级</button><button data-lv="C">C 级</button>
         </div>
         <select id="selLetter"><option value="">首字母 全部</option></select>
+        <select id="selPage" title="每页显示多少词"></select>
         <select id="selSort"><option value="index">按词表顺序</option><option value="alpha">按字母排序</option><option value="len">按单词长度</option></select>
       </div>
       <div class="tline">
@@ -252,7 +259,6 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <div class="list">
       <div class="lhead"><div class="c-no">序号</div><div>单词</div><div>释义</div><div>级别</div><div style="text-align:right">操作</div></div>
       <div id="rows"></div>
-      <div class="more" id="more" hidden></div>
     </div>
   </section>
 
@@ -277,7 +283,6 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <div class="list">
       <div class="lhead"><div class="c-no">序号</div><div>单词</div><div>释义</div><div>级别</div><div style="text-align:right">操作</div></div>
       <div id="rowsBank"></div>
-      <div class="more" id="moreBank" hidden></div>
     </div>
   </section>
 
@@ -290,10 +295,11 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-08 13:40 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-08 13:58 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
+<div class="pagerbar" id="pagerBar" hidden></div>
 <div class="batchbar" id="batchbar">
   <div class="in">
     <span id="batchInfo">已勾选 0 个单词</span>
@@ -421,10 +427,11 @@ const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 
 /* ================= 状态 ================= */
-const CHUNK = 150;
+const PAGE_SIZES = [20, 30, 50, 100, 200, 0];        // 0 表示「全部」
+const pageCount = (total, size) => (size ? Math.max(1, Math.ceil(total / size)) : 1);
 const state = {
   view:"home", level:"ALL", letter:"", q:"", hideBanked:false, mask:false, batch:false, showEx:true,
-  sort:"index", shown:CHUNK, bankLevel:"ALL", bankQ:"", selected:new Set(), revealed:new Set(),
+  sort:"index", page:1, pageSize:50, bankLevel:"ALL", bankQ:"", selected:new Set(), revealed:new Set(),
   reviewHide:false, reviewIndex:0
 };
 const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
@@ -519,12 +526,37 @@ function rowsHTML(list, slice){
       + '</div>';
   }).join("");
 }
-function moreHTML(total, shown, id){
-  const m = $("#"+id);
-  if (shown >= total) { m.hidden = true; return; }
-  m.hidden = false;
-  m.innerHTML = '已显示 <b>'+shown+'</b> / '+total+' 条 · <button class="btn ghost" id="btnMoreMore">显示更多</button>';
-  $("#btnMoreMore").onclick = () => { state.shown += CHUNK*2; renderList(); };
+/* 分页：按 state.pageSize 切出一页；0 表示不分页 */
+function pageOf(list){
+  const size = state.pageSize;
+  const total = list.length;
+  const pages = pageCount(total, size);
+  if (state.page > pages) state.page = pages;
+  if (state.page < 1) state.page = 1;
+  const from = size ? (state.page - 1) * size : 0;
+  const to = size ? Math.min(total, from + size) : total;
+  return { slice:list.slice(from, to), pages, from, to, total };
+}
+function renderPager(p){
+  const bar = $("#pagerBar");
+  if (!bar) return;
+  if (p.pages <= 1 || state.batch) { bar.hidden = true; return; }
+  bar.hidden = false;
+  bar.innerHTML = '<div class="in">'
+    + '<button class="btn ghost pgbtn" id="pgPrev"' + (state.page <= 1 ? ' disabled' : '') + '>← 上一页</button>'
+    + '<span class="pgtxt">第 <b>' + state.page + '</b> / ' + p.pages + ' 页 · 本页 ' + (p.to - p.from) + ' 词 · 共 ' + p.total + ' 词</span>'
+    + '<button class="btn ghost pgbtn" id="pgNext"' + (state.page >= p.pages ? ' disabled' : '') + '>下一页 →</button>'
+    + '</div>';
+  const prev = $("#pgPrev"), next = $("#pgNext");
+  if (prev) prev.onclick = () => gotoPage(state.page - 1);
+  if (next) next.onclick = () => gotoPage(state.page + 1);
+}
+function gotoPage(n){
+  const total = state.view === "bank" ? bankList().length : baseList().length;
+  state.page = Math.min(Math.max(1, n), pageCount(total, state.pageSize));
+  window.scrollTo(0, 0);
+  rerender();
+  scheduleResumeSave();
 }
 function chipsHTML(el, list){
   const total = ALL.length, bank = bankWords().length;
@@ -551,8 +583,9 @@ function tabsHTML(el){
 
 function renderList(){
   const list = baseList();
-  $("#rows").innerHTML = list.length ? rowsHTML(list, list.slice(0, state.shown)) : emptyHTML();
-  moreHTML(list.length, state.shown, "more");
+  const p = pageOf(list);
+  $("#rows").innerHTML = list.length ? rowsHTML(list, p.slice) : emptyHTML();
+  renderPager(p);
   chipsHTML($("#chips"), list);
   tabsHTML($("#tabs"));
   const fl = $("#segLevel"); $$("#segLevel button").forEach(b => b.classList.toggle("on", b.dataset.lv === state.level));
@@ -560,8 +593,9 @@ function renderList(){
 }
 function renderBank(){
   const list = bankList();
-  $("#rowsBank").innerHTML = list.length ? rowsHTML(list, list.slice(0, state.shown)) : emptyHTML("个人词库还是空的","在「词表阅读」里点 ☆ 就能把单词收进来");
-  moreHTML(list.length, state.shown, "moreBank");
+  const p = pageOf(list);
+  $("#rowsBank").innerHTML = list.length ? rowsHTML(list, p.slice) : emptyHTML("个人词库还是空的","在「词表阅读」里点 ☆ 就能把单词收进来");
+  renderPager(p);
   chipsHTML($("#chips2"), list);
   tabsHTML($("#tabs2"));
   $$("#segBankLv button").forEach(b => b.classList.toggle("on", b.dataset.lv === state.bankLevel));
@@ -630,7 +664,7 @@ function renderReview(){
 
 /* ================= 视图切换 ================= */
 function go(view, opts){
-  state.view = view; state.shown = CHUNK; state.revealed.clear(); state.selected.clear(); batchInfo();
+  state.view = view; state.revealed.clear(); state.selected.clear(); batchInfo();
   if (opts !== false) syncHash();
   ["home","list","bank","review"].forEach(v => $("#v-"+v).hidden = (v !== view));
   if (view === "list") renderList();
@@ -743,7 +777,7 @@ function currentAnchor(){
 }
 function buildResume(){
   return { at: Date.now(), view: state.view, deck: CUR, level: state.level, letter: state.letter, q: state.q,
-    sort: state.sort, shown: state.shown, bankLevel: state.bankLevel, hideBanked: state.hideBanked,
+    sort: state.sort, page: state.page, pageSize: state.pageSize, bankLevel: state.bankLevel, hideBanked: state.hideBanked,
     anchor: currentAnchor() };
 }
 function applyResume(r){
@@ -751,7 +785,8 @@ function applyResume(r){
   state.level = r.level || "ALL"; state.letter = r.letter || ""; state.q = r.q || "";
   state.sort = r.sort || "index"; state.bankLevel = r.bankLevel || "ALL";
   state.hideBanked = !!r.hideBanked;
-  state.shown = Math.max(CHUNK, r.shown || CHUNK);
+  if (r.pageSize !== undefined && PAGE_SIZES.indexOf(r.pageSize) >= 0) state.pageSize = r.pageSize;
+  state.page = Math.max(1, r.page || 1);
   state.view = (r.view === "bank" || r.view === "review") ? r.view : "list";
   return true;
 }
@@ -796,17 +831,11 @@ function restoreResume(){
   const cb = $("#cbHide"); if (cb) cb.checked = state.hideBanked;
   const sw = $("#swHide"); if (sw) sw.classList.toggle("on", state.hideBanked);
   set("#qb", state.bankQ || "");
-  // 锚点行必须已经渲染出来
-  if (r.anchor && state.view === "list") {
-    const idx = baseList().findIndex(e => e.word === r.anchor);
-    if (idx >= 0) state.shown = Math.max(state.shown, idx + 5);
-  }
   go(state.view, false);
-  if (r.anchor) {
-    requestAnimationFrame(() => {
-      if (scrollToAnchor(r.anchor)) showResumeTip(r.anchor);
-    });
-  }
+  requestAnimationFrame(() => {
+    if (state.pageSize) { window.scrollTo(0, 0); showResumeTip("第 " + state.page + " 页"); }
+    else if (r.anchor && scrollToAnchor(r.anchor)) showResumeTip(r.anchor);
+  });
   return true;
 }
 function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checked = state.mask;
@@ -828,6 +857,17 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
   $("#cbSort") && ($("#selSort").value = state.sort);
   $("#selLetter").value = state.letter;
   $("#selSort").value = state.sort;
+  state.pageSize = (PAGE_SIZES.indexOf(store.settings.pageSize) >= 0) ? store.settings.pageSize : 50;
+  const sp = $("#selPage");
+  if (sp) {
+    sp.innerHTML = PAGE_SIZES.map(n => '<option value="' + n + '">' + (n ? "每页 " + n + " 词" : "每页 全部") + '</option>').join("");
+    sp.value = String(state.pageSize);
+    sp.onchange = () => {
+      state.pageSize = parseInt(sp.value, 10) || 0;
+      store.settings.pageSize = state.pageSize;
+      state.page = 1; save(true); renderList(); syncHash();
+    };
+  }
   $("#q").value = state.q;
   $("#cbSpeak").checked = !!store.settings.autoSpeak;
   $("#swSpeak").classList.toggle("on", !!store.settings.autoSpeak);
@@ -874,21 +914,21 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
   };
   const toggleMask = () => { state.mask = !state.mask; store.settings.mask = state.mask; save(); applyMaskUI(); syncHash(); };
   $("#cbMask").onchange = toggleMask; $("#cbMask2").onchange = toggleMask;
-  $("#cbHide").onchange = () => { state.hideBanked = $("#cbHide").checked; $("#swHide").classList.toggle("on", state.hideBanked); state.shown = CHUNK; renderList(); syncHash(); };
+  $("#cbHide").onchange = () => { state.hideBanked = $("#cbHide").checked; $("#swHide").classList.toggle("on", state.hideBanked); state.page = 1; renderList(); syncHash(); };
   $("#cbEx").onchange = toggleEx;
   $("#cbBatch").onchange = () => { state.batch = $("#cbBatch").checked; $("#swBatch").classList.toggle("on", state.batch);
     state.selected.clear(); batchInfo(); renderList(); };
 
   // 筛选
-  $$("#segLevel button").forEach(b => b.onclick = () => { state.level = b.dataset.lv; state.shown = CHUNK; renderList(); syncHash(); });
-  $$("#segBankLv button").forEach(b => b.onclick = () => { state.bankLevel = b.dataset.lv; state.shown = CHUNK; renderBank(); });
-  $("#selLetter").onchange = () => { state.letter = $("#selLetter").value; state.shown = CHUNK; renderList(); syncHash(); };
-  $("#selSort").onchange = () => { state.sort = $("#selSort").value; state.shown = CHUNK; renderList(); syncHash(); };
+  $$("#segLevel button").forEach(b => b.onclick = () => { state.level = b.dataset.lv; state.page = 1; renderList(); syncHash(); });
+  $$("#segBankLv button").forEach(b => b.onclick = () => { state.bankLevel = b.dataset.lv; state.page = 1; renderBank(); });
+  $("#selLetter").onchange = () => { state.letter = $("#selLetter").value; state.page = 1; renderList(); syncHash(); };
+  $("#selSort").onchange = () => { state.sort = $("#selSort").value; state.page = 1; renderList(); syncHash(); };
   let qt = null;
-  $("#q").oninput = () => { clearTimeout(qt); qt = setTimeout(() => { state.q = $("#q").value; state.shown = CHUNK; renderList(); syncHash(); }, 120); };
-  $("#qb").oninput = () => { clearTimeout(qt); qt = setTimeout(() => { state.bankQ = $("#qb").value; state.shown = CHUNK; renderBank(); }, 120); };
+  $("#q").oninput = () => { clearTimeout(qt); qt = setTimeout(() => { state.q = $("#q").value; state.page = 1; renderList(); syncHash(); }, 120); };
+  $("#qb").oninput = () => { clearTimeout(qt); qt = setTimeout(() => { state.bankQ = $("#qb").value; state.page = 1; renderBank(); }, 120); };
   $("#btnClearFilter").onclick = () => {
-    state.level = "ALL"; state.letter = ""; state.q = ""; state.hideBanked = false; state.sort = "index"; state.shown = CHUNK;
+    state.level = "ALL"; state.letter = ""; state.q = ""; state.hideBanked = false; state.sort = "index"; state.page = 1;
     $("#q").value = ""; $("#selLetter").value = ""; $("#selSort").value = "index"; $("#cbHide").checked = false;
     $("#swHide").classList.remove("on"); renderList(); syncHash();
   };
@@ -904,7 +944,7 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
 
   // 批量栏
   $("#btnSelAll").onclick = () => { const list = state.view === "bank" ? bankList() : baseList();
-    list.slice(0, state.shown).forEach(e => state.selected.add(e.word)); rerender(); batchInfo(); };
+    pageOf(list).slice.forEach(e => state.selected.add(e.word)); rerender(); batchInfo(); };
   $("#btnSelNone").onclick = () => { state.selected.clear(); rerender(); batchInfo(); };
   $("#btnBatchAdd").onclick = () => { let n = 0; state.selected.forEach(w => { if (bankAdd(w)) n++; }); state.selected.clear();
     rerender(); batchInfo(); refreshCounts();
@@ -925,7 +965,7 @@ function applyMaskUI(){  $("#cbMask").checked = state.mask; $("#cbMask2").checke
     if (inField) return;
     if (ev.key === "m") { toggleMask(); return; }
     if (ev.key === "e") { toggleEx(); return; }
-    if (ev.key === "1" || ev.key === "2" || ev.key === "3") { state.level = ["A","B","C"][+ev.key-1]; state.shown = CHUNK;
+    if (ev.key === "1" || ev.key === "2" || ev.key === "3") { state.level = ["A","B","C"][+ev.key-1]; state.page = 1;
       if (state.view !== "list" && state.view !== "bank") go("list", false); else renderList(); syncHash(); }
   });
 
@@ -1122,7 +1162,7 @@ function maybeIosHint(){
 /* ================= 词库：切换（词库由构建时注入，不在页面里导入） ================= */
 function switchDeck(id){
   useDeck(id);
-  state.level = "ALL"; state.letter = ""; state.shown = CHUNK;
+  state.level = "ALL"; state.letter = ""; state.page = 1;
   state.revealed.clear(); state.selected.clear();
   renderDeckUI();
   if (state.view === "home") renderHome(); else rerender();
@@ -1241,16 +1281,16 @@ function selfTest(){
     state.level = "ALL"; state.q = "";
     // ---- 断点续学 ----
     const keep = { level:state.level, letter:state.letter, q:state.q, sort:state.sort,
-      view:state.view, shown:state.shown, hideBanked:state.hideBanked, bankLevel:state.bankLevel };
+      view:state.view, page:state.page, pageSize:state.pageSize, hideBanked:state.hideBanked, bankLevel:state.bankLevel };
     state.level = "A"; state.letter = "c"; state.q = "con"; state.sort = "alpha";
-    state.hideBanked = true; state.shown = 321; state.view = "list";
+    state.hideBanked = true; state.page = 7; state.pageSize = 30; state.view = "list";
     const rr = buildResume();
     state.level = "ALL"; state.letter = ""; state.q = ""; state.sort = "index";
-    state.hideBanked = false; state.shown = CHUNK; state.view = "home";
+    state.hideBanked = false; state.page = 1; state.pageSize = 50; state.view = "home";
     applyResume(rr);
     ok("断点续学：筛选条件可还原", state.level === "A" && state.letter === "c" && state.q === "con" && state.sort === "alpha" && state.hideBanked,
       state.level + "/" + state.letter + "/" + state.q + "/" + state.sort);
-    ok("断点续学：展开进度可还原", state.shown === 321, state.shown);
+    ok("断点续学：页码与每页词数可还原", state.page === 7 && state.pageSize === 30, state.page + " / " + state.pageSize);
     ok("断点续学：视图可还原", state.view === "list", state.view);
     applyResume({ view:"review" });
     ok("断点续学：复习页也能还原", state.view === "review", state.view);
@@ -1303,6 +1343,23 @@ function selfTest(){
     DECKS.pop();
     ok("临时词库已移除", !DECKS.some(d => d.id === "__selftest"), DECKS.length + " 套");
     state.level = "ALL"; state.q = ""; state.letter = "";
+    // ---- 分页 ----
+    const bigList = baseList();
+    state.page = 1; state.pageSize = 50;
+    ok("分页：一页 50 词", pageOf(bigList).slice.length === 50, pageOf(bigList).slice.length);
+    ok("分页：总页数正确", pageOf(bigList).pages === Math.ceil(bigList.length / 50), pageOf(bigList).pages + " 页");
+    state.page = 2;
+    const p2 = pageOf(bigList);
+    ok("分页：第 2 页从第 51 个开始", p2.from === 50 && p2.slice[0].word === bigList[50].word, p2.slice[0].word);
+    state.page = 9999;
+    const pc = pageOf(bigList);
+    ok("分页：越界自动收敛到末页", state.page === pc.pages && pc.pages > 1, state.page + " / " + pc.pages);
+    state.pageSize = 0;
+    ok("分页：选「全部」时单页放完", pageOf(bigList).pages === 1 && pageOf(bigList).slice.length === bigList.length, pageOf(bigList).slice.length);
+    state.pageSize = 50; state.page = 1;
+    gotoPage(2);
+    ok("分页：翻页逻辑生效", state.page === 2, state.page);
+    state.page = 1;
 
     state.view = "list";  renderList();
     state.view = "bank";  renderBank();
