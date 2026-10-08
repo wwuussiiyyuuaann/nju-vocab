@@ -1030,14 +1030,21 @@ function selfTest(){
   registerSW(); maybeIosHint();
   if (QP.get("swtest") === "1") {
     const pre = document.createElement("pre");
-    pre.id = "swtest"; pre.textContent = "SW: checking";
+    pre.id = "swtest";
     pre.style.cssText = "position:fixed;left:6px;bottom:6px;z-index:9999;background:#fff;color:#000;font:12px monospace;padding:6px;border:2px solid #000";
     document.body.appendChild(pre);
-    if (!("serviceWorker" in navigator)) { pre.textContent = "SW: NOT SUPPORTED"; document.title = "SWTEST FAIL"; }
-    else navigator.serviceWorker.register("./sw.js")
-      .then(() => navigator.serviceWorker.ready)
-      .then(r => { pre.textContent = "SW: PASS ready scope=" + r.scope + " controller=" + !!navigator.serviceWorker.controller; document.title = "SWTEST PASS"; })
-      .catch(e => { pre.textContent = "SW: FAIL " + e.message; document.title = "SWTEST FAIL"; });
+    const say = t => { pre.textContent = "SW: " + t; document.title = "SWTEST " + t; };
+    if (!("serviceWorker" in navigator)) { say("NOT SUPPORTED"); }
+    else {
+      say("load controller=" + !!navigator.serviceWorker.controller);
+      navigator.serviceWorker.register("./sw.js").then(r => {
+        say("load controller=" + !!navigator.serviceWorker.controller + " | registered scope=" + r.scope
+          + " active=" + !!r.active + " installing=" + !!r.installing + " waiting=" + !!r.waiting);
+      }).catch(e => say("FAIL register: " + e.message));
+      navigator.serviceWorker.ready.then(r => {
+        say("PASS ready scope=" + r.scope + " controller=" + !!navigator.serviceWorker.controller);
+      }).catch(() => {});
+    }
   }
   if (QP.get("nettest") === "1") syncNetTest().then(r => {
     const pre = document.createElement("pre");
