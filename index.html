@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f5d9e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="南大词汇">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>南大通用英语词汇 · 阅读与筛选</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#ffffff; --card2:#f8fafd; --text:#16233a; --muted:#6b7789; --line:#e2e8f2;
+  --accent:#2f5d9e; --accent-soft:#e8f0fb; --shadow:0 1px 3px rgba(20,35,60,.06),0 8px 24px rgba(20,35,60,.06);
+  --a:#2563eb; --b:#0d9488; --c:#7c3aed; --mask:#c8d3e4;
+}
+html[data-theme="dark"]{
+  --bg:#0e131b; --card:#151d2a; --card2:#1b2534; --text:#e6edf7; --muted:#93a1b5; --line:#26313f;
+  --accent:#6ea8fe; --accent-soft:#1c2a3d; --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  --a:#6ea8fe; --b:#2dd4bf; --c:#a78bfa; --mask:#2a3648;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent);text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px calc(96px + env(safe-area-inset-bottom))}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+/* ---------- header ---------- */
+header.top{
+  position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top);
+}
+.top-in{max-width:1080px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.2px}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#7c3aed);
+  color:#fff;display:grid;place-items:center;font-size:15px;font-weight:800}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:11px;letter-spacing:0}
+.spacer{flex:1}
+.iconbtn{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:16px;border:1px solid var(--line);background:var(--card)}
+.iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- hero ---------- */
+.hero{padding:52px 0 12px;text-align:center}
+.hero h1{font-size:38px;line-height:1.25;margin:0 0 12px;letter-spacing:.5px}
+.hero h1 .em{background:linear-gradient(135deg,var(--accent),#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);margin:0 0 28px;font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 0 26px;text-align:left}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.card .n{font-size:26px;font-weight:800;line-height:1.2}
+.card .t{font-weight:600;margin-top:2px}
+.card .d{color:var(--muted);font-size:12.5px;margin-top:4px}
+.card.a .n{color:var(--a)} .card.b .n{color:var(--b)} .card.c .n{color:var(--c)}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border-radius:11px;
+  padding:12px 26px;font-weight:700;letter-spacing:2px;box-shadow:var(--shadow)}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);letter-spacing:0;font-weight:600;padding:9px 16px}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.hintrow{color:var(--muted);font-size:12.5px;margin-top:14px}
+
+/* ---------- tabs ---------- */
+nav.tabs{display:flex;gap:6px;padding:6px 0 14px;flex-wrap:wrap;align-items:center}
+.tab{padding:8px 14px;border-radius:10px;border:1px solid transparent;color:var(--muted);font-weight:600;font-size:14px}
+.tab:hover{background:var(--card)}
+.tab.on{background:var(--card);border-color:var(--line);color:var(--accent);box-shadow:var(--shadow)}
+.tab .pill{display:inline-block;min-width:20px;padding:0 5px;border-radius:9px;background:var(--accent-soft);color:var(--accent);
+  font-size:12px;font-weight:700;margin-left:6px;text-align:center}
+
+/* ---------- stat chips ---------- */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-size:13px;color:var(--muted)}
+.chip b{color:var(--text);font-size:14px}
+
+/* ---------- toolbar ---------- */
+.toolbar{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:var(--shadow);margin-bottom:12px}
+.tline{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tline+.tline{margin-top:9px}
+.seg{display:inline-flex;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{padding:6px 13px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+select,input[type=search],input[type=text]{
+  font:inherit;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 11px;outline:none}
+select:focus,input:focus{border-color:var(--accent)}
+input[type=search]{flex:1;min-width:170px}
+label.sw{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);cursor:pointer;user-select:none;
+  background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:7px 11px}
+label.sw input{accent-color:var(--accent);width:15px;height:15px}
+label.sw.on{color:var(--accent);border-color:var(--accent)}
+
+/* ---------- list ---------- */
+.list{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:clip;box-shadow:var(--shadow)}
+.lhead,.row{display:grid;grid-template-columns:56px minmax(150px,1fr) minmax(200px,1.6fr) 68px 92px;align-items:center;gap:10px;padding:9px 14px}
+.lhead{background:var(--card2);border-bottom:1px solid var(--line);font-size:12.5px;color:var(--muted);font-weight:700;
+  position:sticky;top:63px;z-index:10;border-radius:14px 14px 0 0}
+.row{border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--card2)}
+.row.sel{background:var(--accent-soft)}
+.c-no{color:var(--muted);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
+.c-word{display:flex;align-items:center;gap:6px;min-width:0}
+.c-word .w{font-weight:700;font-size:16px;font-family:Georgia,"Times New Roman",serif;word-break:break-word}
+.spk{opacity:.32;font-size:13px;padding:2px 4px;border-radius:6px}
+.spk:hover{opacity:1;background:var(--accent-soft)}
+.c-mean{color:var(--text);font-size:14px;word-break:break-word}
+.c-mean.masked{color:transparent;background:var(--mask);border-radius:6px;cursor:pointer;user-select:none;
+  text-shadow:none;box-shadow:inset 0 0 0 100px var(--mask)}
+.c-mean.masked::selection{background:transparent}
+.badge{display:inline-block;padding:2px 9px;border-radius:7px;font-size:12px;font-weight:700}
+.badge.a{color:var(--a);background:color-mix(in srgb,var(--a) 14%,transparent)}
+.badge.b{color:var(--b);background:color-mix(in srgb,var(--b) 14%,transparent)}
+.badge.c{color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.c-act{display:flex;gap:4px;justify-content:flex-end}
+.star{font-size:16px;padding:3px 6px;border-radius:8px;color:var(--muted)}
+.star:hover{background:var(--accent-soft)}
+.star.on{color:#f0a500}
+.chk{width:16px;height:16px;accent-color:var(--accent)}
+.more{padding:14px;text-align:center;color:var(--muted);font-size:13.5px}
+.empty{padding:48px 16px;text-align:center;color:var(--muted)}
+.empty .big{font-size:32px;margin-bottom:8px}
+
+/* ---------- review ---------- */
+.rcard{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px 22px;text-align:center}
+.rcard .rw{font-family:Georgia,serif;font-size:34px;font-weight:700;margin:6px 0 4px;word-break:break-word}
+.rcard .rm{color:var(--muted);font-size:17px;min-height:26px;margin-bottom:6px}
+.rcard .rm.hide{color:transparent;background:var(--mask);border-radius:8px;display:inline-block;min-width:120px}
+.rmeta{color:var(--muted);font-size:12.5px;margin-bottom:18px}
+.rbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.rbtn{padding:11px 20px;border-radius:11px;border:1px solid var(--line);background:var(--card2);font-weight:700}
+.rbtn.ok:hover{border-color:var(--b);color:var(--b)}
+.rbtn.mid:hover{border-color:#f0a500;color:#f0a500}
+.rbtn.no:hover{border-color:#e5484d;color:#e5484d}
+.prog{height:6px;background:var(--card2);border-radius:4px;overflow:hidden;margin:16px 0 6px}
+.prog i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .25s}
+
+/* ---------- drawer ---------- */
+.mask{position:fixed;inset:0;background:rgba(8,12,20,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.mask.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(380px,92vw);background:var(--card);border-left:1px solid var(--line);
+  z-index:41;padding:18px;overflow:auto;transform:translateX(102%);transition:transform .24s;box-shadow:-14px 0 40px rgba(0,0,0,.18)}
+.drawer.on{transform:none}
+.drawer h3{margin:4px 0 14px;font-size:17px}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.setrow .lbl{font-size:14px}
+.setrow .sub{color:var(--muted);font-size:12px;margin-top:2px}
+.hr{height:1px;background:var(--line);margin:16px 0}
+.batchbar{position:fixed;left:0;right:0;bottom:0;z-index:35;background:var(--card);border-top:1px solid var(--line);
+  box-shadow:0 -8px 24px rgba(0,0,0,.10);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:none}
+.batchbar.on{display:block}
+.batchbar .in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+footer.foot{text-align:center;color:var(--muted);font-size:12.5px;padding:28px 0 0;line-height:2}
+kbd{background:var(--card2);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;font-size:12px}
+.warn{margin:0 0 12px;padding:10px 14px;border-radius:12px;border:1px solid #f0c36d;background:#fff8e6;color:#7a5a12;font-size:13.5px;line-height:1.7}
+html[data-theme="dark"] .warn{border-color:#6b5a2a;background:#2a2413;color:#e8d9a8}
+.ioshint{margin:0 0 12px;padding:10px 14px;border-radius:12px;border:1px solid #a9c6ee;background:#eef4fd;color:#27456e;font-size:13.5px;line-height:1.8}
+html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#c7dbf7}
+@media (max-width:720px){
+  .hero h1{font-size:27px}
+  .cards{grid-template-columns:1fr}
+  .lhead{display:none}
+  .row{grid-template-columns:44px 1fr 62px;grid-template-areas:"no word act" ". mean mean" ". lv lv";row-gap:4px}
+  .c-no{grid-area:no;text-align:left}
+  .c-word{grid-area:word} .c-mean{grid-area:mean} .badge{grid-area:lv} .c-act{grid-area:act}
+  .top-in{gap:8px} .brand small{display:none}
+  .drawer{width:100%}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><span class="logo">N</span><span>南大通用英语词汇<small>阅读 · 筛选 · 自测 · 复习</small></span></div>
+    <div class="spacer"></div>
+    <button class="iconbtn" id="btnTheme" title="切换暗黑模式">🌙</button>
+    <button class="iconbtn" id="btnSet" title="设置与数据">⚙️</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- ========== 首页 ========== -->
+  <section id="v-home">
+    <div class="hero">
+      <h1>南京大学<br><span class="em">大学英语通用词汇</span></h1>
+      <p>基于四六级考委会词表 · 删除中小学词汇与派生词后分级收录<br>分级考试、期末考试、学位考试的指定词表</p>
+      <div class="cards">
+        <div class="card a"><div class="n">570</div><div class="t">A 级 · 四级高频词</div><div class="d">分级考 / 期末考重点</div></div>
+        <div class="card b"><div class="n">1,217</div><div class="t">B 级 · 四级次高频词</div><div class="d">期末考 / 学位考重点</div></div>
+        <div class="card c"><div class="n">1,299</div><div class="t">C 级 · 六级词</div><div class="d">暂不作要求</div></div>
+      </div>
+      <button class="btn" id="btnEnter">进 入 词 库</button>
+      <div class="hintrow">词表阅读 · 多维筛选 · 朗读发音 · 释义遮罩自测 · 个人词库 · 艾宾浩斯复习</div>
+    </div>
+  </section>
+
+  <!-- ========== 词库 ========== -->
+  <section id="v-list" hidden>
+    <nav class="tabs" id="tabs"></nav>
+    <div class="chips" id="chips"></div>
+    <div class="toolbar">
+      <div class="tline">
+        <div class="seg" id="segLevel">
+          <button data-lv="ALL">全部</button><button data-lv="A">A 级</button>
+          <button data-lv="B">B 级</button><button data-lv="C">C 级</button>
+        </div>
+        <select id="selLetter"><option value="">首字母 全部</option></select>
+        <select id="selSort"><option value="index">按词表顺序</option><option value="alpha">按字母排序</option><option value="len">按单词长度</option></select>
+      </div>
+      <div class="tline">
+        <input type="search" id="q" placeholder="搜索单词或释义（按 / 聚焦，Esc 清空）">
+        <label class="sw" id="swHide"><input type="checkbox" id="cbHide">隐藏已入词库</label>
+        <label class="sw" id="swMask"><input type="checkbox" id="cbMask">释义遮罩（自测）</label>
+        <label class="sw" id="swBatch"><input type="checkbox" id="cbBatch">批量筛选</label>
+        <button class="btn ghost" id="btnClearFilter">重置筛选</button>
+      </div>
+    </div>
+    <div class="list">
+      <div class="lhead"><div class="c-no">序号</div><div>单词</div><div>释义</div><div>级别</div><div style="text-align:right">操作</div></div>
+      <div id="rows"></div>
+      <div class="more" id="more" hidden></div>
+    </div>
+  </section>
+
+  <!-- ========== 个人词库 ========== -->
+  <section id="v-bank" hidden>
+    <nav class="tabs" id="tabs2"></nav>
+    <div class="chips" id="chips2"></div>
+    <div class="toolbar">
+      <div class="tline">
+        <div class="seg" id="segBankLv">
+          <button data-lv="ALL">全部</button><button data-lv="A">A 级</button>
+          <button data-lv="B">B 级</button><button data-lv="C">C 级</button>
+        </div>
+        <input type="search" id="qb" placeholder="在词库中搜索">
+        <button class="btn ghost" id="btnExportTxt">导出 TXT</button>
+        <button class="btn ghost" id="btnExportJson">导出 JSON</button>
+        <button class="btn ghost" id="btnImport">导入 JSON</button>
+        <button class="btn ghost" id="btnWipe">清空词库</button>
+        <input type="file" id="fileImport" accept=".json,application/json" hidden>
+      </div>
+    </div>
+    <div class="list">
+      <div class="lhead"><div class="c-no">序号</div><div>单词</div><div>释义</div><div>级别</div><div style="text-align:right">操作</div></div>
+      <div id="rowsBank"></div>
+      <div class="more" id="moreBank" hidden></div>
+    </div>
+  </section>
+
+  <!-- ========== 今日复习 ========== -->
+  <section id="v-review" hidden>
+    <nav class="tabs" id="tabs3"></nav>
+    <div id="reviewBox"></div>
+  </section>
+
+  <footer class="foot">
+    共 3,086 词 · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
+    开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
+    数据来源：《南京大学大学英语通用词汇》 · 本工具为个人学习用途的整理版本
+  </footer>
+</div>
+
+<div class="batchbar" id="batchbar">
+  <div class="in">
+    <span id="batchInfo">已勾选 0 个单词</span>
+    <span class="spacer" style="flex:1"></span>
+    <button class="btn ghost" id="btnSelAll">全选本页</button>
+    <button class="btn ghost" id="btnSelNone">取消全选</button>
+    <button class="btn ghost" id="btnBatchAdd">加入个人词库</button>
+    <button class="btn ghost" id="btnBatchDel">移出词库</button>
+    <button class="btn ghost" id="btnBatchExit">退出批量</button>
+  </div>
+</div>
+
+<div class="mask" id="mask"></div>
+<aside class="drawer" id="drawer">
+  <h3>设置与数据</h3>
+  <div class="setrow"><div><div class="lbl">暗黑模式</div><div class="sub">切换深色背景</div></div>
+    <label class="sw" id="swDark"><input type="checkbox" id="cbDark"></label></div>
+  <div class="setrow"><div><div class="lbl">点击自动朗读</div><div class="sub">点单词时用浏览器语音朗读（无需联网）</div></div>
+    <label class="sw" id="swSpeak"><input type="checkbox" id="cbSpeak"></label></div>
+  <div class="setrow"><div><div class="lbl">释义遮罩（自测模式）</div><div class="sub">盖住中文，点击才显示</div></div>
+    <label class="sw" id="swMask2"><input type="checkbox" id="cbMask2"></label></div>
+  <div class="hr"></div>
+  <div class="setrow"><div><div class="lbl">艾宾浩斯复习间隔</div><div class="sub">1 · 2 · 4 · 7 · 15 · 30 天</div></div></div>
+  <div class="setrow"><div><div class="lbl">个人词库</div><div class="sub" id="setBankInfo">0 词</div></div></div>
+  <div class="hr"></div>
+  <div class="tline">
+    <button class="btn ghost" id="btnExportJson2">导出 JSON 备份</button>
+    <button class="btn ghost" id="btnImport2">导入 JSON</button>
+    <button class="btn ghost" id="btnWipe2">清空全部数据</button>
+  </div>
+  <div class="hr"></div>
+  <h3 style="margin:0 0 6px;font-size:15px">☁️ 云同步（手机 ↔ 电脑）</h3>
+  <div class="sub" style="color:var(--muted);font-size:12px;line-height:1.8;margin-bottom:10px">
+    用你自己的 GitHub Gist 做云端存档：两台设备填<b>同一个 Token</b> 和 <b>同一个 Gist ID</b> 就会互相同步。
+    Token 只保存在本机浏览器，建议用「仅 Gists 读写」的细粒度令牌。
+  </div>
+  <input type="text" id="syncToken" placeholder="GitHub Token（fine-grained，权限选 Gists: Read and write）" style="width:100%;margin-bottom:8px">
+  <input type="text" id="syncGist" placeholder="Gist ID（留空后点「创建云端存档」自动生成）" style="width:100%;margin-bottom:8px">
+  <div class="tline">
+    <button class="btn ghost" id="btnSyncNow">立即同步</button>
+    <button class="btn ghost" id="btnSyncCreate">创建云端存档</button>
+    <button class="btn ghost" id="btnSyncTest">测试连接</button>
+    <button class="btn ghost" id="btnSyncLink">复制配对链接</button>
+  </div>
+  <div class="setrow" style="border-bottom:0"><div><div class="lbl">自动同步</div><div class="sub">改动后约 6 秒自动上传；打开页面时自动拉取</div></div>
+    <label class="sw" id="swAuto"><input type="checkbox" id="cbAuto"></label></div>
+  <div class="sub" id="syncStatus" style="color:var(--muted);font-size:12px;line-height:1.8;word-break:break-all">未配置</div>
+  <div class="tline" style="margin-top:8px"><button class="btn ghost" id="btnSyncForget">清除本机同步设置</button></div>
+  <div class="hr"></div>
+  <div class="sub" style="color:var(--muted);font-size:12px;line-height:1.9">
+    快捷键：<kbd>/</kbd> 搜索 · <kbd>Esc</kbd> 清空/关闭 · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 切换 A/B/C 级 · <kbd>m</kbd> 遮罩开关<br>
+    原词表没有音标与例句数据，故用浏览器朗读替代发音；上传到 GitHub Pages 后本页可直接在手机浏览器打开并「添加到主屏幕」。
+  </div>
+</aside>
+
+<script>
+"use strict";
+/* ================= 数据 ================= */
+const DATA = {"A":[["abandon","放弃；抛弃"],["abstract","抽象的；摘要"],["academy","研究院；学院；学会"],["access","接近；入口"],["accommodate","容纳；给…提供住宿；使适应"],["accompany","陪伴；伴随"],["accumulate","积累"],["accurate","准确的"],["achieve","完成；取得"],["acknowledge","承认；致谢"],["acquire","获得"],["adapt","使适应；改编"],["adequate","足够的"],["adjacent","毗连的"],["adjust","调整"],["administer","管理"],["adult","成年人"],["advocate","拥护者；拥护"],["affect","影响"],["aggregate","总的；总计"],["aid","帮助"],["albeit","虽然"],["allocate","分派"],["alter","改变"],["alternative","替代物；替代的"],["ambiguous","模棱两可的"],["amend","修订"],["analogy","类似；类推"],["analyze","分析"],["annual","每年的；年鉴"],["anticipate","预料"],["apparent","明显的"],["append","附录"],["appreciate","欣赏；感激"],["approach","靠近；方法"],["appropriate","恰当的"],["approximate","近似的"],["arbitrary","任意的；专断的"],["area","面积；地区；领域"],["aspect","方面"],["assemble","集合；装配"],["assess","估价；评价"],["assign","分派"],["assist","援助"],["assume","假设；认为；承担"],["assure","保证"],["attach","贴；附加"],["attain","达到；获得"],["attitude","态度"],["attribute","归结于；性质"],["author","作者；创始人"],["authority","当局；权威"],["automate","使自动化"],["available","可得到的"],["aware","意识到的"],["behalf","利益"],["benefit","利益；津贴；有益"],["bias","偏见"],["bond","纽带；债券"],["brief","简短的"],["bulk","体积；大批"],["capable","能够的；有能力的"],["capacity","容量"],["category","种类；范畴"],["cease","停止"],["challenge","挑战"],["channel","海峡；频道"],["chapter","章"],["chart","图表"],["chemical","化学的；化学药品"],["circumstance","情况"],["cite","引用"],["civil","公民的；国内的"],["clarify","阐明"],["classic","名著；经典的"],["clause","条款；从句"],["code","代码；法典"],["coherent","连贯的"],["coincide","相符"],["collapse","倒塌"],["colleague","同事"],["commence","开始"],["comment","评论"],["commission","委任；委员会"],["commit","犯"],["commodity","日用品"],["communicate","交流"],["community","社区；界"],["compatible","兼容的"],["compensate","补偿"],["compile","编纂"],["complement","补充"],["complex","复杂的"],["component","组成部分"],["compound","化合物；复合词"],["comprehensive","综合的"],["comprise","构成"],["compute","计算"],["conceive","构思；怀孕"],["concentrate","浓缩；集中"],["concept","概念"],["conclude","下结论"],["concurrent","同时的"],["conduct","行为；指挥"],["confer","授予；协商"],["confine","限制"],["confirm","证实"],["conflict","冲突"],["conform","遵守；符合"],["consent","同意"],["consequent","随之发生的"],["considerable","相当大的"],["consist","组成"],["constant","不断的"],["constitute","构成"],["constrain","限制；强制"],["construct","建造"],["consult","咨询；请教；查阅"],["consume","消费；消耗"],["contact","接触；联系"],["contemporary","当代的；同代人"],["context","上下文；背景"],["contract","合同；收缩"],["contradict","矛盾"],["contrary","相反的"],["contrast","对比"],["contribute","贡献；捐献；投稿"],["controversy","争论"],["convene","召集"],["converse","相反的"],["convert","转化"],["convince","使信服"],["cooperate","合作"],["coordinate","协调"],["core","核心"],["corporate","公司的"],["correspond","通信；对应"],["couple","夫妇；两个"],["create","创造；产生"],["credit","信用；学分；功劳"],["criteria","标准"],["crucial","决定性的"],["culture","文化"],["currency","货币"],["cycle","骑自行车；循环"],["data","数据"],["debate","辩论"],["decade","十年"],["decline","下倾；下降；谢绝；下降"],["deduce","演绎"],["define","下定义；明确"],["definite","明确的"],["demonstrate","表明；演示；示威"],["denote","表示"],["deny","否定"],["depress","使沮丧"],["derive","起源"],["design","设计；图案"],["despite","尽管"],["detect","检测"],["deviate","偏离"],["device","装置；设计"],["devote","奉献；为…献身"],["differentiate","区分"],["dimension","尺寸；维"],["diminish","减少"],["discrete","分离的"],["discriminate","区别；歧视"],["displace","移置"],["display","展览；显示"],["dispose","处理"],["distinct","清晰的；独特的"],["distort","歪曲"],["distribute","分布"],["diverse","多样的"],["document","文件"],["domain","领域；域"],["domestic","国内的；家庭的"],["dominate","支配"],["draft","草稿；通风；起草"],["drama","戏剧"],["duration","持续时间"],["dynamic","有活力的"],["economy","经济；节约"],["edit","编辑"],["element","元素"],["eliminate","消除"],["emerge","出现"],["emphasis","强调"],["empirical","经验的"],["enable","使能够"],["encounter","遇到"],["energy","精力；能量"],["enforce","实施"],["enhance","增强"],["enormous","巨大的；大量的"],["ensure","保证"],["entity","实体"],["environment","环境"],["equate","使相等；使平等"],["equip","装备"],["equivalent","对等"],["erode","腐蚀"],["error","错误"],["establish","建立"],["estate","房地产"],["estimate","估计"],["ethic","伦理"],["ethnic","种族的"],["evaluate","评价"],["eventual","最后"],["evident","明显的"],["evolve","进化；演变"],["exceed","超过"],["exclude","排除"],["exhibit","展览"],["expand","扩大"],["expert","专家；熟练的"],["explicit","明晰的；详述的"],["exploit","剥削；利用"],["export","出口"],["expose","暴露；揭露"],["external","外部的"],["extract","取出；摘录"],["facilitate","使容易"],["factor","因素"],["feature","特征"],["federal","联邦的"],["fee","费"],["file","文件；锉"],["final","最后的"],["finance","财政"],["finite","有限的"],["flexible","灵活的"],["fluctuate","波动"],["focus","集中；焦点"],["format","格式"],["formula","公式"],["forthcoming","即将到来的"],["found","建立"],["foundation","建立；基础；基金会"],["framework","框架"],["function","功能；函数"],["fund","资金"],["fundamental","基本的"],["furthermore","此外"],["gender","性别"],["generate","产生"],["generation","一代；产生"],["globe","地球"],["goal","球门；目标"],["grade","等级；年级；成绩"],["grant","拨款；助学金"],["guarantee","保证"],["guideline","方针"],["hence","因此"],["hierarchy","等级制度"],["highlight","精华；强调"],["hypothesis","假设"],["identical","相同的"],["identify","识别"],["ideology","思想体系"],["ignorant","无知的"],["illustrate","举例说明；图解"],["image","图像；形象"],["immigrate","移民"],["impact","影响；撞击"],["implement","工具；执行"],["implicate","暗指"],["implicit","暗指"],["imply","暗指"],["impose","征收；强加"],["incentive","刺激"],["incidence","发生"],["incline","斜坡；使倾斜"],["income","收入"],["incorporate","合并"],["index","索引；指标"],["indicate","表明"],["individual","个人"],["induce","引起"],["inevitable","必然的"],["infer","推断"],["infrastructure","基础设施"],["inherent","固有的"],["inhibit","抑制"],["initial","最初的；词首的；首字母"],["initiate","开始"],["injure","使受伤"],["innovate","创新"],["input","输入"],["insert","插入；插页"],["insight","见识"],["inspect","视察"],["instance","例子"],["institute","研究所；学院"],["instruct","教；指示"],["integral","整体的；整的"],["integrate","使结合"],["integrity","诚信；完整"],["intelligent","聪明的"],["intense","强烈的"],["interact","相互作用"],["intermediate","中间的；中级的"],["internal","内部的"],["interpret","解释；口译"],["interval","间隔"],["intervene","干预"],["intrinsic","内在的"],["invest","投资"],["investigate","调查"],["invoke","恳求"],["involve","牵涉"],["isolate","孤立"],["issue","问题；发行"],["item","项目"],["job","工作"],["journal","杂志；日记"],["justify","证明"],["label","标签"],["labor","劳动"],["layer","层"],["lecture","讲课；讲座"],["legal","合法的；法律的"],["legislate","立法"],["levy","征收"],["liberal","自由的；开明的"],["license","执照"],["likewise","同样地"],["link","连接；环节"],["locate","使位于；找到"],["logic","逻辑"],["maintain","维持；维修"],["major","主要的；专业"],["manipulate","操作"],["manual","体力的；手册"],["margin","页边"],["mature","成熟"],["maximize","使最大化"],["mechanism","装置；机制"],["media","媒体"],["mediate","调停"],["medical","医学的"],["medium","媒介；中等的"],["mental","脑力的"],["method","方法"],["migrate","迁移"],["military","军事的"],["minimal","最小的"],["minimize","最小化"],["minimum","最小值"],["ministry","部"],["minor","次要的；辅修专业"],["mode","模式"],["modify","修改；修饰"],["monitor","监视"],["motive","动机"],["mutual","相互的"],["negate","否定"],["network","网络"],["neutral","中立的"],["nevertheless","然而"],["nonetheless","然而"],["norm","标准"],["normal","正常的"],["notion","概念；想法"],["notwithstanding","虽然"],["nuclear","核的；核心的"],["objective","客观的；目标"],["obtain","获得"],["obvious","明显的"],["occupy","占领；使忙碌"],["occur","出现"],["odd","奇数的；奇怪的；临时的"],["offset","抵消"],["ongoing","进行中的"],["option","选择"],["orient","东方"],["outcome","结果"],["output","产量；产出"],["overall","总体的"],["overlap","重叠"],["overseas","海外"],["panel","专家小组；面板"],["paradigm","范例"],["paragraph","段落"],["parallel","平行的"],["parameter","参数"],["participate","参加"],["partner","搭档"],["passive","被动的"],["perceive","察觉；理解"],["percent","百分之"],["period","时期；句号"],["persist","持续"],["perspective","角度"],["phase","阶段"],["phenomenon","现象"],["philosophy","哲学"],["physical","身体的；物理的"],["plus","加"],["policy","政策"],["portion","部分"],["pose","摆姿势"],["positive","积极的；阳性的"],["potential","潜在的；潜力"],["practitioner","从业者"],["precede","先于"],["precise","精确的"],["predict","预测"],["predominant","主要的"],["preliminary","初步的；初赛"],["presume","假设"],["previous","先前的"],["primary","初级的；主要的"],["prime","首要的"],["principal","主要的；校长"],["principle","原则"],["prior","在先的"],["priority","优先；重点"],["proceed","进行"],["process","过程；加工"],["professional","专业的；专业人员"],["prohibit","禁止"],["project","工程"],["promote","促进；促销"],["proportion","比例"],["prospect","前景"],["protocol","协议；礼仪"],["psychology","心理学"],["publication","出版；出版物"],["publish","出版"],["purchase","购买"],["pursue","追赶；追求"],["qualitative","定性的"],["quote","引用"],["radical","基本的；激进的"],["random","随机的"],["range","范围；山脉"],["ratio","比"],["rational","理性的"],["react","反应"],["recover","恢复"],["refine","提炼"],["regime","政权"],["region","地区"],["register","登记；挂号"],["regulate","调节"],["reinforce","加强"],["reject","拒绝"],["relax","放松"],["release","释放"],["relevant","有关的"],["reluctance","勉强"],["rely","依赖"],["remove","移走"],["require","要求"],["research","研究"],["reside","居住"],["resolve","解决；决心；决心"],["resource","资源"],["respond","响应"],["restore","恢复"],["restrain","抑制"],["restrict","限制"],["retain","保留"],["reveal","显示"],["revenue","收入；税收"],["reverse","背面；颠倒"],["revise","修改"],["revolution","革命；旋转"],["rigid","僵硬的：刻板的"],["role","角色"],["route","路线"],["scenario","剧本；方案"],["schedule","时间表"],["scheme","方案"],["scope","范围"],["section","部分"],["sector","部门"],["secure","安全的"],["seek","试图"],["select","选择"],["sequence","顺序"],["series","系列"],["sex","性；性别"],["shift","转换"],["significant","重要的"],["similar","相似的"],["simulate","模拟"],["site","地点"],["so-called","所谓的"],["sole","脚底；鞋底；唯一的"],["somewhat","有点"],["source","来源"],["specific","具体的"],["specify","详述"],["sphere","球体；领域"],["stable","稳定的；马厩"],["statistic","统计的"],["status","地位"],["straightforward","坦率的"],["strategy","战略；策略"],["stress","压力；重音；强调"],["structure","结构"],["style","风格"],["submit","使屈服；提交"],["subordinate","下级的；从属的"],["subsequent","随后的"],["subsidy","补助"],["substitute","代替者；代替"],["successor","继任者"],["sufficient","足够的"],["sum","金额"],["summary","总结"],["supplement","补充"],["survey","调查"],["survive","幸存"],["suspend","暂停"],["sustain","保持"],["symbol","象征；符号"],["tape","磁带"],["target","靶子；目标"],["task","任务"],["team","队"],["technical","技术的"],["technique","技巧"],["technology","技术"],["temporary","暂时的"],["tense","紧张的；时态"],["terminate","终止"],["text","文本"],["theme","主题"],["theory","理论"],["thereby","从而"],["thesis","论文"],["topic","话题"],["trace","痕迹"],["tradition","传统"],["transfer","转移；换车"],["transform","转变"],["transit","通过；运输；过渡"],["transmit","输送"],["transport","运输"],["trend","趋势"],["trigger","扳机；触发"],["ultimate","最终的"],["undergo","经受"],["underlie","是…的基础"],["undertake","从事"],["uniform","一致的；制服"],["unify","统一"],["unique","独一无二的"],["utilize","利用"],["valid","有效的"],["vary","变化"],["vehicle","车辆"],["version","译文"],["via","经过"],["violate","违犯"],["virtual","实际上的；虚拟的"],["visible","可见的"],["vision","视力"],["visual","视觉的"],["volume","册；音量；体积"],["voluntary","志愿的"],["welfare","福利"],["whereas","而"],["whereby","由此"],["widespread","普遍的"]],"B":[["abolition","废除"],["abundance","丰富"],["accord","一致"],["according","根据（后跟 to）"],["accountable","应负责的"],["ace","（扑克牌里的）A；佼佼者"],["adjective","形容词"],["adverb","副词"],["advocacy","提倡"],["aerial","空中的"],["aeroplane","飞机"],["affluence","富裕"],["affluent","富裕的"],["aggression","侵略"],["aisle","过道"],["alert","警惕的；警报"],["allege","声称"],["alliance","联盟"],["ally","盟友"],["ambitious","有雄心的"],["amid","在...当中"],["amidst","在...当中"],["ancestry","祖先"],["anew","重新"],["angel","天使"],["apparatus","仪器"],["applause","掌声"],["appliance","器具"],["aptitude","天赋；能力"],["argumentative","论证的"],["armament","〈总称〉武器"],["arouse","激发"],["ashore","在岸上"],["ass","驴；傻瓜"],["asset","资产；优势"],["astronomical","天文的"],["atop","在…顶上"],["attentive","专心的"],["attic","阁楼"],["attorney","律师"],["audio","音频"],["auditorium","礼堂"],["authorise","授权"],["automobile","汽车"],["aviation","航空"],["await","等候"],["awe","敬畏"],["axe","斧头"],["axis","轴"],["backup","备份"],["backyard","后院"],["badge","徽章"],["bail","保释"],["bait","诱饵"],["ballot","投票"],["bang","猛击"],["banknote","钞票"],["bankrupt","破产"],["bankruptcy","破产"],["banner","旗帜"],["banquet","宴会"],["barrel","桶"],["batch","一批"],["battalion","营"],["beam","梁"],["beforehand","事先"],["beloved","心爱的"],["berry","浆果"],["bet","打赌"],["beverage","饮料"],["Bible","圣经"],["billionaire","亿万富翁"],["bin","箱"],["biochemical","生化的"],["biochemist","生物化学家"],["biographer","传记作家"],["biotechnology","生物技术"],["bitch","母狗；〈禁忌〉泼妇"],["blade","刀片"],["blast","爆炸"],["blend","混合"],["blonde","金发女郎"],["bloom","花；开花"],["blossom","花；开花"],["blueprint","蓝图"],["blur","模糊"],["boast","自夸；拥有"],["bold","大胆的"],["bolt","闩；螺栓"],["bondage","束缚"],["boomer","生育高峰出生的人"],["boost","提升"],["bowel","肠"],["bracket","支架"],["brag","自吹"],["brandy","白兰地酒"],["brass","黄铜"],["breadth","宽度"],["breakdown","故障"],["breed","饲养；品种"],["breeze","微风"],["bribe","贿赂"],["briefcase","公文包"],["brilliance","杰出"],["broker","经纪人"],["brow","眉毛"],["browse","浏览"],["brute","野兽；冷酷无情的人"],["bubble","泡沫"],["buck","〈口语〉美元"],["bucket","提桶"],["buckle","扣环"],["bud","花蕾"],["buddy","好友"],["bug","昆虫；【计算机】出错"],["bulb","灯泡"],["bull","公牛"],["bullet","子弹；项目符号"],["bulletin","布告"],["bully","欺负别人的人"],["bump","碰撞；减速路脊"],["bundle","一捆"],["bureau","局"],["bypass","旁道"],["bystander","旁观者"],["cabin","舱；小木屋"],["cabinet","内阁"],["cable","电缆"],["calendar","日历"],["calf","小牛，牛犊"],["calorie","卡路里"],["campus","校园"],["cane","竹杖；甘蔗"],["capita","人均（前跟 per）"],["capitalism","资本主义"],["capitalist","资本主义的"],["capture","捕获"],["cardboard","纸板"],["career","职业生涯，事业"],["cargo","货物"],["cart","大车"],["cashier","收银员"],["cellar","地窖"],["Celsius","摄氏度"],["cement","水泥"],["cereal","谷类"],["chairperson","主席"],["champagne","香槟酒"],["chaotic","混乱的"],["charitable","慈善的"],["charity","慈善；慈善机构"],["charm","魅力"],["charter","宪章"],["chase","追，追逐"],["cherish","珍惜"],["chill","寒冷"],["chimney","烟囱"],["chin","下巴"],["chip","芯片"],["cholesterol","胆固醇"],["chop","劈；大块"],["chore","苦差事"],["claim","宣称；索赔"],["clash","冲突"],["clerical","文书的"],["client","客户"],["cliff","悬崖"],["climax","高潮"],["cling","紧紧抓住"],["clip","剪短；片段"],["clockwise","顺时针地"],["clown","小丑"],["clue","线索"],["coarse","粗的；粗糙的"],["cock","公鸡；〈禁忌〉男性生殖器"],["cohesion","凝聚力；衔接"],["coil","线圈"],["collaborate","合作"],["colon","冒号；结肠"],["colony","殖民地"],["column","列"],["columnist","专栏作家"],["combat","战斗"],["comma","逗号"],["commonplace","司空见惯的"],["commune","公社"],["commute","通勤"],["compel","迫使"],["competent","能干的"],["complain","抱怨"],["complaint","投诉"],["compliance","遵守"],["complicate","使复杂"],["comply","遵守"],["comrade","同志；战友"],["conceal","藏"],["concerted","协调一致的"],["condense","压缩"],["confess","承认"],["confront","面对"],["Confucian","孔子的，儒家的"],["congress","国会"],["conjunction","连词"],["conquer","征服"],["conquest","征服"],["conscientious","认真的"],["consolidate","巩固"],["contaminate","使不干净，污染"],["contempt","蔑视"],["contend","争夺"],["contentious","争夺的"],["contest","比赛"],["contraction","收缩"],["cop","〈口语〉警察"],["cope","应对（后跟 with）"],["copper","铜"],["copyright","版权"],["cord","绳"],["cornerstone","基石"],["corps","兵团"],["correspondent","记者"],["corridor","走廊"],["cosmic","宇宙的"],["cosmos","宇宙"],["costume","服装"],["couch","长沙发"],["council","委员会"],["counsel","谘询；律师"],["countdown","倒计时"],["counterpart","对应"],["county","县"],["coupon","优惠券"],["coward","懦夫"],["cowboy","牛仔"],["crab","螃蟹"],["crack","裂纹"],["cracker","饼干"],["craft","工艺"],["crane","鹤；起重机"],["crawl","爬行"],["craze","热，狂热"],["creditable","值得肯定的"],["creep","爬行"],["crisis","危机"],["critic","评论家"],["criticise","批评"],["criticism","批评"],["crocodile","鳄鱼"],["crown","王冠；花冠"],["cruise","邮轮"],["crush","压碎"],["crystal","水晶"],["cucumber","黄瓜"],["cue","提示"],["cultivate","耕作；陶冶"],["curb","遏制"],["curl","鬈发"],["current","当前的"],["curse","咒骂；骂人话"],["curve","曲线"],["cute","可爱的"],["dairy","奶制品"],["damn","〈口语〉倒霉!"],["darling","亲爱的"],["date","日期；约会"],["dean","（大学的）院长"],["decay","腐烂"],["deceit","欺骗"],["deceive","欺骗"],["decent","体面的"],["deception","欺骗"],["decisive","果断的"],["deck","甲板"],["deem","认为"],["defect","缺陷"],["defected","叛逃的"],["defendant","被告"],["defiance","违抗"],["defiant","违抗的"],["deficiency","缺乏"],["deficit","赤字"],["defy","违抗"],["delegate","会议代表"],["deliberated","深思熟虑的"],["democracy","民主"],["democrat","民主党党员"],["dense","稠密的"],["dent","凹陷"],["dental","牙科的"],["depart","离开"],["deprive","剥夺"],["deputy","副的"],["descend","下降"],["descent","血统"],["desktop","桌面"],["despair","绝望"],["detail","细节"],["deteriorate","恶化"],["devil","魔鬼"],["devise","制定"],["dew","露水"],["diabetes","糖尿病"],["diagnose","诊断"],["diagnosis","诊断"],["dialect","方言"],["diameter","直径"],["digit","数字，数位"],["dignify","使有尊严"],["diligent","勤奋的"],["dim","昏暗的"],["dime","一毛钱"],["dine","就餐"],["diplomacy","外交"],["diplomat","外交官"],["disapprove","不赞成"],["discard","丢弃"],["discharge","排放"],["discipline","纪律"],["disco","迪斯科舞厅"],["disguise","伪装"],["disintegrate","瓦解"],["disorder","无秩序，混乱"],["dispute","争端"],["disrupt","扰乱"],["disruptive","破坏性的"],["dissolve","溶解"],["distract","使分散注意力"],["distress","痛苦；困境"],["ditch","沟"],["diversify","使多元化"],["divisive","导致分裂的"],["dock","码头"],["doctorate","博士学位"],["documentary","纪录片"],["dolphin","海豚"],["donkey","驴"],["donor","捐助者"],["doom","厄运"],["dose","剂量"],["dragon","龙"],["drain","下水道；排水"],["drainage","排水"],["drastic","猛烈的"],["drift","漂移"],["drip","滴"],["dropout","退出者；退学者"],["drought","干旱"],["drown","使淹死"],["drunkard","酒鬼"],["drunken","醉酒的"],["dual","双的"],["dumb","哑的"],["dump","丢弃"],["durable","耐用的"],["dye","染料"],["earnest","郑重其事的"],["echo","回声"],["ecological","生态（学）的"],["efficient","高效的"],["elbow","肘"],["elective","选修课"],["electron","电子"],["elegance","优雅"],["elementary","基础的；小学的"],["elevate","使升高"],["elite","精英"],["embrace","拥抱"],["emit","发出"],["emotion","情感"],["emphatic","强调的"],["empire","帝国"],["empress","女皇；皇后"],["endurance","耐力"],["endure","忍耐"],["engage","参与"],["enlighten","启迪"],["enrich","丰富"],["enrol","报名"],["entitle","给（书等）取名；使有权"],["entrepreneur","企业家"],["entrepreneurial","企业家的"],["episode","（电视剧的）一集"],["era","时代"],["err","犯错"],["erroneous","错误的"],["essence","本质"],["essential","根本性的"],["eternal","永恒的"],["eternity","永恒"],["euro","欧元"],["eve","前夕"],["evil","邪恶；邪恶的；恶行"],["exaggerate","夸大"],["excel","擅长"],["excess","过剩的"],["exclaim","惊叹"],["excursion","游览"],["execute","执行"],["executive","行政的；常务的"],["exemplar","范例"],["exemplify","举例说明"],["exert","发挥"],["exhaust","使筋疲力尽；废气"],["exhaustion","筋疲力尽"],["exhaustive","详尽的"],["exile","流放"],["expanse","广阔"],["expansion","扩展"],["expel","驱逐"],["expend","花费"],["explosion","爆炸"],["expressway","高速公路"],["exterior","外观"],["extinguish","熄灭"],["eyebrow","眉"],["fable","寓言"],["fabric","织物"],["facility","设施"],["faculty","全体教师；特殊才能"],["faint","微弱的；晕倒"],["fairy","仙子"],["fake","假的"],["famine","饥荒"],["farewell","告别"],["fascinate","使着迷"],["fashion","时尚；时装"],["fatal","致命的"],["fate","命运"],["fatigue","疲劳"],["feasible","可行的"],["federate","联盟"],["feedback","反馈"],["fertile","肥沃的"],["figurative","比喻的"],["filter","过滤器"],["fingerprint","指纹"],["fireman","消防员"],["fireplace","壁炉"],["firstly","首先"],["fixate","使固定"],["fixture","固定装置"],["flavour","味道"],["flaw","缺陷"],["fleet","舰队"],["flock","一群"],["flourish","兴旺"],["fluid","流体"],["footprint","足迹"],["fore","前部"],["foresight","远见"],["forestry","林业"],["forge","锻造"],["formal","正式的"],["forth","向前"],["forum","论坛"],["fossil","化石"],["fraction","分数"],["fragment","片段"],["frame","框架"],["frank","直率的"],["freight","货运"],["freshman","大一新生"],["fruitful","富有成果的"],["frustrate","挫败"],["fuck","〈禁忌〉性交"],["fulfil","完成"],["furnace","炉子"],["fuss","大惊小怪"],["gadget","小装置"],["gamble","赌博"],["gang","团伙"],["gangster","歹徒"],["gaol","监狱"],["gap","差距"],["gaze","注视"],["gear","齿轮"],["gene","基因"],["generator","发电机"],["genetic","遗传的"],["genius","天才"],["genuine","真的"],["geological","地质（学）的"],["geology","地质学"],["germ","细菌"],["ghost","鬼"],["giant","巨人"],["gigantic","巨大的"],["glimpse","一瞥"],["gloom","忧郁"],["glow","发光"],["gorgeous","华丽的；棒的"],["gossip","说长道短"],["gown","女礼服"],["grab","抓"],["grace","优美"],["gracious","优美的"],["grammatical","语法的"],["graphic","书写的；生动的"],["gratitude","感激"],["grave","坟墓"],["greenhouse","温室"],["grief","悲伤"],["grieve","使悲伤"],["grievous","令人伤心的"],["grin","咧嘴笑"],["grind","磨碎；磨"],["grip","紧握；吸引"],["gross","总的，毛的"],["guardian","保卫者"],["gulf","海湾"],["gum","牙龈；口香糖"],["gut","肠子；内脏"],["guy","〈口语〉男人；家伙"],["habitat","栖息地"],["hack","砍"],["hail","冰雹；招呼"],["halt","停止"],["handbook","手册"],["handicap","使残疾"],["hardware","硬件"],["harness","马具；利用（能源）"],["harsh","苛刻的"],["haste","仓促"],["haul","拖；拽"],["haunt","出没"],["hay","干草"],["hazard","危害"],["haze","薄雾"],["hazy","模糊的"],["headmistress","女校长"],["headquarters","总部"],["heal","治愈"],["heap","一堆"],["hearty","衷心的；丰盛的"],["hectare","公顷"],["hedge","树篱"],["heighten","加强"],["heir","继承人"],["hell","地狱"],["herd","牛群；〈贬义〉人群"],["hereby","特此"],["heritage","遗产"],["heroine","女主角"],["hesitant","犹豫的"],["hijack","劫持"],["hinder","阻碍"],["hint","提示"],["hip","臀部"],["hollow","空心的"],["homely","朴实无华的"],["homosexual","同性恋"],["honeymoon","蜜月"],["horizon","地平线"],["horizontal","水平的"],["horn","喇叭"],["horrifying","令人恐怖的"],["horror","恐怖"],["horsepower","马力"],["hospitable","好客的"],["hospitality","好客"],["hostile","敌对的"],["household","住户"],["humble","谦卑的"],["hut","小屋，舍"],["hyphen","连字符"],["ideal","理想；理想的"],["idealistic","理想主义的"],["idle","空闲的"],["illusion","幻觉"],["illusory","虚幻的"],["imitate","模仿"],["immense","巨大的"],["immigrant","移民"],["immune","免疫的"],["impatience","不耐烦"],["impatient","不耐烦的"],["imperial","皇帝的"],["impulse","冲动"],["incidental","附带的"],["incredible","难以置信的"],["indifference","冷漠"],["indifferent","冷漠的"],["indispensable","不可或缺的"],["industrious","勤劳的"],["infant","幼儿"],["infect","感染"],["inferior","低于别人的"],["infinite","无限的"],["infinity","无限"],["inflate","使膨胀"],["ingredient","成分；配料"],["inhabit","居住"],["inhabitant","居民"],["inherit","继承"],["inland","内陆的"],["inquire","问询"],["install","安装"],["instalment","批次"],["instinct","本能"],["insult","侮辱"],["intact","不变的"],["intake","摄入量"],["intellectual","知识的；知识分子"],["interfere","干扰"],["interior","内部的"],["intimate","亲密的；关系暧昧的"],["intrude","侵扰"],["intrusion","侵扰"],["invade","入侵"],["invasion","入侵"],["invasive","扩散性的"],["inward","向内"],["irony","讽刺"],["jail","监狱"],["jealous","嫉妒的"],["jetlag","时差"],["joint","联合的"],["junk","垃圾"],["juror","陪审员"],["jury","陪审团"],["keen","热衷的"],["kin","亲朋"],["kit","工具包"],["kneel","跪"],["knit","针织"],["knot","结"],["lace","花边"],["ladder","梯子"],["lag","滞后"],["landlady","女房东；女地主"],["landlord","房东；地主"],["landscape","景观"],["lane","车道"],["laptop","笔记本电脑"],["laser","激光"],["lass","少女"],["launch","发射"],["lavatory","厕所"],["lawn","草坪"],["layoff","裁员"],["layout","布局"],["lean","倚，靠"],["leap","跳跃"],["lease","租赁"],["legend","传奇"],["leisure","休闲"],["lens","镜头"],["lest","以免"],["liable","承担责任的"],["lick","舔"],["lily","百合"],["limb","肢"],["linear","线性的"],["liquor","白酒"],["literacy","识字，读写能力"],["literal","字面的"],["livelihood","生计"],["liver","肝"],["loan","贷款"],["lobby","大堂"],["locality","位置，地点"],["locker","更衣柜"],["lodge","小屋，小舍"],["log","日志"],["logo","徽标"],["loophole","漏洞"],["lord","君主；上帝"],["loyal","忠诚的"],["lump","块"],["lunar","农历的"],["luxury","奢侈"],["magnet","磁铁"],["magnificent","壮丽的"],["mainstream","主流"],["makeup","化妆"],["mall","购物中心"],["mammal","哺乳动物"],["manufacture","制造"],["marine","海洋的"],["marital","婚姻的"],["marsh","沼泽"],["marshal","元帅"],["marvel","奇迹"],["Marx","马克思"],["massage","按摩"],["massive","大量的"],["masterpiece","杰作"],["mate","交配"],["maximal","最大的"],["mayor","市长"],["meantime","同时"],["mechanic","机械工"],["mechanise","使机械化"],["melt","融化"],["memo","备忘录"],["memorandum","备忘录"],["mend","修理"],["merit","优点"],["meritorious","值得称赞的"],["messenger","使者"],["metro","地铁"],["microphone","麦克风"],["mighty","强大的"],["migrant","移居者，流动者"],["mill","磨坊"],["miner","矿工"],["miracle","奇迹"],["miraculous","奇迹般的"],["miserable","悲惨的"],["misfortune","不幸"],["mission","使命"],["moderate","适度的"],["moist","潮湿"],["monetary","货币的"],["monster","怪物"],["mood","心情"],["moreover","此外"],["mortgage","按揭"],["motel","汽车旅馆"],["motion","议案"],["motorway","〈英〉高速公路"],["mould","模子"],["mount","装配"],["mug","缸子"],["mule","骡"],["multiple","多重的"],["municipal","市的，市政的"],["muscle","肌肉"],["muscular","肌肉的"],["mystery","神秘"],["myth","神话"],["mythic","神话的"],["mythology","〈总称〉神话"],["naked","裸体的"],["nap","午休"],["napkin","餐巾"],["narrate","讲述"],["nasty","令人讨厌的"],["naughty","淘气的"],["naval","海军的"],["necessitate","使必要"],["necessity","必要性"],["needy","贫困的"],["negative","负面的"],["neglect","忽视"],["negotiable","可谈判的；面议的"],["nerve","神经"],["nicety","准确；细节"],["nickel","镍"],["nightmare","噩梦"],["nonsense","胡说八道"],["nosy","爱管闲事的"],["notate","标注"],["notification","告知"],["notify","告知"],["notional","概念的"],["noun","名词"],["nourish","滋养"],["novelty","新奇"],["nucleus","核；核心"],["nude","裸体的"],["nuisance","滋扰"],["numerous","许多的"],["nutrient","营养物"],["nutrition","营养"],["obese","肥胖的"],["oblige","迫使"],["obstacle","障碍"],["occasion","场合"],["odour","气味"],["offend","冒犯"],["Olympiad","奥林匹克运动会，奥运会"],["omit","省略"],["online","在线"],["onwards","朝前"],["opponent","对手"],["opportunity","机遇"],["opt","选择（后跟 for）"],["optimism","乐观"],["orchestra","管弦乐队"],["ore","矿石"],["organic","有机的"],["organism","有机体"],["ornament","饰品"],["orphan","孤儿"],["orphanage","孤儿院"],["ounce","盎司"],["outdated","过时的"],["outlet","插座"],["outlook","前景"],["outset","开始"],["outskirts","郊区"],["oven","烤箱"],["overdue","逾期的"],["overhear","无意间听到"],["overnight","一夜之间"],["oversee","监督"],["oversight","疏忽"],["overtake","超，超越"],["overthrow","推翻"],["overtime","超时，加班"],["overwhelm","淹没；使崩溃"],["ozone","臭氧"],["pad","垫"],["paddy","稻子；稻田"],["palm","棕榈；手心"],["pants","〈主美〉裤子"],["paperback","平装书"],["parade","游行"],["paradox","悖论"],["parliament","议会"],["particle","粒子"],["passion","激情"],["password","密码"],["paste","粘贴"],["pastime","消遣"],["pat","轻拍"],["patch","补丁"],["paw","爪子"],["payroll","工资单"],["peak","峰"],["peanut","花生"],["pearl","珍珠"],["peasant","农民"],["peasantry","〈总称〉农民"],["peculiar","奇特的"],["peer","同龄人"],["penalise","惩罚"],["penalty","惩罚"],["penetrate","穿透"],["perceptive","感知的"],["peril","危险"],["permissive","允许的"],["persevere","坚持不懈"],["personality","个性"],["pessimism","悲观"],["pessimist","悲观主义者"],["pessimistic","悲观的"],["petroleum","石油"],["petty","小的；心眼小的"],["picturesque","如画的"],["pierce","刺入"],["pigeon","鸽子"],["pillar","支柱"],["pinch","捏"],["piracy","海盗；盗版行为"],["pirate","海盗"],["pistol","手枪"],["pit","坑"],["pitch","沥青"],["pizza","比萨饼"],["plague","瘟疫"],["plantation","种植园"],["pledge","保证；信物"],["plough","犁"],["plunge","跳入；使陷入"],["plural","复数"],["polar","极地的"],["poll","投票；民意测验"],["pollster","民意测验专家"],["populous","人口多的"],["posture","姿势"],["poverty","贫困"],["preach","布道，传"],["precaution","预防措施"],["preface","序"],["preposition","介词"],["presidency","总统职位"],["prevail","盛行"],["prevalent","盛行的"],["priest","牧师"],["prince","王子"],["princess","公主"],["privatise","使私有化"],["procession","队伍"],["proclaim","宣告"],["proficient","熟练的"],["profound","深刻的"],["projector","投影仪"],["prominence","突出"],["prominent","突出的"],["prompt","提示"],["pronoun","代词"],["proof","证据"],["property","财产"],["propose","建议"],["proposition","命题"],["prose","散文"],["protein","蛋白"],["protest","抗议"],["proverb","谚语"],["provision","提供；[-s]食品"],["provoke","引发"],["publicize","宣传"],["punch","用拳头猛击"],["purify","使净化"],["pursuit","追求"],["quantify","量化"],["quota","定额"],["rack","行李架"],["radar","雷达"],["rage","愤怒"],["ragged","衣衫褴褛的"],["raid","突袭"],["rally","集会"],["realm","界，领域"],["reap","收获"],["rear","后方"],["rebel","反叛"],["recall","召回"],["receptive","接受的"],["recession","经济衰退"],["recipient","收件人"],["reckon","估计"],["recruit","招聘"],["refrain","避免（后跟 from）"],["registrar","学籍管理员"],["relativity","相对；相对论"],["relieve","减缓"],["remedy","补救办法"],["render","使处于；翻译"],["renovate","翻修"],["repay","偿还"],["repetitive","重复的"],["reproduce","复制；再现"],["reproductive","生殖的"],["resent","怨恨"],["resolution","决议"],["resort","度假村"],["respective","各自的"],["response","响应"],["resume","恢复；简历"],["retail","零售"],["retention","保留"],["retreat","撤退"],["reunion","团聚"],["revolve","旋转"],["rhythm","节奏"],["rib","肋骨"],["ribbon","带子；装饰带"],["ridicule","嘲弄"],["rifle","步枪"],["riot","骚乱"],["rip","撕裂"],["rival","竞争对手"],["roar","轰鸣"],["rod","棍棒；杆"],["romantic","浪漫的"],["rose","玫瑰"],["rouse","唤醒"],["rub","擦"],["rug","地毯"],["rumour","谣言"],["runway","跑道"],["rural","农村的"],["sack","麻袋"],["saint","圣；圣徒"],["sake","名义"],["sample","样本"],["sane","神志正常的"],["sauce","汁"],["scale","规模"],["scandal","丑闻"],["scarce","稀有的"],["scatter","分散"],["scent","气味；香味"],["scholastic","学校的"],["scout","童子军；侦察舰"],["screw","螺丝"],["script","脚本，讲稿"],["scripture","经文；圣经"],["segment","片段"],["seizure","发作"],["semester","学期"],["semi","半"],["senate","参议院"],["senator","参议员"],["sensible","明智的"],["sensor","传感器"],["setback","挫折"],["shed","棚"],["sheer","纯粹的"],["shell","壳"],["shit","粪便，屎"],["shiver","颤抖"],["showy","艳丽的"],["shrimp","虾"],["shrug","耸肩"],["siege","围攻"],["sign","标记"],["silicon","硅"],["sin","罪"],["singular","奇异的"],["skeleton","骨架"],["sketch","素描"],["sketchy","不完全的"],["skinny","瘦的"],["skyline","天际线"],["slap","掌击"],["slender","细长的"],["slipper","拖鞋"],["slippery","滑的"],["slogan","口号"],["slope","坡"],["smash","粉碎"],["snack","小吃"],["soak","浸泡"],["soar","升空；飞涨"],["sociable","善于交际的"],["socialise","社交"],["sociology","社会学"],["soda","苏打水"],["solemn","庄严的"],["soluble","可溶的"],["solution","解决办法"],["solve","解决"],["solvent","不负债的；溶剂"],["sophisticated","复杂的"],["sophistication","复杂"],["sore","疼痛的"],["spacecraft","航天器"],["span","跨度"],["spark","火花"],["sparkle","闪烁"],["spatial","空间的"],["species","物种"],["specimen","标本"],["speculate","推测"],["spill","漏；泄露"],["spite","恶意（用作 in spite of，尽管）"],["splash","溅"],["splendour","辉煌"],["spoil","溺爱"],["spontaneous","自发的"],["sportsman","运动员"],["spouse","配偶"],["spur","激励"],["stack","堆"],["staircase","楼梯"],["stake","赌注，风险"],["stale","陈的；陈旧的"],["standpoint","立场；角度"],["staple","订书机"],["startle","使惊吓"],["stationary","静止的"],["steamer","汽船；蒸笼"],["steer","引导"],["stem","干；题干"],["stiff","僵硬的"],["stimulant","刺激物；兴奋剂"],["stimulate","刺激"],["stimulus","刺激"],["sting","毒刺"],["stir","搅拌"],["stock","股票"],["stool","凳子"],["storey","楼层"],["stormy","猛烈的"],["strain","拉紧"],["strap","表带"],["stretch","伸展"],["stride","大步行走"],["strip","脱掉；剥"],["stripe","条纹"],["strive","力争"],["stroke","中风"],["stuff","东西"],["stuffy","不通气的，闷的"],["submissive","顺从的"],["substance","物质"],["subtract","减"],["suburb","郊区"],["subway","地铁"],["summit","首脑会议"],["sunrise","日出"],["sunset","日落"],["superficial","肤浅的"],["supervise","监督"],["supposition","猜测"],["supremacy","至高无上"],["surf","冲浪"],["surge","涌；猛升"],["surgery","手术"],["surgical","外科的"],["surname","姓氏"],["surrender","投降"],["suspense","悬念"],["suspicion","怀疑"],["suspicious","可疑的"],["sway","摇摆"],["swipe","刷（卡）"],["sympathise","同情"],["tackle","处理"],["tag","标签"],["tame","驯服"],["tangible","有形的"],["technician","技术员"],["tedious","单调乏味的"],["teen","青少年"],["telecommunication","电信"],["teller","出纳"],["temper","脾气"],["tender","脆弱的；心肠软的"],["terrific","棒的"],["territory","领土"],["textile","纺织"],["Thanksgiving","感恩节"],["therapy","治疗"],["thermometer","温度计"],["threat","威胁"],["thrive","繁荣"],["thrust","推"],["thumb","拇指"],["tide","潮"],["timber","木材"],["toe","脚趾"],["token","标志；代币"],["toll","过路费"],["tone","语气"],["torch","火炬"],["torture","折磨"],["toss","抛，掷"],["touchy","敏感的"],["township","镇"],["trademark","商标"],["traffic","贩卖"],["tragedy","悲剧"],["tragic","悲剧的"],["trail","足迹"],["trailer","拖车；预告片"],["transact","办理"],["transcript","成绩单；转写"],["transparency","透明"],["transplant","移植"],["trash","垃圾"],["tray","托盘"],["treaty","条约"],["tremendous","巨大的"],["trifle","小事"],["triple","三倍的"],["triumph","胜利"],["triumphant","胜利的"],["trolley","购物车"],["trustee","受信托人"],["tuition","学费"],["tumour","肿瘤"],["tunnel","隧道"],["tutorial","教程"],["underestimate","低估"],["undergraduate","本科的；本科生"],["undermine","破坏"],["undo","撤消"],["uneasy","不安的"],["upgrade","升级"],["upload","上传"],["upright","正直的"],["usage","使用"],["utility","有用；水电"],["utmost","最大的"],["utter","说出；十足的"],["vacancy","空缺"],["vacuum","真空"],["van","面包车"],["vanish","消失"],["vanity","虚荣"],["vapour","水汽"],["vegetarian","素食者"],["veil","面纱"],["vendor","小贩"],["venture","企业"],["verb","动词"],["verbal","口头的"],["verify","核实"],["versus","对"],["vessel","容器"],["veteran","退伍军人"],["veto","否决权"],["viewpoint","观点"],["vigorous","精力充沛的"],["vigour","精力"],["vitamin","维生素"],["vocation","职业"],["volt","伏特"],["voluminous","大量的"],["vulnerable","易受伤害的"],["wagon","马车"],["ware","制品"],["warfare","战争"],["warrior","战士"],["wary","谨慎的"],["watchful","警惕的"],["waterproof","防水的"],["watertight","防水的"],["wavy","波浪的"],["weapon","武器"],["weaponry","〈总称〉武器"],["weave","编织"],["weird","怪异的"],["whatsoever","无论什么"],["whip","鞭子；鞭打"],["whiskey","威士忌酒"],["wide","宽的"],["wilderness","荒野"],["willpower","意志"],["wireless","无线的"],["wit","机智"],["withstand","承受"],["workforce","劳动人口"],["workout","锻炼"],["workshop","研修班"],["worship","崇拜"],["wrap","包，裹"],["wreck","残骸"],["Yankee","〈美〉北方人"],["yield","产，出；屈服"],["yoga","瑜伽"],["zoology","动物学"]],"C":[["abbreviation","缩写"],["abide","遵守"],["abnormal","异常的"],["abort","中止"],["abortion","流产"],["abreast","并排地"],["abrupt","突然的"],["absurd","荒诞的"],["accessory","配件"],["acclaim","称赞"],["activate","激活"],["acupuncture","针灸"],["adhere","遵守"],["adjacent","邻近的"],["adolescent","青少年"],["adorable","可爱的"],["adore","崇拜"],["advent","来临"],["adversary","对手"],["adversity","逆境"],["affiliate","使附属"],["affirm","确认"],["affirmative","肯定"],["affix","词缀"],["affixation","附加"],["afloat","漂浮"],["aftermath","后果"],["aggravate","加剧"],["aggregate","总计"],["agitate","使焦虑"],["agony","痛苦"],["aide","助手"],["ail","困扰；使患病"],["airborne","空降的"],["akin","类似的"],["ale","艾尔啤酒"],["alien","外星人；外国人"],["alienate","离间"],["align","对齐"],["allergic","过敏的"],["alleviate","减轻"],["allocate","分配"],["allot","分配"],["alloy","合金"],["allude","暗示"],["allure","引诱"],["allusion","典故"],["almighty","全能的"],["aloft","在高处"],["alternate","备用的"],["alternately","交替地"],["amass","积聚"],["ambiguity","模棱两可"],["amend","修改"],["amiable","和蔼的"],["ammunition","弹药"],["amplify","放大"],["analogous","类似的"],["analogy","类比"],["anecdote","轶事"],["anguish","痛苦"],["animation","动画"],["annex","吞并"],["anonymous","匿名的"],["antagonism","对抗"],["antenna","天线"],["antibiotic","抗生素"],["antonym","反义词"],["ape","猿"],["appall","使惊愕"],["appease","安抚"],["appendix","附录"],["appraise","评价"],["apprentice","学徒"],["appropriate","适当的；拨（款）"],["apron","围裙"],["apt","恰当的"],["arbitration","仲裁"],["arc","弧"],["arch","拱"],["archive","档案"],["ardent","热心的"],["arena","竞技场"],["aristocrat","贵族"],["armor","盔甲"],["array","排列"],["arrogant","傲慢的"],["artery","动脉"],["articulate","清楚地；清楚表达"],["artifact","手工艺品"],["artillery","炮兵"],["ascend","上升"],["ascertain","确定"],["ascribe","归因于"],["aspiration","抱负"],["aspire","向往"],["assassin","刺客"],["assassinate","暗杀"],["assault","突击"],["assert","断言"],["assimilate","同化；吸收"],["assorted","各种各样的"],["astray","迷路"],["asylum","庇护"],["atlas","地图集"],["atrocity","暴行"],["auction","拍卖"],["audit","审计"],["augment","增加"],["autobiography","自传"],["autonomous","自治的"],["auxiliary","辅助的"],["avail","有用"],["avenge","报仇"],["aversion","厌恶"],["avert","避免"],["baffle","挡板"],["bald","秃的"],["barge","驳船"],["barn","谷仓"],["barometer","晴雨表"],["barracks","军营"],["barren","荒芜的"],["bass","低音"],["batter","面糊；猛击"],["bead","珠子"],["beak","喙"],["beckon","招呼"],["beetle","甲虫"],["benevolent","仁慈的"],["benign","良性的"],["beset","困扰"],["besiege","围攻"],["beware","谨防"],["bewilder","使困惑"],["bibliography","参考书目"],["bilateral","双边的"],["binoculars","双筒望远镜"],["bishop","主教"],["bizarre","怪异的"],["blackmail","勒索"],["blaze","火焰"],["bleach","漂白"],["bleak","苍凉的"],["blink","眨"],["bloc","集团"],["bluff","虚张声势"],["blunder","错误"],["blunt","钝的"],["blush","脸红"],["bolster","加强"],["botany","植物学"],["bouquet","花束"],["bout","发作"],["boycott","抵制"],["brace","支撑"],["breach","违反"],["brew","酿造"],["brigade","旅"],["brink","边缘"],["brisk","轻快的"],["bronze","青铜"],["brood","窝"],["bruise","青瘀"],["Buddhism","佛教"],["buffalo","水牛"],["buffer","缓冲"],["bureaucrat","官僚"],["burglar","窃贼"],["bust","半身像"],["butt","屁股；烟蒂"],["buzz","嗡嗡声"],["calcium","钙"],["cannon","大炮"],["canoe","独木舟"],["canvas","帆布"],["cape","海角；披风"],["capsule","胶囊"],["caption","标题"],["captive","俘虏"],["caravan","大篷车"],["carbohydrate","碳水化合物"],["cardinal","红衣主教"],["carton","硬纸箱"],["carve","雕刻"],["casino","赌场"],["casualty","伤亡"],["catastrophe","灾难"],["cathedral","大教堂"],["Catholic","天主教徒"],["cauliflower","花椰菜"],["cavity","腔"],["celebrity","名人"],["cemetery","公墓"],["censor","审查"],["census","人口普查"],["ceramic","陶瓷的"],["certify","证明"],["chamber","室"],["chancellor","校长"],["chant","反复呼喊"],["chapel","教堂"],["choir","唱诗班"],["chord","和弦"],["chronic","慢性的"],["chronicle","编年史"],["chunk","大块"],["civic","公民的"],["clamp","钳"],["clan","氏族"],["clasp","扣"],["cleanse","清洗"],["clearance","清仓"],["clearing","空旷地"],["clench","握紧"],["clergy","牧师"],["cliché","陈词滥调"],["cloak","披风"],["clog","阻塞"],["closet","壁橱"],["cluster","簇"],["clutch","离合器"],["coalition","联盟"],["cocaine","可卡因"],["cockpit","座舱"],["cocktail","鸡尾酒"],["coconut","椰子"],["coexist","共存"],["cognition","认知"],["coincidence","巧合"],["collide","碰撞"],["colonel","上校"],["comet","彗星"],["comic","滑稽的"],["commemorate","纪念"],["commend","表彰"],["commonwealth","联邦"],["compartment","隔间"],["compassion","同情心"],["compile","编纂"],["complacent","自满的"],["complement","补充"],["complexion","肤色"],["compliment","恭维"],["complimentary","免费的"],["composite","综合的"],["compress","压缩"],["concede","承认"],["conceited","自负的"],["conceive","构想"],["conception","概念"],["concession","让步"],["concise","简洁的"],["concurrent","同时的"],["condolence","慰问"],["conducive","有利的"],["confederate","同盟的"],["confer","授予"],["confide","信任"],["configuration","配置"],["congregate","聚集"],["congregation","会众"],["connotation","内涵"],["consecutive","连续的"],["conserve","保护"],["console","安慰"],["conspicuous","显眼的"],["conspiracy","阴谋"],["constituency","选区"],["constituent","组成部分"],["constrain","约束"],["consul","领事"],["consulate","领事馆"],["contagious","传染的"],["contemplate","沉思"],["contingent","队伍"],["contrive","设法做到"],["convene","召开"],["converge","汇聚"],["converse","交谈"],["convict","定罪"],["convoy","护航"],["coral","珊瑚"],["cordial","亲切的"],["cork","软木"],["corporal","下士"],["corpse","尸体"],["correlate","相关"],["corrode","腐蚀"],["cosmetic","化妆品"],["cosmopolitan","大都会的"],["counteract","抵消"],["counterfeit","伪造"],["coup","政变"],["courtesy","礼貌"],["cozy","舒适的"],["crackdown","镇压"],["cradle","摇篮"],["cram","塞进"],["crate","板条箱"],["crave","渴望"],["credential","凭据"],["credible","可信的"],["cricket","蟋蟀"],["cripple","使残疾；严重削弱"],["crisp","脆的"],["crouch","蹲伏"],["crow","乌鸦"],["crude","粗略的；天然的"],["crumble","崩溃"],["crunch","紧缩"],["crust","脆皮"],["cub","幼兽"],["cuisine","烹饪"],["culminate","结束"],["cult","邪教"],["cumulative","累积的"],["cunning","狡猾的"],["curfew","宵禁"],["curtail","削减"],["custody","保管"],["cylinder","圆柱体"],["cynical","玩世不恭的"],["dart","镖"],["dazzle","使目眩"],["deadlock","僵局"],["debris","废墟"],["debut","首次登台"],["decimal","小数"],["decree","法令"],["dedicate","奉献"],["deduce","推断"],["deduct","扣除"],["default","默认"],["defer","推迟"],["degenerate","退化"],["degrade","降级"],["delicacy","美味"],["delude","欺骗"],["delusion","妄想；欺骗"],["demographic","人口学的"],["denote","表示"],["denounce","谴责"],["depict","描绘"],["deplete","消耗"],["deplore","痛惜"],["deploy","部署"],["deport","驱逐出境"],["depot","仓库"],["depreciate","贬值"],["derail","脱轨"],["deregulate","放松管制"],["designate","指定"],["desolate","荒凉的"],["despise","鄙视"],["destined","注定的"],["destiny","命运"],["detach","分离"],["detached","冷漠的"],["detain","扣留"],["deter","阻止"],["detergent","洗涤剂"],["deterrent","威慑"],["detriment","损害"],["devastate","摧毁"],["deviate","偏离"],["devour","吞食"],["diesel","柴油机"],["differentiate","区分"],["diffuse","扩散"],["dilute","稀释"],["diminish","减少"],["dinosaur","恐龙"],["directory","目录"],["disarm","解除武装"],["discern","辨别"],["disclose","透露"],["discord","不和谐"],["discourse","话语"],["discreet","慎重的"],["discrepancy","差异"],["dismantle","拆除"],["dismay","沮丧"],["dispatch","派遣"],["dispense","分配"],["disperse","分散"],["displace","取代"],["disposition","性格"],["disregard","漠视"],["dissent","异议"],["dissertation","论文"],["dissident","持不同政见者"],["distill","蒸馏"],["distort","歪曲"],["divert","转移"],["dividend","分红"],["divine","神圣的"],["doctrine","教义"],["dodge","躲闪"],["dogma","教条"],["dole","发放"],["domain","域"],["dome","圆顶"],["dough","面团"],["downgrade","降级"],["doze","瞌睡"],["drawback","缺点"],["dread","恐惧"],["dressing","敷料"],["dub","配音"],["dubious","可疑的"],["duplicate","复制"],["dwarf","矮人"],["dwell","居住"],["Easter","复活节"],["eccentric","古怪的"],["eclipse","日食；月食"],["ecosystem","生态系统"],["edible","食用的"],["ego","自我"],["eject","弹出"],["elaborate","阐述"],["elapse","流逝"],["elastic","有弹性的"],["electoral","选民的"],["elicit","引出"],["eligible","合格的"],["eloquent","雄辩的"],["emancipate","解放"],["embargo","禁运"],["embark","着手"],["embed","嵌入"],["embody","体现"],["embroidery","刺绣"],["emigrate","移民"],["eminent","杰出的"],["empirical","经验的"],["emulate","仿真"],["enact","制定"],["enclose","围住"],["encyclopedia","百科全书"],["endeavor","努力"],["endorse","赞同"],["endow","赋予"],["enlist","入伍"],["ensue","随后"],["entail","势必引起"],["entity","实体"],["entrust","委托"],["envelop","信封"],["envisage","设想"],["envoy","使者"],["epic","史诗"],["epidemic","流行性的"],["epoch","时代"],["equate","等同"],["equation","方程"],["equator","赤道"],["equity","公平"],["eradicate","根除"],["erect","直立"],["erode","侵蚀"],["errand","差事"],["erupt","喷发"],["escalate","升级"],["escalator","自动扶梯"],["escort","护送"],["esteem","尊重"],["esthetics","美学"],["etiquette","礼仪"],["evacuate","撤离"],["evade","逃避"],["evaporate","蒸发"],["evoke","唤起"],["excerpt","节选"],["exempt","豁免的"],["exotic","异国情调的"],["expedition","远征"],["expire","到期"],["exponent","指数"],["exposition","博览会"],["exquisite","精美的"],["extinct","灭绝的"],["extract","提取"],["extravagant","奢侈的"],["fabricate","捏造"],["fabulous","绝妙的"],["facet","方面"],["faction","派"],["fascism","法西斯主义"],["feast","盛宴"],["feat","壮举"],["feeble","虚弱的"],["feminine","女性的"],["feminism","女权主义"],["finite","有限的"],["fiscal","财政的"],["flank","侧翼"],["flap","扇动"],["flare","忽明忽暗"],["flatter","奉承"],["fling","扔"],["flip","轻弹"],["flirt","调情"],["flush","脸红；冲水"],["flutter","振动"],["foam","泡沫"],["foe","敌人"],["foil","挫败；箔"],["folklore","民俗"],["foretell","预言"],["forfeit","丧失"],["formidable","可怕的"],["fort","堡垒"],["fortify","强化"],["fortnight","两星期"],["foster","促进；收养"],["foul","犯规"],["fracture","断裂"],["fragile","脆弱的"],["fragrant","香的"],["franchise","专营权"],["frantic","疯狂的"],["fraud","欺诈"],["friction","摩擦"],["fringe","边缘"],["frown","皱眉"],["furious","狂怒的"],["fuse","保险丝"],["fusion","融合"],["futile","徒劳的"],["galaxy","星系"],["garlic","大蒜"],["gasp","喘气"],["gauge","测量"],["genre","类型"],["giggle","傻笑"],["glacier","冰川"],["glamor","魅力"],["gland","腺"],["glare","瞪眼"],["gleam","闪烁"],["glide","滑翔"],["glitter","闪烁"],["glossary","词汇表"],["gorge","峡谷"],["gospel","福音"],["graze","放牧"],["grease","润滑油"],["greedy","贪婪的"],["grid","格"],["grill","烤架"],["grim","严峻的"],["groan","呻吟"],["groove","槽"],["grope","摸索"],["hamper","阻碍"],["handicraft","手工业"],["harass","骚扰"],["hardy","强壮的"],["haven","避风港"],["havoc","破坏"],["hawk","鹰"],["heave","起伏"],["hectic","忙碌的"],["helmet","头盔"],["hemisphere","半球"],["henceforth","今后"],["herald","先驱"],["herb","草本植物"],["heroin","海洛因"],["hibernate","冬眠的"],["hierarchy","等级制度"],["hike","远足"],["hinge","合页"],["hitherto","迄今为止"],["hive","蜂巢"],["hockey","曲棍球"],["hoist","提升"],["homogeneous","同性质的"],["hop","跳"],["hose","软管"],["hostage","人质"],["hound","猎犬"],["hover","徘徊"],["howl","嚎"],["huddle","缩成一团"],["hum","哼"],["humane","人道的"],["humanitarian","人道的"],["humid","湿的"],["humiliate","羞辱"],["hurdle","栏"],["hurl","投"],["hurricane","飓风"],["hybrid","杂种"],["hygiene","卫生"],["hypocrite","伪君子"],["hypothesis","假设"],["hysteria","歇斯底里"],["iceberg","冰山"],["icon","图标"],["ideology","思想"],["idiot","白痴"],["idol","偶像"],["ignite","点燃"],["illicit","违法的"],["illiterate","文盲"],["illuminate","照亮"],["immerse","沉浸"],["imminent","即将来临的"],["impair","妨害"],["impart","传授"],["imperative","必要的"],["impetus","推动力"],["imprison","监禁"],["impromptu","即兴的"],["inauguration","就职典礼"],["inborn","先天的"],["incorporate","合并"],["incumbent","在职者"],["incur","招致"],["indebted","负债累累的"],["indefinite","无限期的"],["indict","起诉"],["indigenous","原居民的"],["indignant","愤怒的"],["indulge","放纵"],["inertia","惯性"],["inflict","造成"],["infringe","侵权"],["ingenious","巧妙的"],["inherent","固有的"],["inhibit","抑制"],["inject","注射"],["inmate","囚犯"],["innumerable","无数的"],["insulate","隔离"],["integral","不可或缺的"],["intellect","智力"],["intelligible","可理解的"],["intercourse","交往"],["interim","临时的"],["intermittent","断断续续的"],["interrogate","审讯"],["intervene","干预"],["intimidate","威吓"],["intricate","错综复杂的"],["intrigue","阴谋"],["intrinsic","固有的"],["intuition","直觉"],["invalid","无效的"],["inventory","库存"],["invert","倒置"],["irrespective","不管的"],["irritable","烦躁的"],["irritate","激怒"],["isle","岛"],["ivory","象牙"],["jack","千斤顶"],["jargon","行话"],["jelly","果冻"],["jeopardize","危害"],["jerk","拽；混蛋"],["jockey","赛马骑师"],["jolly","欢乐"],["judicial","司法的"],["junction","交叉路口"],["jurisdiction","管辖权"],["juvenile","少年"],["kidnap","绑架"],["kidney","肾"],["knight","骑士"],["knob","旋钮"],["lad","小伙子"],["landmark","地标"],["lash","睫毛"],["latitude","纬度"],["lavish","奢侈的"],["lawsuit","诉讼"],["layman","外行"],["leaflet","传单"],["legacy","遗产"],["legitimate","合法的"],["lenient","宽容的"],["lesbian","女同性恋"],["lever","杠杆"],["levy","征收"],["lieutenant","中尉"],["lime","酸橙"],["limelight","风头"],["limp","跛行"],["linen","麻布"],["liner","衬垫"],["linger","萦绕"],["linguistics","语言学"],["lipstick","口红"],["livestock","家畜"],["locomotive","机车"],["lofty","崇高的"],["logistics","后勤；物流"],["longevity","长寿"],["longitude","经度"],["loom","织机"],["loop","环"],["loot","洗劫"],["lotion","护肤剂"],["lottery","彩票"],["lounge","休息室"],["lubricate","润滑"],["lucrative","有利可图的"],["luminous","发光的"],["lure","诱饵"],["lyric","歌词"],["lyrical","抒情的"],["magistrate","地方法官"],["magnify","放大"],["magnitude","强度"],["majesty","威严"],["malice","恶意"],["malignant","恶性的"],["malpractice","弊端"],["mandatory","强制的"],["maneuver","演习"],["manifest","表现"],["mansion","大厦"],["manuscript","手稿"],["mar","损伤"],["marble","大理石"],["maritime","海上的"],["martyr","烈士"],["masculine","男性的"],["massacre","屠杀"],["maternal","母亲的"],["meadow","草地"],["mediate","调解"],["medication","药物"],["medieval","中世纪的"],["melodious","悦耳的"],["melody","旋律"],["menace","威胁"],["mentor","导师"],["merchandise","商品"],["mercury","汞"],["merge","合并"],["metabolism","新陈代谢"],["metaphor","暗喻"],["meticulous","细致的"],["metropolitan","大都市的"],["midst","中间"],["midwife","助产士"],["milestone","里程碑"],["militant","好战的"],["militia","民兵"],["mindset","心态"],["mingle","交融"],["miniature","微型的"],["mint","薄荷"],["missionary","传教士"],["moan","呻吟"],["mobilize","动员"],["mock","嘲笑"],["molecule","分子"],["momentous","重大的"],["momentum","势头"],["monarch","君主"],["monopoly","垄断"],["monotonous","单调的"],["morale","士气"],["mortality","死亡"],["mosquito","蚊子"],["mourn","哀悼"],["mow","割"],["multilateral","多边的"],["multitude","大量"],["murmur","低声说"],["mute","哑的；静音"],["mutter","喃喃自语"],["naive","幼稚的"],["navigate","导航"],["negligent","疏忽的"],["negligible","微不足道的"],["nickname","昵称"],["nil","零"],["nitrogen","氮"],["nominal","名义上的"],["nominate","提名"],["nonetheless","尽管如此"],["noteworthy","值得注意的"],["notorious","臭名昭著的"],["notwithstanding","虽然"],["numb","麻木的"],["numerical","数值的"],["nurture","培育"],["oak","橡树"],["oar","桨"],["oath","誓言"],["obscene","猥亵的"],["obscure","朦胧的"],["observatory","天文台"],["obsess","使痴迷"],["obstruct","阻碍"],["offset","抵消"],["offspring","后代"],["olive","橄榄"],["onset","发作"],["opaque","不透明的"],["operative","起作用的"],["oppress","压迫"],["optic","视力的"],["optical","光学的"],["optimal","最佳的"],["ordeal","考验"],["orthodox","正统的"],["outfit","套装"],["outlaw","取缔"],["outrage","暴行"],["overflow","溢出"],["overhaul","大修"],["overlap","重叠"],["override","推翻"],["overstate","夸大"],["overt","公开的"],["overturn","颠覆"],["owl","猫头鹰"],["oxide","氧化物"],["pact","协议"],["pamphlet","小册子"],["panorama","全景"],["pant","喘气"],["parachute","降落伞"],["paradigm","范例"],["paradise","天堂"],["paralyze","使瘫痪"],["parameter","参数"],["parasite","寄生虫"],["parish","教区"],["parole","言语"],["parrot","鹦鹉"],["partisan","党派的"],["partition","划分"],["passerby","过路人"],["pasta","意大利面"],["pastry","糕点"],["pasture","牧场"],["pathetic","可悲的"],["patriot","爱国者"],["patrol","巡逻"],["patron","赞助人"],["patronage","惠顾"],["peck","啄"],["pedal","踏板"],["peddle","兜售"],["peel","果皮"],["peep","窥视"],["peg","挂钩"],["pending","待定的"],["pendulum","钟摆"],["penguin","企鹅"],["peninsula","半岛"],["perch","栖息"],["perfume","香水"],["perish","消失"],["permeate","渗透"],["perpetual","永久的"],["perplex","使困扰"],["persecute","迫害"],["pest","害虫"],["pesticide","杀虫剂"],["petition","请愿"],["petrochemical","石油化学的"],["pharmaceutical","制药的"],["pharmacy","药店"],["physiological","生理的"],["pilgrim","朝圣者"],["plaintiff","原告"],["plateau","高原"],["plausible","合理的"],["plaza","广场"],["plead","恳求"],["plight","困境"],["plumber","水管工"],["poised","保持平衡的"],["poke","戳"],["polytechnic","理工学院"],["ponder","思考"],["porcelain","瓷"],["porch","门廊"],["porridge","稀饭"],["portfolio","作品集"],["portrait","肖像"],["portray","描绘"],["potent","有力的"],["pottery","陶器"],["poultry","家禽"],["practitioner","执业者"],["precede","先于"],["predator","捕食者"],["predecessor","前任"],["predominant","占主导地位的"],["premature","过早的"],["premise","前提"],["premium","保险费"],["preoccupied","全神贯注的"],["prerequisite","先决条件"],["preside","主持"],["prestige","声望"],["presume","推测"],["pretext","借口"],["prey","猎物"],["probe","探测"],["profile","个人资料"],["prolong","延长"],["prone","俯卧的"],["proofread","校对"],["prop","支柱"],["propaganda","宣传"],["propagate","传播"],["propel","推进"],["propeller","螺旋桨"],["prosecute","起诉"],["prosper","繁荣"],["protocol","协议"],["prototype","原型"],["proximity","接近"],["psychiatrist","精神科医生"],["pudding","布丁"],["pumpkin","南瓜"],["pyramid","金字塔"],["quart","夸脱"],["query","询问"],["quest","寻求"],["quiver","颤动"],["radiation","辐射"],["radiator","散热器"],["radioactive","放射性的"],["ranch","牧场"],["random","随机的"],["rap","说唱"],["rape","强奸"],["rash","皮疹"],["ratify","批准"],["ration","定量"],["rattle","拨浪鼓"],["reassure","使放心"],["recede","后退"],["recipe","食谱"],["reciprocal","互相的"],["reckless","鲁莽的"],["reconcile","调和"],["rectify","纠正"],["recur","复发"],["redundant","多余的"],["reel","卷轴"],["referee","裁判"],["referendum","公投"],["refuge","避难所"],["refugee","难民"],["refund","退还"],["refute","驳斥"],["regime","政权"],["regiment","团"],["rehabilitation","康复"],["rehearse","排练"],["reign","统治"],["rein","缰绳"],["rejoice","欣喜"],["relentless","不懈的"],["relic","遗迹"],["relish","品味"],["reminiscence","回忆"],["remnant","剩余"],["renaissance","复兴"],["renowned","著名的"],["repel","击退"],["repertoire","曲目"],["repress","抑制"],["reproach","责备"],["repute","名誉"],["reservoir","水库"],["reshuffle","改组"],["restless","不安的"],["retaliate","报复"],["retarded","智力发育迟缓的"],["retort","反驳"],["retrieval","检索"],["retrospect","回顾"],["revenge","复仇"],["revive","复活"],["revolt","反叛"],["rhetoric","修辞"],["ridge","岭"],["rig","操纵"],["rigid","死板的"],["rigorous","严格的"],["rim","边缘"],["ritual","仪式"],["robust","强大的"],["rot","腐烂"],["rotate","旋转"],["rust","锈"],["ruthless","无情的"],["sacred","神圣的"],["saddle","鞍"],["safeguard","保障"],["salmon","三文鱼"],["salon","沙龙"],["salutation","称呼"],["salute","向……致敬"],["salvage","打捞"],["sanction","制裁"],["sanctuary","避难所"],["sanitary","卫生的"],["sarcasm","讽刺"],["satire","讽刺"],["saturation","饱和"],["savage","野蛮的"],["scenario","情景"],["scorn","轻蔑"],["scramble","争夺"],["scrap","废料"],["scrape","刮"],["scrub","擦洗"],["scrutinize","仔细检查"],["sculpture","雕塑"],["secular","世俗的"],["seduce","诱惑"],["segregate","隔离"],["sensation","感觉"],["sensational","轰动的"],["sentiment","情绪"],["sergeant","军士"],["serial","连载的"],["shabby","破旧的"],["shaft","轴"],["shark","鲨鱼"],["shatter","打碎"],["shepherd","牧羊人"],["shield","屏障"],["shipyard","船厂"],["shorthand","速记"],["shove","推"],["showcase","玻璃陈列柜"],["shred","撕碎"],["shrewd","精明的"],["shrub","灌木"],["signify","表示"],["simulate","模拟"],["simultaneous","同时的"],["sinister","险恶的"],["skeptic","怀疑的"],["skim","撇；浏览"],["skull","头骨"],["slack","松弛的"],["slam","大满贯"],["slash","削减"],["slaughter","屠宰"],["slot","插槽"],["slum","贫民窟"],["slump","暴跌"],["smuggle","走私"],["snail","蜗牛"],["snap","打响指"],["snatch","抢夺"],["sneak","潜行"],["sniff","嗅"],["snobbish","势利的"],["sob","哭泣"],["sober","清醒的"],["socket","插座"],["sodium","钠"],["solicit","征求"],["solicitor","律师"],["solidarity","团结"],["solitary","独居的"],["solo","独奏"],["soothe","安抚"],["sovereign","君主"],["sovereignty","主权"],["spaghetti","意大利细面"],["spear","矛"],["specialty","专业"],["spectacle","奇观"],["spectator","观众"],["spectrum","光谱"],["spice","香料"],["spicy","辣的"],["spider","蜘蛛"],["spine","脊椎"],["spiral","螺旋"],["sponge","海绵"],["spotlight","聚光灯"],["sprawl","蔓延"],["sprinkle","撒"],["squad","队"],["stab","刺"],["stagger","蹒跚"],["stagnant","停滞不前的"],["stalk","茎"],["stall","使暂停"],["stammer","结巴"],["stance","姿态"],["standby","备用的"],["staple","主食"],["stapler","订书机"],["stark","鲜明的"],["static","静态的"],["stationery","文具"],["statute","法令"],["stereotype","成见"],["stern","船尾"],["steward","管家"],["stewardess","空姐"],["stifle","窒息"],["stigma","耻辱"],["stipulate","规定"],["stitch","缝"],["stoop","弯腰"],["stout","肥胖的"],["strait","海峡"],["strand","股"],["strangle","扼杀"],["stray","迷路"],["streak","条纹"],["streamline","精简"],["stroll","漫步"],["stubborn","顽固的"],["stumble","绊倒"],["stump","树桩"],["stun","使震惊"],["sturdy","坚固的"],["submarine","潜艇"],["submerge","淹没"],["subordinate","下属"],["subscribe","订阅"],["subsidize","资助"],["subsidy","补贴"],["subsistence","生计"],["subtle","微妙的"],["sue","起诉"],["suffice","足够"],["suicide","自杀"],["suite","套房"],["sulfur","硫"],["summon","召唤"],["superintendent","主管"],["superstition","迷信"],["suppress","压制"],["surpass","超过"],["surveillance","监视"],["susceptible","易感的"],["swamp","沼泽"],["swap","交换"],["symmetric","对称的"],["symphony","交响乐"],["symposium","研讨会"],["syndicate","辛迪加"],["syndrome","综合征"],["synonym","同义词"],["synthesis","合成"],["taboo","忌讳"],["tack","大头钉"],["tact","老练"],["tactic","战术"],["tan","黝黑"],["tangle","纠纷"],["tanker","油船"],["tariff","关税"],["tease","逗"],["temperament","气质"],["tempo","速度"],["temporal","时间的"],["tempt","诱惑"],["tenant","租户"],["tentative","暂定的"],["tenure","任期"],["terminate","终止"],["terrace","阳台"],["terrain","地形"],["tertiary","第三的；高等教育的"],["testify","作证"],["texture","质地"],["thermal","热的"],["thigh","大腿"],["thorn","刺"],["threshold","门槛"],["thrifty","节俭的"],["thrill","使激动"],["thriller","恐怖片"],["throne","王位"],["tickle","胳肢"],["tile","瓦"],["tilt","倾斜"],["timid","胆小的"],["toil","辛劳"],["topple","翻倒"],["tornado","龙卷风"],["tournament","锦标赛"],["tow","拖"],["toxic","有毒的"],["tract","大片；道"],["trait","特征"],["tranquil","宁静的"],["transcend","超越"],["transient","短暂的"],["transistor","晶体管"],["transition","过渡"],["trauma","创伤"],["tread","踏"],["treasury","财政部"],["trek","跋涉"],["trench","沟"],["tribe","部落"],["tribune","论坛"],["tribute","致敬"],["trickle","滴"],["trillion","兆"],["trim","修剪"],["trivial","不重要的"],["trophy","杯"],["tropical","热带的"],["trumpet","喇叭"],["tub","浴盆"],["tuck","塞"],["tug","拖船"],["tumble","滚落"],["turbulent","动荡的"],["turmoil","动荡"],["turnout","到场人数"],["turnover","周转"],["turtle","龟"],["ultra","超"],["unanimous","一致的"],["underlying","深层的"],["unfold","展开"],["unify","统一"],["unilateral","单方面的"],["unleash","释放"],["unprecedented","前所未有的"],["unveil","揭幕"],["uphold","坚持"],["uprising","起义"],["uranium","铀"],["urine","尿"],["vaccine","疫苗"],["valve","阀"],["vegetation","植被"],["vein","静脉"],["velocity","速度"],["velvet","丝绒"],["vent","发泄"],["ventilation","通风"],["venue","场地"],["verdict","判决"],["verge","边缘"],["versatile","多才多艺的"],["verse","诗"],["vest","背心"],["viable","可行的"],["vibrate","颤动"],["vicinity","附近"],["vicious","恶毒的"],["virgin","处女"],["vocal","声乐的"],["vogue","时尚"],["void","空"],["volatile","挥发的"],["voucher","凭证"],["vow","发誓"],["vulgar","庸俗的"],["waive","放弃"],["wardrobe","衣柜"],["warrant","保证"],["watt","瓦"],["weary","疲倦的；厌倦的"],["wedge","楔子"],["wharf","码头"],["whereabouts","下落"],["whereby","从而"],["whirl","旋转"],["wholesale","批发"],["wholesome","健康的"],["wicked","邪恶的"],["wield","挥"],["wink","眨眼"],["witch","巫婆"],["wither","枯萎"],["withhold","扣留"],["wrench","扳手"],["wrestle","摔跤"],["wretched","苦难的"],["yacht","游艇"],["yawn","打哈欠"],["yearn","向往"],["zeal","热情"],["zigzag","之字形"],["zip","压缩"],["zipper","拉链"],["zoom","疾行"]]};
+const LEVELS = ["A","B","C"];
+const LEVEL_INFO = {
+  A:{label:"A 级",desc:"四级高频词 · 分级考 / 期末考重点"},
+  B:{label:"B 级",desc:"四级次高频词 · 期末考 / 学位考重点"},
+  C:{label:"C 级",desc:"六级词 · 暂不作要求"}
+};
+const ALL = [];
+LEVELS.forEach(lv => (DATA[lv]||[]).forEach((p,i) => ALL.push({id:ALL.length, level:lv, no:i+1, word:p[0], meaning:p[1]})));
+const BY_WORD = Object.create(null);   // 单词 → 词条（跨级别重复时取级别最低的一条）
+const BY_LW = Object.create(null);     // "级别|单词" → 词条
+ALL.forEach(e => { if (!BY_WORD[e.word]) BY_WORD[e.word] = e; BY_LW[e.level + "|" + e.word] = e; });
+/* 收藏/复习时按用户实际收藏的那一条（级别）取词条，避免跨级重复词显示成别的级别 */
+const entryOf = w => BY_LW[((store.bank[w] || {}).level || "") + "|" + w] || BY_WORD[w];
+
+/* ================= 存档 ================= */
+const KEY = "nju-vocab-tool-v1";
+const INTERVALS = [1,2,4,7,15,30];
+let storageOK = true;
+let store = { bank:{}, tomb:{}, settings:{theme:"light", autoSpeak:false, mask:false} };
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) { const o = JSON.parse(raw); store.bank = o.bank||{}; store.tomb = o.tomb||{}; Object.assign(store.settings, o.settings||{}); }
+} catch(e){ storageOK = false; }
+try { localStorage.setItem(KEY + "__probe", "1"); localStorage.removeItem(KEY + "__probe"); } catch(e){ storageOK = false; }
+function save(skipSync){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){ storageOK=false; } if (!skipSync) scheduleSync(); }
+
+/* 云同步配置（Token 只存在本机浏览器，不会上传到任何第三方） */
+const SKEY = "nju-vocab-tool-sync";
+const API = "https://api.github.com";
+const SYNC_FILE = "nju-vocab-sync.json";
+let sync = { token:"", gistId:"", auto:true, lastAt:0 };
+try { const o = JSON.parse(localStorage.getItem(SKEY) || "{}"); Object.assign(sync, o); } catch(e){}
+function saveSync(){ try{ localStorage.setItem(SKEY, JSON.stringify(sync)); }catch(e){} }
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+/* ================= 状态 ================= */
+const CHUNK = 150;
+const state = {
+  view:"home", level:"ALL", letter:"", q:"", hideBanked:false, mask:false, batch:false,
+  sort:"index", shown:CHUNK, bankLevel:"ALL", bankQ:"", selected:new Set(), revealed:new Set(),
+  reviewHide:false, reviewIndex:0
+};
+const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
+const DAY = 86400000;
+const fmtDate = t => { const d = new Date(t); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+
+/* ================= 词库操作 ================= */
+function bankAdd(word, level){
+  if (!BY_WORD[word] || store.bank[word]) return false;
+  const now = Date.now();
+  store.bank[word] = { level:level || BY_WORD[word].level, addedAt:now, updatedAt:now, stage:0, due:today(), reviews:0, lapses:0 };
+  delete store.tomb[word];
+  save(); return true;
+}
+function bankDel(word){
+  if (!store.bank[word]) return false;
+  delete store.bank[word];
+  store.tomb[word] = Date.now();
+  save(); return true;
+}
+function bankToggle(word, level){ return store.bank[word] ? (bankDel(word), false) : (bankAdd(word, level), true); }
+const bankWords = () => Object.keys(store.bank);
+const dueWords = () => bankWords().filter(w => (store.bank[w].due||0) <= today())
+  .sort((a,b) => (store.bank[a].due - store.bank[b].due) || a.localeCompare(b));
+function review(word, verdict){
+  const b = store.bank[word]; if (!b) return;
+  b.reviews = (b.reviews||0) + 1;
+  b.updatedAt = Date.now();
+  if (verdict === "ok") { b.stage = Math.min((b.stage||0) + 1, INTERVALS.length); b.due = today() + INTERVALS[Math.min(b.stage, INTERVALS.length) - 1]*DAY; }
+  else if (verdict === "mid") { b.due = today() + DAY; }
+  else { b.stage = 0; b.lapses = (b.lapses||0) + 1; b.due = today(); }
+  save();
+}
+
+/* ================= 过滤 ================= */
+function baseList(){
+  const q = state.q.trim(), ql = q.toLowerCase();
+  let list = ALL.filter(e => {
+    if (state.level !== "ALL" && e.level !== state.level) return false;
+    if (state.letter && e.word[0].toLowerCase() !== state.letter) return false;
+    if (state.hideBanked && store.bank[e.word]) return false;
+    if (ql) {
+      if (!(e.word.toLowerCase().includes(ql) || e.meaning.includes(q) || String(e.no) === q)) return false;
+    }
+    return true;
+  });
+  if (state.sort === "alpha") list = list.slice().sort((a,b) => a.word.toLowerCase().localeCompare(b.word.toLowerCase()));
+  else if (state.sort === "len") list = list.slice().sort((a,b) => a.word.length - b.word.length || a.word.localeCompare(b.word));
+  return list;
+}
+function bankList(){
+  const q = state.bankQ.trim(), ql = q.toLowerCase();
+  let list = bankWords().map(w => entryOf(w)).filter(Boolean);
+  if (state.bankLevel !== "ALL") list = list.filter(e => e.level === state.bankLevel);
+  if (ql) list = list.filter(e => e.word.toLowerCase().includes(ql) || e.meaning.includes(q));
+  return list.sort((a,b) => (store.bank[b.word].addedAt||0) - (store.bank[a.word].addedAt||0));
+}
+
+/* ================= 朗读 ================= */
+let canSpeak = typeof speechSynthesis !== "undefined";
+function speak(w){
+  if (!canSpeak) return;
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(w); u.lang = "en-US"; u.rate = .92; speechSynthesis.speak(u); } catch(e){}
+}
+
+/* ================= 渲染 ================= */
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function starSVG(on){ return on ? "★" : "☆"; }
+
+function rowsHTML(list, slice){
+  return slice.map(e => {
+    const banked = !!store.bank[e.word];
+    const hidden = state.mask && !state.revealed.has(e.id);
+    const sel = state.selected.has(e.word) ? " sel" : "";
+    return '<div class="row'+sel+'" data-w="'+esc(e.word)+'" data-id="'+e.id+'">'
+      + (state.batch ? '<div class="c-no"><input type="checkbox" class="chk" '+(state.selected.has(e.word)?"checked":"")+' data-w="'+esc(e.word)+'"></div>'
+                    : '<div class="c-no">'+e.no+'</div>')
+      + '<div class="c-word"><span class="w">'+esc(e.word)+'</span><button class="spk" data-spk="'+esc(e.word)+'" title="朗读">🔊</button></div>'
+      + '<div class="c-mean'+(hidden?" masked":"")+'" data-mean="'+e.id+'">'+esc(e.meaning)+'</div>'
+      + '<div><span class="badge '+e.level.toLowerCase()+'">'+e.level+'</span></div>'
+      + '<div class="c-act"><button class="star'+(banked?" on":"")+'" data-star="'+esc(e.word)+'" data-lv="'+e.level+'" title="'+(banked?"移出个人词库":"加入个人词库")+'">'+starSVG(banked)+'</button></div>'
+      + '</div>';
+  }).join("");
+}
+function moreHTML(total, shown, id){
+  const m = $("#"+id);
+  if (shown >= total) { m.hidden = true; return; }
+  m.hidden = false;
+  m.innerHTML = '已显示 <b>'+shown+'</b> / '+total+' 条 · <button class="btn ghost" id="btnMoreMore">显示更多</button>';
+  $("#btnMoreMore").onclick = () => { state.shown += CHUNK*2; renderList(); };
+}
+function chipsHTML(el, list){
+  const total = ALL.length, bank = bankWords().length;
+  const cnt = {A:0,B:0,C:0}; list.forEach(e => cnt[e.level]++);
+  el.innerHTML = '<span class="chip">词表总数 <b>'+total+'</b></span>'
+    + '<span class="chip">本次筛出 <b>'+list.length+'</b></span>'
+    + '<span class="chip">其中 A <b>'+cnt.A+'</b> · B <b>'+cnt.B+'</b> · C <b>'+cnt.C+'</b></span>'
+    + '<span class="chip">个人词库 <b>'+bank+'</b></span>'
+    + (state.mask ? '<span class="chip" style="border-color:var(--accent);color:var(--accent)">遮罩自测中 · 点击释义显示</span>' : "");
+}
+function tabsHTML(el){
+  const due = dueWords().length;
+  el.innerHTML = tab("list","📖 词表阅读","")
+    + tab("bank","⭐ 个人词库", bankWords().length)
+    + tab("review","🔄 今日复习", due)
+    + '<span class="spacer" style="flex:1"></span>'
+    + '<button class="btn ghost btnHome">← 返回首页</button>';
+  el.querySelectorAll(".tab").forEach(b => b.onclick = () => go(b.dataset.v));
+  el.querySelector(".btnHome").onclick = () => go("home");
+  function tab(v,label,n){ return '<button class="tab'+(state.view===v?" on":"")+'" data-v="'+v+'">'+label+(n?'<span class="pill">'+n+'</span>':"")+'</button>'; }
+}
+
+function renderList(){
+  const list = baseList();
+  $("#rows").innerHTML = list.length ? rowsHTML(list, list.slice(0, state.shown)) : emptyHTML();
+  moreHTML(list.length, state.shown, "more");
+  chipsHTML($("#chips"), list);
+  tabsHTML($("#tabs"));
+  const fl = $("#segLevel"); $$("#segLevel button").forEach(b => b.classList.toggle("on", b.dataset.lv === state.level));
+  bindRows($("#rows"));
+}
+function renderBank(){
+  const list = bankList();
+  $("#rowsBank").innerHTML = list.length ? rowsHTML(list, list.slice(0, state.shown)) : emptyHTML("个人词库还是空的","在「词表阅读」里点 ☆ 就能把单词收进来");
+  moreHTML(list.length, state.shown, "moreBank");
+  chipsHTML($("#chips2"), list);
+  tabsHTML($("#tabs2"));
+  $$("#segBankLv button").forEach(b => b.classList.toggle("on", b.dataset.lv === state.bankLevel));
+  $$("#tabs2 .tab").forEach(b => b.onclick = () => go(b.dataset.v));
+  bindRows($("#rowsBank"));
+  $("#setBankInfo").textContent = bankWords().length + " 词";
+}
+function emptyHTML(t, s){
+  return '<div class="empty"><div class="big">🔍</div><div>'+(t||"没有匹配的单词")+'</div>'
+    + '<div style="font-size:13px;margin-top:6px">'+(s||"试试换个筛选条件，或点「重置筛选」")+'</div></div>';
+}
+function bindRows(root){
+  root.querySelectorAll(".spk").forEach(b => b.onclick = ev => { ev.stopPropagation(); speak(b.dataset.spk); });
+  root.querySelectorAll("[data-star]").forEach(b => b.onclick = ev => {
+    ev.stopPropagation();
+    const on = bankToggle(b.dataset.star, b.dataset.lv);
+    b.classList.toggle("on", on); b.textContent = starSVG(on);
+    b.title = on ? "移出个人词库" : "加入个人词库";
+    refreshCounts();
+  });
+  root.querySelectorAll(".c-mean.masked").forEach(d => d.onclick = () => {
+    const id = +d.dataset.mean; state.revealed.add(id); d.classList.remove("masked");
+  });
+  root.querySelectorAll(".chk").forEach(c => c.onchange = () => {
+    if (c.checked) state.selected.add(c.dataset.w); else state.selected.delete(c.dataset.w);
+    batchInfo();
+  });
+  root.querySelectorAll(".row").forEach(r => r.onclick = ev => {
+    if (ev.target.closest("button") || ev.target.closest("input")) return;
+    if (state.batch) { const w = r.dataset.w; if (state.selected.has(w)) state.selected.delete(w); else state.selected.add(w);
+      const c = r.querySelector(".chk"); if (c) c.checked = state.selected.has(w); batchInfo(); r.classList.toggle("sel", state.selected.has(w)); return; }
+    if (store.settings.autoSpeak) speak(r.dataset.w);
+  });
+}
+function refreshCounts(){ tabsHTML($("#tabs")); if (state.view === "bank") renderBank(); }
+function rerender(){ if (state.view === "bank") renderBank(); else if (state.view === "list") renderList(); else if (state.view === "review") renderReview(); }
+
+function renderReview(){
+  tabsHTML($("#tabs3"));
+  const due = dueWords();
+  const total = bankWords().length;
+  const done = total - due.length;
+  if (!total) { $("#reviewBox").innerHTML = '<div class="empty"><div class="big">🔄</div><div>个人词库还是空的</div><div style="font-size:13px;margin-top:6px">先到「词表阅读」里点 ☆ 收藏一些单词，再回来复习</div></div>'; return; }
+  if (!due.length) { $("#reviewBox").innerHTML = '<div class="empty"><div class="big">🎉</div><div>今天的复习任务完成啦！</div><div style="font-size:13px;margin-top:6px">共 '+total+' 词在词库中，没有到期的单词。<br>下次复习时间按 1·2·4·7·15·30 天递增。</div></div>'; return; }
+  const w = due[0], e = entryOf(w), b = store.bank[w];
+  const stage = Math.min(b.stage||0, INTERVALS.length);
+  $("#reviewBox").innerHTML =
+    '<div class="rcard">'
+    + '<div class="rmeta">今日待复习 '+due.length+' 词 · 已完成 '+done+' / '+total+' · 当前词第 '+(stage+1)+' 阶段</div>'
+    + '<div class="rw">'+esc(w)+' <button class="spk" data-spk="'+esc(w)+'">🔊</button></div>'
+    + '<div class="rm">'+(state.reviewHide ? '<span class="rm hide" id="rm">'+esc(e.meaning)+'</span>' : esc(e.meaning))+'</div>'
+    + '<div class="rmeta">'+LEVEL_INFO[e.level].label+' · 词表第 '+e.no+' 个 · 复习 '+(b.reviews||0)+' 次 · 遗忘 '+(b.lapses||0)+' 次</div>'
+    + '<div class="rbtns">'
+      + '<button class="rbtn ok" data-v="ok">✅ 认识（+1 阶段）</button>'
+      + '<button class="rbtn mid" data-v="mid">🤔 模糊（明天再来）</button>'
+      + '<button class="rbtn no" data-v="no">❌ 忘了（重新开始）</button>'
+      + '<button class="rbtn" id="btnPeek">'+(state.reviewHide?"显示释义":"先遮住释义")+'</button>'
+    + '</div><div class="prog"><i style="width:'+Math.round(done/Math.max(total,1)*100)+'%"></i></div>'
+    + '<div class="rmeta" style="margin:0">词库进度 '+done+' / '+total+'</div></div>';
+  $("#reviewBox").querySelector("[data-spk]").onclick = () => speak(w);
+  $("#btnPeek").onclick = () => { state.reviewHide = !state.reviewHide; renderReview(); };
+  $$("#reviewBox .rbtn[data-v]").forEach(btn => btn.onclick = () => { review(w, btn.dataset.v); renderReview(); refreshCounts(); });
+}
+
+/* ================= 视图切换 ================= */
+function go(view, opts){
+  state.view = view; state.shown = CHUNK; state.revealed.clear(); state.selected.clear(); batchInfo();
+  if (opts !== false) syncHash();
+  ["home","list","bank","review"].forEach(v => $("#v-"+v).hidden = (v !== view));
+  if (view === "list") renderList();
+  else if (view === "bank") renderBank();
+  else if (view === "review") renderReview();
+  window.scrollTo(0,0);
+}
+function syncHash(){
+  const p = new URLSearchParams();
+  if (state.level !== "ALL") p.set("level", state.level);
+  if (state.letter) p.set("letter", state.letter);
+  if (state.q) p.set("q", state.q);
+  if (state.hideBanked) p.set("hide", "1");
+  if (state.mask) p.set("mask", "1");
+  if (state.sort !== "index") p.set("sort", state.sort);
+  if (state.view !== "home") p.set("view", state.view);
+  const s = p.toString();
+  // file:// 下 origin 为 null，replaceState 可能被拒绝；失败就只保留只读的深链能力
+  try { history.replaceState(null, "", "#" + s); } catch(e){}
+}
+function readHash(){
+  const p = new URLSearchParams((location.hash||"").replace(/^#/,""));
+  if (p.get("level")) state.level = p.get("level");
+  if (p.get("letter")) state.letter = p.get("letter");
+  if (p.get("q")) state.q = p.get("q");
+  state.hideBanked = p.get("hide") === "1";
+  state.mask = p.get("mask") === "1";
+  if (p.get("sort")) state.sort = p.get("sort");
+  state.view = p.get("view") || "home";
+}
+
+/* ================= 设置 / 导入导出 ================= */
+function warnNoStorage(){
+  const d = document.createElement("div");
+  d.className = "warn";
+  d.innerHTML = "⚠️ 当前浏览器不允许本地存储（localStorage），<b>收藏与复习记录不会保存</b>。请改用 Chrome / Edge 打开本文件，或把它放到本地/网络服务器上再访问。";
+  document.querySelector(".wrap").prepend(d);
+}
+function applyTheme(){
+  document.documentElement.dataset.theme = store.settings.theme;
+  $("#btnTheme").textContent = store.settings.theme === "dark" ? "☀️" : "🌙";
+  $("#cbDark").checked = store.settings.theme === "dark";
+}
+function download(name, text, type){
+  const blob = new Blob([text], {type:type||"text/plain;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+function exportTxt(){
+  const list = state.view === "bank" ? bankList() : baseList();
+  if (!list.length) return alert("当前没有可导出的单词");
+  download("南大通用词汇_"+ (state.view==="bank"?"个人词库":"筛选结果") +"_"+list.length+"词.txt",
+    list.map(e => e.word + "\t" + e.meaning + "\t[" + e.level + "]").join("\r\n"), "text/plain;charset=utf-8");
+}
+function exportJson(){
+  download("nju-vocab-backup-"+fmtDate(Date.now())+".json",
+    JSON.stringify({app:"nju-vocab-tool", version:1, exportedAt:new Date().toISOString(),
+      count:bankWords().length, settings:store.settings, bank:store.bank}, null, 2), "application/json");
+}
+function importJson(text){
+  let o; try { o = JSON.parse(text); } catch(e){ return alert("JSON 解析失败：" + e.message); }
+  const bank = o.bank || o; let n = 0;
+  if (!bank || typeof bank !== "object") return alert("文件格式不对：没找到 bank 字段");
+  Object.keys(bank).forEach(w => {
+    if (!BY_WORD[w]) return;
+    if (!store.bank[w]) { store.bank[w] = Object.assign({level:BY_WORD[w].level, addedAt:Date.now(), stage:0, due:today(), reviews:0, lapses:0}, bank[w]); n++; }
+  });
+  if (o.settings) Object.assign(store.settings, o.settings);
+  save(); applyTheme(); go(state.view, false);
+  alert("导入完成，新增 " + n + " 个单词。");
+}
+function wipe(scope){
+  if (scope === "bank") { if (!confirm("确定清空个人词库（"+bankWords().length+" 词）？此操作不可撤销。")) return; store.bank = {}; }
+  else { if (!confirm("确定清空全部数据（词库 + 设置）？此操作不可撤销。")) return; store.bank = {}; store.settings = {theme:"light", autoSpeak:false, mask:false}; }
+  save(); applyTheme(); applyMaskUI(); go(state.view, false);
+}
+
+/* ================= 批量 ================= */
+function batchInfo(){
+  const n = state.selected.size;
+  $("#batchInfo").innerHTML = "已勾选 <b>" + n + "</b> 个单词";
+  $("#batchbar").classList.toggle("on", state.batch);
+}
+function applyMaskUI(){
+  $("#cbMask").checked = state.mask; $("#cbMask2").checked = state.mask;
+  $("#swMask").classList.toggle("on", state.mask); $("#swMask2").classList.toggle("on", state.mask);
+  state.revealed.clear();
+  if (state.view === "list") renderList(); else if (state.view === "bank") renderBank();
+}
+
+/* ================= 初始化 & 事件 ================= */
+(function init(){
+  // 首字母下拉
+  const letters = Array.from(new Set(ALL.map(e => e.word[0].toLowerCase()))).sort();
+  const sel = $("#selLetter");
+  letters.forEach(l => { const o = document.createElement("option"); o.value = l; o.textContent = "首字母 " + l.toUpperCase(); sel.appendChild(o); });
+
+  readHash(); applyTheme();
+  $("#cbMask").checked = state.mask; $("#cbMask2").checked = state.mask;
+  $("#cbHide").checked = state.hideBanked;
+  $("#cbSort") && ($("#selSort").value = state.sort);
+  $("#selLetter").value = state.letter;
+  $("#selSort").value = state.sort;
+  $("#q").value = state.q;
+  $("#cbSpeak").checked = !!store.settings.autoSpeak;
+  $("#swSpeak").classList.toggle("on", !!store.settings.autoSpeak);
+  $("#swMask").classList.toggle("on", state.mask);
+  $("#swMask2").classList.toggle("on", state.mask);
+  $("#swHide").classList.toggle("on", state.hideBanked);
+  if (!storageOK) { console.warn("localStorage 不可用，本次修改不会保存"); warnNoStorage(); }
+
+  go(state.view, false);
+
+  // 首页
+  $("#btnEnter").onclick = () => go("list");
+  // 主题 / 抽屉
+  $("#btnTheme").onclick = () => { store.settings.theme = store.settings.theme === "dark" ? "light" : "dark"; save(); applyTheme(); };
+  const openDrawer = on => { $("#drawer").classList.toggle("on", on); $("#mask").classList.toggle("on", on); };
+  $("#btnSet").onclick = () => openDrawer(true);
+  $("#mask").onclick = () => openDrawer(false);
+  $("#cbDark").onchange = () => { store.settings.theme = $("#cbDark").checked ? "dark" : "light"; save(); applyTheme(); };
+  $("#cbSpeak").onchange = () => { store.settings.autoSpeak = $("#cbSpeak").checked; save();
+    $("#swSpeak").classList.toggle("on", store.settings.autoSpeak); };
+  const toggleMask = () => { state.mask = !state.mask; store.settings.mask = state.mask; save(); applyMaskUI(); syncHash(); };
+  $("#cbMask").onchange = toggleMask; $("#cbMask2").onchange = toggleMask;
+  $("#cbHide").onchange = () => { state.hideBanked = $("#cbHide").checked; $("#swHide").classList.toggle("on", state.hideBanked); state.shown = CHUNK; renderList(); syncHash(); };
+  $("#cbBatch").onchange = () => { state.batch = $("#cbBatch").checked; $("#swBatch").classList.toggle("on", state.batch);
+    state.selected.clear(); batchInfo(); renderList(); };
+
+  // 筛选
+  $$("#segLevel button").forEach(b => b.onclick = () => { state.level = b.dataset.lv; state.shown = CHUNK; renderList(); syncHash(); });
+  $$("#segBankLv button").forEach(b => b.onclick = () => { state.bankLevel = b.dataset.lv; state.shown = CHUNK; renderBank(); });
+  $("#selLetter").onchange = () => { state.letter = $("#selLetter").value; state.shown = CHUNK; renderList(); syncHash(); };
+  $("#selSort").onchange = () => { state.sort = $("#selSort").value; state.shown = CHUNK; renderList(); syncHash(); };
+  let qt = null;
+  $("#q").oninput = () => { clearTimeout(qt); qt = setTimeout(() => { state.q = $("#q").value; state.shown = CHUNK; renderList(); syncHash(); }, 120); };
+  $("#qb").oninput = () => { clearTimeout(qt); qt = setTimeout(() => { state.bankQ = $("#qb").value; state.shown = CHUNK; renderBank(); }, 120); };
+  $("#btnClearFilter").onclick = () => {
+    state.level = "ALL"; state.letter = ""; state.q = ""; state.hideBanked = false; state.sort = "index"; state.shown = CHUNK;
+    $("#q").value = ""; $("#selLetter").value = ""; $("#selSort").value = "index"; $("#cbHide").checked = false;
+    $("#swHide").classList.remove("on"); renderList(); syncHash();
+  };
+
+  // 词库页按钮
+  $("#btnExportTxt").onclick = exportTxt;
+  $("#btnExportJson").onclick = exportJson; $("#btnExportJson2").onclick = exportJson;
+  const pickImport = () => $("#fileImport").click();
+  $("#btnImport").onclick = pickImport; $("#btnImport2").onclick = pickImport;
+  $("#fileImport").onchange = () => { const f = $("#fileImport").files[0]; if (!f) return;
+    const r = new FileReader(); r.onload = () => importJson(r.result); r.readAsText(f, "utf-8"); $("#fileImport").value = ""; };
+  $("#btnWipe").onclick = () => wipe("bank"); $("#btnWipe2").onclick = () => wipe("all");
+
+  // 批量栏
+  $("#btnSelAll").onclick = () => { const list = state.view === "bank" ? bankList() : baseList();
+    list.slice(0, state.shown).forEach(e => state.selected.add(e.word)); rerender(); batchInfo(); };
+  $("#btnSelNone").onclick = () => { state.selected.clear(); rerender(); batchInfo(); };
+  $("#btnBatchAdd").onclick = () => { let n = 0; state.selected.forEach(w => { if (bankAdd(w)) n++; }); state.selected.clear();
+    rerender(); batchInfo(); refreshCounts();
+    if (!n) alert("勾选的单词都已经在词库里了"); };
+  $("#btnBatchDel").onclick = () => { let n = 0; state.selected.forEach(w => { if (bankDel(w)) n++; }); state.selected.clear();
+    rerender(); batchInfo(); refreshCounts();
+    if (!n) alert("勾选的单词都不在词库里"); };
+  $("#btnBatchExit").onclick = () => { state.batch = false; $("#cbBatch").checked = false; $("#swBatch").classList.remove("on");
+    state.selected.clear(); batchInfo(); rerender(); };
+
+  // 键盘
+  document.addEventListener("keydown", ev => {
+    const inField = /input|select|textarea/i.test((ev.target.tagName||""));
+    if (ev.key === "/" && !inField) { ev.preventDefault(); go("list"); $("#q").focus(); return; }
+    if (ev.key === "Escape") { if ($("#drawer").classList.contains("on")) return openDrawer(false);
+      if (inField) { ev.target.value = ""; if (ev.target.id === "q") { state.q = ""; renderList(); } if (ev.target.id === "qb") { state.bankQ = ""; renderBank(); } ev.target.blur(); return; }
+      go("home"); return; }
+    if (inField) return;
+    if (ev.key === "m") { toggleMask(); return; }
+    if (ev.key === "1" || ev.key === "2" || ev.key === "3") { state.level = ["A","B","C"][+ev.key-1]; state.shown = CHUNK;
+      if (state.view !== "list" && state.view !== "bank") go("list", false); else renderList(); syncHash(); }
+  });
+
+  window.addEventListener("hashchange", () => { readHash(); go(state.view, false); });
+})();
+
+/* ================= 云同步（GitHub Gist，零后端） ================= */
+const localState = () => ({ bank: store.bank, tomb: store.tomb });
+
+/* 纯函数：按「每条记录的最后修改时间」合并两份进度；删除用墓碑记录，避免删掉的词被另一台设备加回来 */
+function mergeStates(a, b){
+  a = a || {}; b = b || {};
+  const out = { bank:{}, tomb:{} };
+  const recT = r => r ? (r.updatedAt || r.addedAt || 0) : 0;
+  const keys = new Set([].concat(Object.keys(a.bank||{}), Object.keys(b.bank||{}), Object.keys(a.tomb||{}), Object.keys(b.tomb||{})));
+  keys.forEach(w => {
+    const ra = (a.bank||{})[w], rb = (b.bank||{})[w];
+    const da = (a.tomb||{})[w] || 0, db = (b.tomb||{})[w] || 0;
+    const aAlive = !!ra && recT(ra) >= da, bAlive = !!rb && recT(rb) >= db;
+    const aT = aAlive ? recT(ra) : da, bT = bAlive ? recT(rb) : db;
+    let alive, rec, t;
+    if (aT > bT) { alive = aAlive; rec = ra; t = aT; }
+    else if (bT > aT) { alive = bAlive; rec = rb; t = bT; }
+    else if (aAlive) { alive = true; rec = ra; t = aT; }
+    else if (bAlive) { alive = true; rec = rb; t = bT; }
+    else { alive = false; t = aT; }
+    if (alive && rec) out.bank[w] = rec; else if (t) out.tomb[w] = t;
+  });
+  const cutoff = Date.now() - 90*DAY;   // 墓碑保留 90 天，过期清理
+  Object.keys(out.tomb).forEach(w => { if (out.tomb[w] < cutoff) delete out.tomb[w]; });
+  return out;
+}
+
+async function ghFetch(path, opts){
+  opts = opts || {};
+  const res = await fetch(API + path, {
+    method: opts.method || "GET",
+    body: opts.body,
+    headers: Object.assign({
+      "Accept": "application/vnd.github+json",
+      "Authorization": "Bearer " + sync.token,
+      "X-GitHub-Api-Version": "2022-11-28"
+    }, opts.headers || {})
+  });
+  const text = await res.text();
+  let data = null; try { data = text ? JSON.parse(text) : null; } catch(e){}
+  if (!res.ok) throw new Error("GitHub API " + res.status + " " + ((data && data.message) || text.slice(0, 120) || res.statusText));
+  return data;
+}
+const syncPayload = () => ({ app:"nju-vocab-tool", version:1, savedAt:new Date().toISOString(), bank:store.bank, tomb:store.tomb });
+
+async function pullRemote(){
+  if (!sync.gistId) return { bank:{}, tomb:{} };
+  const g = await ghFetch("/gists/" + sync.gistId);
+  const f = g.files && g.files[SYNC_FILE];
+  if (!f) return { bank:{}, tomb:{} };
+  let content = f.content;
+  if (f.truncated && f.raw_url) content = await (await fetch(f.raw_url)).text();
+  try { const o = JSON.parse(content); return { bank:o.bank||{}, tomb:o.tomb||{} }; } catch(e){ return { bank:{}, tomb:{} }; }
+}
+async function pushRemote(){
+  const files = {}; files[SYNC_FILE] = { content: JSON.stringify(syncPayload()) };
+  if (!sync.gistId) {
+    const g = await ghFetch("/gists", { method:"POST",
+      body: JSON.stringify({ description:"南大通用英语词汇 · 学习进度同步存档", public:false, files }) });
+    sync.gistId = g.id; saveSync();
+  } else {
+    await ghFetch("/gists/" + sync.gistId, { method:"PATCH", body: JSON.stringify({ files }) });
+  }
+}
+
+let syncing = false, syncTimer = null;
+function setSyncStatus(msg, isErr){
+  const el = $("#syncStatus"); if (!el) return;
+  el.textContent = msg; el.style.color = isErr ? "#e5484d" : "var(--muted)";
+}
+async function syncNow(silent){
+  if (!sync.token) { setSyncStatus("请先填写 GitHub Token", true); if (!silent) alert("请先填写 GitHub Token"); return false; }
+  if (!sync.gistId) { setSyncStatus("还没有云端存档，请点「创建云端存档」", true); return false; }
+  if (syncing) return false;
+  syncing = true; setSyncStatus("同步中…");
+  try {
+    const merged = mergeStates(localState(), await pullRemote());
+    store.bank = merged.bank; store.tomb = merged.tomb;
+    save(true);                                    // 本地落盘，且不再触发自动同步
+    await pushRemote();
+    sync.lastAt = Date.now(); saveSync();
+    setSyncStatus("已同步 · " + new Date(sync.lastAt).toLocaleString() + " · 词库 " + bankWords().length + " 词");
+    if (state.view === "bank" || state.view === "review") rerender();
+    tabsHTML($("#tabs")); renderSyncBankInfo();
+    return true;
+  } catch (err) {
+    setSyncStatus("同步失败：" + err.message, true);
+    if (!silent) alert("同步失败：\n" + err.message);
+    return false;
+  } finally { syncing = false; }
+}
+function scheduleSync(){
+  if (!sync.auto || !sync.token || !sync.gistId) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => syncNow(true), 6000);
+}
+function renderSyncBankInfo(){ const el = $("#setBankInfo"); if (el) el.textContent = bankWords().length + " 词"; }
+
+/* 连接自检：先匿名访问公开端点确认能跨域调通，再（若填了 Token）用 /user 验证令牌 */
+async function syncNetTest(){
+  try {
+    const r = await fetch(API + "/rate_limit", { headers: { "Accept":"application/vnd.github+json" } });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    let msg = "✔ 能连上 GitHub API（未认证额度 " + d.resources.core.remaining + "/" + d.resources.core.limit + "）";
+    if (sync.token) {
+      try { const u = await ghFetch("/user"); msg += " · Token 有效：" + u.login; }
+      catch (e2) { return { ok:false, msg: msg + " · Token 无效：" + e2.message }; }
+    }
+    return { ok:true, msg };
+  } catch (e) { return { ok:false, msg: "✘ 连不上 GitHub API：" + e.message }; }
+}
+function openSettings(on){ const d = $("#drawer"), m = $("#mask"); if (d) d.classList.toggle("on", on); if (m) m.classList.toggle("on", on); }
+
+/* ---- 以网址方式访问时：注册 Service Worker（离线可用）+ iPhone 加到主屏幕提示 ---- */
+function registerSW(){
+  if (!location.protocol.startsWith("http") || !("serviceWorker" in navigator)) return;
+  window.addEventListener("load", () => { navigator.serviceWorker.register("./sw.js").catch(() => {}); });
+}
+function maybeIosHint(){
+  const ua = navigator.userAgent || "";
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const standalone = navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+  if (!isIOS || standalone || !location.protocol.startsWith("http")) return;
+  try { if (localStorage.getItem("nju-ios-hint")) return; } catch(e){}
+  const d = document.createElement("div");
+  d.className = "ioshint";
+  d.innerHTML = '<b>想当 App 用？</b>点 Safari 底部的「分享」按钮 → 选「添加到主屏幕」，'
+    + '之后就有独立图标、全屏打开，飞机上离线也能背。'
+    + '<button class="btn ghost" style="margin:8px 0 0;padding:5px 12px">知道了</button>';
+  d.querySelector("button").onclick = () => { try { localStorage.setItem("nju-ios-hint", "1"); } catch(e){} d.remove(); };
+  document.querySelector(".wrap").prepend(d);
+}
+
+(function initSyncUI(){
+  const t = $("#syncToken"), g = $("#syncGist"), a = $("#cbAuto");
+  if (!t) return;
+  t.value = sync.token || ""; g.value = sync.gistId || ""; a.checked = !!sync.auto;
+  $("#swAuto").classList.toggle("on", !!sync.auto);
+  setSyncStatus(sync.lastAt ? ("上次同步 " + new Date(sync.lastAt).toLocaleString()) : (sync.token ? "已配置，尚未同步" : "未配置（本机离线使用）"));
+  const readInputs = () => { sync.token = t.value.trim(); sync.gistId = g.value.trim(); sync.auto = a.checked; saveSync(); };
+  t.onchange = readInputs; g.onchange = readInputs;
+  a.onchange = () => { readInputs(); $("#swAuto").classList.toggle("on", a.checked); };
+
+  $("#btnSyncNow").onclick = async () => { readInputs(); if (!sync.gistId) return $("#btnSyncCreate").click(); await syncNow(false); };
+  $("#btnSyncCreate").onclick = async () => {
+    readInputs();
+    if (!sync.token) return alert("请先填写 GitHub Token。\n\n在 GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens 新建，权限里把 Account permissions 的 Gists 设为 Read and write。");
+    if (syncing) return;
+    syncing = true; setSyncStatus("创建云端存档…");
+    try {
+      const merged = mergeStates(localState(), await pullRemote());
+      store.bank = merged.bank; store.tomb = merged.tomb; save(true);
+      await pushRemote();
+      sync.lastAt = Date.now(); saveSync(); g.value = sync.gistId;
+      setSyncStatus("云端存档已创建 · " + sync.gistId);
+      alert("已创建私有 Gist 存档：\n" + sync.gistId + "\n\n在另一台设备上填同一个 Token 和这个 Gist ID，或点「复制配对链接」到手机上打开。");
+    } catch (err) { setSyncStatus("创建失败：" + err.message, true); alert("创建失败：\n" + err.message); }
+    finally { syncing = false; }
+  };
+  $("#btnSyncTest").onclick = async () => { setSyncStatus("测试连接中…"); const r = await syncNetTest(); setSyncStatus(r.msg, !r.ok); };
+  $("#btnSyncLink").onclick = () => {
+    readInputs();
+    if (!sync.token || !sync.gistId) return alert("请先配置好 Token 与 Gist ID（或先创建云端存档）");
+    const code = btoa(unescape(encodeURIComponent(JSON.stringify({ t:sync.token, g:sync.gistId }))));
+    const url = location.href.split("#")[0] + "#sync=" + encodeURIComponent(code);
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(url).then(
+      () => alert("配对链接已复制。在手机浏览器打开它，会自动填好配置并立即同步。"),
+      () => prompt("复制下面的配对链接：", url));
+    else prompt("复制下面的配对链接，在手机浏览器打开即可自动配置：", url);
+  };
+  $("#btnSyncForget").onclick = () => {
+    if (!confirm("清除本机保存的 Token / Gist ID？云端存档不会被删除。")) return;
+    sync.token = ""; sync.gistId = ""; sync.lastAt = 0; saveSync();
+    t.value = ""; g.value = ""; setSyncStatus("未配置（本机离线使用）");
+  };
+  if (sync.auto && sync.token && sync.gistId) setTimeout(() => syncNow(true), 1200);
+  window.addEventListener("online", () => { if (sync.auto && sync.token && sync.gistId) syncNow(true); });
+})();
+
+/* ================= 演示数据 / 自检 ================= */
+function seedDemo(){
+  store.bank = {};
+  ALL.filter(e => e.level === "A").slice(0, 24).forEach((e, i) => {
+    store.bank[e.word] = { level:"A", addedAt:Date.now()-i*60000, updatedAt:Date.now()-i*60000, stage:i%4,
+      due: today() + (i < 7 ? 0 : (i % 3) * DAY), reviews:i, lapses:i % 3 };
+  });
+  save();
+}
+function selfTest(){
+  const backup = JSON.stringify(store);
+  const out = []; let pass = 0, fail = 0;
+  const ok = (n, c, x) => { c ? pass++ : fail++; out.push((c ? "✓ " : "✗ ") + n + (x !== undefined ? "  [" + x + "]" : "")); };
+  try {
+    ok("词条总数 3086", ALL.length === 3086, ALL.length);
+    const cnt = {A:0,B:0,C:0}; ALL.forEach(e => cnt[e.level]++);
+    ok("分级 570/1217/1299", cnt.A === 570 && cnt.B === 1217 && cnt.C === 1299, JSON.stringify(cnt));
+    state.level = "A"; state.q = ""; state.letter = ""; state.hideBanked = false;
+    ok("筛选 A 级 = 570", baseList().length === 570, baseList().length);
+    state.level = "ALL";
+    state.q = "abandon"; ok("按英文搜索", baseList().length === 1 && baseList()[0].word === "abandon", baseList().length);
+    state.q = "放弃"; ok("按中文搜索", baseList().length > 0, baseList().length + " 条");
+    state.q = ""; state.letter = "z";
+    ok("首字母筛选 z", baseList().length > 0 && baseList().every(e => e.word[0].toLowerCase() === "z"), baseList().length);
+    state.letter = "";
+    store.bank = {};
+    ok("加入词库", bankAdd("abandon") === true && !!store.bank["abandon"]);
+    ok("重复加入不重复计", bankAdd("abandon") === false);
+    ok("新词今日到期", dueWords().includes("abandon"));
+    review("abandon", "ok");
+    ok("认识 → 阶段1 / 明天", store.bank["abandon"].stage === 1 && store.bank["abandon"].due === today() + DAY,
+      store.bank["abandon"].stage + " / " + fmtDate(store.bank["abandon"].due));
+    review("abandon", "ok"); review("abandon", "ok");
+    ok("认识×3 → 阶段3 / +4天", store.bank["abandon"].stage === 3 && store.bank["abandon"].due === today() + 4*DAY,
+      store.bank["abandon"].stage + " / " + fmtDate(store.bank["abandon"].due));
+    review("abandon", "no");
+    ok("忘了 → 阶段0 / 今天", store.bank["abandon"].stage === 0 && store.bank["abandon"].due === today());
+    ok("移出词库", bankDel("abandon") === true && !store.bank["abandon"]);
+    const aq = ALL.find(x => x.level === "A" && x.word === "adjacent");
+    bankAdd("adjacent", "A");
+    ok("跨级重复词按所藏级别显示", !!aq && entryOf("adjacent").level === "A" && entryOf("adjacent").no === aq.no,
+      entryOf("adjacent").level + " #" + entryOf("adjacent").no);
+    ok("默认取最低级别", !!BY_WORD["adjacent"] && BY_WORD["adjacent"].level === "A");
+    bankDel("adjacent");
+    bankAdd("abstract");
+    const j = JSON.parse(JSON.stringify({app:"nju-vocab-tool", bank:store.bank}));
+    ok("导出 JSON 结构", !!j.bank["abstract"] && j.bank["abstract"].level === "A");
+    const three = baseList().slice(0, 3);
+    state.mask = true; state.revealed.clear();
+    const mh = rowsHTML(three, three);
+    ok("遮罩渲染 masked", mh.includes("c-mean masked"));
+    ok("一次渲染 3 行", (mh.match(/class="row/g) || []).length === 3);
+    state.mask = false; state.batch = false;
+    ok("默认不出复选框", !rowsHTML(three, three).includes('type="checkbox"'));
+    state.batch = true;
+    ok("批量模式出复选框", rowsHTML(three, three).includes('type="checkbox"'));
+    state.batch = false;
+    ok("个人词库列表", bankList().length === 1, bankList().length);
+    // ---- 云端合并逻辑（纯函数，不联网）----
+    const T = Date.now() - 5*DAY, mk = (stage, t) => ({ level:"A", addedAt:t, updatedAt:t, stage, due:today(), reviews:0, lapses:0 });
+    let m = mergeStates({ bank:{ a:mk(1,T) }, tomb:{} }, { bank:{}, tomb:{} });
+    ok("合并：本地独有保留", !!m.bank.a && m.bank.a.stage === 1);
+    m = mergeStates({ bank:{ a:mk(1,T) }, tomb:{} }, { bank:{}, tomb:{ a:T+1000 } });
+    ok("合并：远端较新的删除生效", !m.bank.a && m.tomb.a === T+1000);
+    m = mergeStates({ bank:{ a:mk(2,T+2000) }, tomb:{} }, { bank:{}, tomb:{ a:T+1000 } });
+    ok("合并：本地较新的收藏不被删", !!m.bank.a && m.bank.a.stage === 2 && !m.tomb.a);
+    m = mergeStates({ bank:{ a:mk(1,T) }, tomb:{} }, { bank:{ a:mk(3,T+5000) }, tomb:{} });
+    ok("合并：取较新的复习进度", m.bank.a.stage === 3);
+    m = mergeStates({ bank:{ a:mk(1,T), b:mk(1,T) }, tomb:{} }, { bank:{ a:mk(1,T) }, tomb:{ b:T+1 } });
+    ok("合并：两端各取所长", !!m.bank.a && !m.bank.b && m.tomb.b === T+1);
+    m = mergeStates({ bank:{}, tomb:{ dead: Date.now() - 120*DAY } }, { bank:{}, tomb:{} });
+    ok("合并：过期墓碑被清理", !m.tomb.dead);
+    store.bank = {}; store.tomb = {};
+    bankAdd("abandon"); bankDel("abandon");
+    ok("删除会留下墓碑", !store.bank.abandon && !!store.tomb.abandon);
+    store.bank = {}; store.tomb = {};
+    state.view = "list";  renderList();
+    state.view = "bank";  renderBank();
+    state.view = "review"; renderReview();
+    ok("三个视图渲染无异常", true);
+    state.view = "list";
+  } catch (err) { ok("运行期异常：" + err.message, false); }
+  store = JSON.parse(backup); save();
+  const box = document.createElement("pre");
+  box.id = "selftest";
+  box.textContent = "SELFTEST " + (fail ? "FAIL" : "PASS") + "  pass=" + pass + " fail=" + fail + "\n" + out.join("\n");
+  document.body.appendChild(box);
+  document.title = (fail ? "SELFTEST FAIL " : "SELFTEST PASS ") + pass + "/" + (pass + fail);
+}
+(function bootExtras(){
+  const raw = ((location.search || "").replace(/^\?/, "") + "&" + (location.hash || "").replace(/^#/, ""));
+  const QP = new URLSearchParams(raw.replace(/^&/, ""));
+  if (QP.get("theme")) { store.settings.theme = QP.get("theme") === "dark" ? "dark" : "light"; save(); applyTheme(); }
+  if (QP.get("sync")) {
+    try {
+      const cfg = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(QP.get("sync"))))));
+      if (cfg && cfg.t && cfg.g) {
+        sync.token = cfg.t; sync.gistId = cfg.g; saveSync();
+        const ti = $("#syncToken"), gi = $("#syncGist");
+        if (ti) ti.value = cfg.t; if (gi) gi.value = cfg.g;
+        setSyncStatus("已通过配对链接配置，正在同步…");
+        syncNow(true);
+      }
+    } catch (e) { setSyncStatus("配对链接解析失败，请重新复制", true); }
+  }
+  if (QP.get("seed") === "1") { seedDemo(); go(state.view, false); }
+  if (QP.get("drawer") === "1") openSettings(true);
+  registerSW(); maybeIosHint();
+  if (QP.get("swtest") === "1") {
+    const pre = document.createElement("pre");
+    pre.id = "swtest"; pre.textContent = "SW: checking";
+    pre.style.cssText = "position:fixed;left:6px;bottom:6px;z-index:9999;background:#fff;color:#000;font:12px monospace;padding:6px;border:2px solid #000";
+    document.body.appendChild(pre);
+    if (!("serviceWorker" in navigator)) { pre.textContent = "SW: NOT SUPPORTED"; document.title = "SWTEST FAIL"; }
+    else navigator.serviceWorker.register("./sw.js")
+      .then(() => navigator.serviceWorker.ready)
+      .then(r => { pre.textContent = "SW: PASS ready scope=" + r.scope + " controller=" + !!navigator.serviceWorker.controller; document.title = "SWTEST PASS"; })
+      .catch(e => { pre.textContent = "SW: FAIL " + e.message; document.title = "SWTEST FAIL"; });
+  }
+  if (QP.get("nettest") === "1") syncNetTest().then(r => {
+    const pre = document.createElement("pre");
+    pre.id = "nettest"; pre.textContent = "NETTEST " + (r.ok ? "PASS" : "FAIL") + " :: " + r.msg;
+    pre.style.cssText = "position:fixed;left:6px;bottom:6px;z-index:9999;background:#fff;color:#000;font:12px monospace;padding:6px;border:2px solid #000";
+    document.body.appendChild(pre); document.title = pre.textContent;
+  });
+  if (QP.get("selftest") === "1") selfTest();
+  if (QP.get("dbg") === "1") setTimeout(() => {
+    const r = s => { const el = document.querySelector(s); if (!el) return s + " (none)"; const b = el.getBoundingClientRect(); return s + " top=" + Math.round(b.top) + " w=" + Math.round(b.width) + " right=" + Math.round(b.right); };
+    const IW = window.innerWidth;
+    const over = Array.from(document.querySelectorAll("body *"))
+      .map(el => ({ el, b: el.getBoundingClientRect() }))
+      .filter(o => o.b.right > IW + 1 && o.b.width > 0)
+      .sort((a, b) => b.b.right - a.b.right).slice(0, 6)
+      .map(o => o.el.tagName.toLowerCase() + "." + String(o.el.className || "").split(" ")[0] + " w=" + Math.round(o.b.width) + " right=" + Math.round(o.b.right));
+    const pre = document.createElement("pre");
+    pre.style.cssText = "position:fixed;left:4px;top:52px;z-index:9999;background:#fff;color:#000;font:11px/1.45 monospace;padding:6px;border:2px solid #000;max-width:96vw;white-space:pre-wrap";
+    pre.textContent = "innerW=" + IW + " docW=" + document.documentElement.scrollWidth + " bodyW=" + document.body.scrollWidth + "\n"
+      + r(".wrap") + "\n" + r(".toolbar") + "\n" + r(".tline") + "\n" + r(".list") + "\n"
+      + "OVERFLOW:\n" + (over.length ? over.join("\n") : "(none)");
+    document.body.appendChild(pre);
+  }, 400);
+})();
+</script>
+</body>
+</html>
