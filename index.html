@@ -127,7 +127,7 @@ html[data-theme="dark"] .ex-en{color:#c3d0e2}
 .scard{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:22px 18px;max-width:660px;margin:0 auto}
 .scard .smeta{color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:8px;line-height:1.7}
 .scard .szh{font-size:23px;font-weight:700;text-align:center;margin:8px 0;line-height:1.55;word-break:break-word}
-.scard .sex{font-family:Georgia,"Times New Roman",serif;font-size:14px;color:var(--muted);text-align:center;margin:4px 0 14px;line-height:1.6}
+.scard .sex,.rcard .sex{font-family:Georgia,"Times New Roman",serif;font-size:14px;color:var(--muted);text-align:center;margin:4px 0 14px;line-height:1.6}
 .scard .sword{font-family:Georgia,serif;font-size:28px;font-weight:700;text-align:center;margin:6px 0 12px;word-break:break-word}
 .scard input.sp{width:100%;font:inherit;font-size:17px;text-align:center;letter-spacing:.5px;padding:12px;
   background:var(--card2);color:var(--text);border:2px solid var(--line);border-radius:12px;outline:none}
@@ -162,6 +162,14 @@ html[data-theme="dark"] .ex-en{color:#c3d0e2}
 /* ---------- review ---------- */
 .rcard{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px 22px;text-align:center}
 .rcard .rw{font-family:Georgia,serif;font-size:34px;font-weight:700;margin:6px 0 4px;word-break:break-word}
+.rcard .rz{font-size:24px;font-weight:700;text-align:center;margin:10px 0 6px;line-height:1.5;word-break:break-word}
+.rcard input.sp{width:100%;font:inherit;font-size:17px;text-align:center;letter-spacing:.5px;padding:12px;margin-top:6px;
+  background:var(--card2);color:var(--text);border:2px solid var(--line);border-radius:12px;outline:none}
+.rcard input.sp:focus{border-color:var(--accent)}
+.rcard input.sp.ok{border-color:var(--b);color:var(--b)}
+.rcard input.sp.bad{border-color:#e5484d;color:#e5484d}
+.rbtn.hl{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.segwrap{display:flex;justify-content:center;margin-bottom:12px}
 .rcard .rm{color:var(--muted);font-size:17px;min-height:26px;margin-bottom:6px}
 .rcard .rm.hide{color:transparent;background:var(--mask);border-radius:8px;display:inline-block;min-width:120px}
 .rmeta{color:var(--muted);font-size:12.5px;margin-bottom:18px}
@@ -323,7 +331,7 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-08 14:09 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-08 14:13 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -464,7 +472,7 @@ const pageCount = (total, size) => (size ? Math.max(1, Math.ceil(total / size)) 
 const state = {
   view:"home", level:"ALL", letter:"", q:"", hideBanked:false, mask:false, batch:false, showEx:true,
   sort:"index", page:1, pageSize:50, maskMode:"off", bankLevel:"ALL", bankQ:"", selected:new Set(), revealed:new Set(),
-  reviewHide:false, reviewIndex:0,
+  reviewHide:false, reviewIndex:0, reviewMode:"meaning", reviewSpell:{given:"", result:null, hintN:0},
   spellIdx:0, spellOrder:null, spellScope:null, spellStat:{right:0, wrong:0}, spellResult:null, spellHintN:0, spellGiven:""
 };
 const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
@@ -489,11 +497,14 @@ function bankDel(word){
 function bankToggle(word, level, entry){ return store.bank[word] ? (bankDel(word), false) : (bankAdd(word, level, entry), true); }
 const bankWords = () => Object.keys(store.bank);
 const dueWords = () => bankWords().filter(w => (store.bank[w].due||0) <= today())
-  .sort((a,b) => (store.bank[a].due - store.bank[b].due) || a.localeCompare(b));
+  .sort((a,b) => (store.bank[a].due - store.bank[b].due)
+    || ((store.bank[a].last||0) - (store.bank[b].last||0))     // 刚复习过的排到队尾
+    || a.localeCompare(b));
 function review(word, verdict){
   const b = store.bank[word]; if (!b) return;
   b.reviews = (b.reviews||0) + 1;
   b.updatedAt = Date.now();
+  b.last = Date.now();
   if (verdict === "ok") { b.stage = Math.min((b.stage||0) + 1, INTERVALS.length); b.due = today() + INTERVALS[Math.min(b.stage, INTERVALS.length) - 1]*DAY; }
   else if (verdict === "mid") { b.due = today() + DAY; }
   else { b.stage = 0; b.lapses = (b.lapses||0) + 1; b.due = today(); }
@@ -677,29 +688,93 @@ function renderReview(){
   const due = dueWords();
   const total = bankWords().length;
   const done = total - due.length;
-  if (!total) { $("#reviewBox").innerHTML = '<div class="empty"><div class="big">🔄</div><div>个人词库还是空的</div><div style="font-size:13px;margin-top:6px">先到「词表阅读」里点 ☆ 收藏一些单词，再回来复习</div></div>'; return; }
-  if (!due.length) { $("#reviewBox").innerHTML = '<div class="empty"><div class="big">🎉</div><div>今天的复习任务完成啦！</div><div style="font-size:13px;margin-top:6px">共 '+total+' 词在词库中，没有到期的单词。<br>下次复习时间按 1·2·4·7·15·30 天递增。</div></div>'; return; }
+  const box = $("#reviewBox");
+  const mode = state.reviewMode || "meaning";
+  if (!total) { box.innerHTML = '<div class="empty"><div class="big">🔄</div><div>个人词库还是空的</div><div style="font-size:13px;margin-top:6px">先到「词表阅读」里点 ☆ 收藏一些单词，再回来复习</div></div>'; return; }
+  if (!due.length) { box.innerHTML = '<div class="empty"><div class="big">🎉</div><div>今天的复习任务完成啦！</div><div style="font-size:13px;margin-top:6px">共 '+total+' 词在词库中，没有到期的单词。<br>下次复习时间按 1·2·4·7·15·30 天递增。</div></div>'; return; }
+
   const w = due[0], e = entryOf(w), b = store.bank[w];
   const stage = Math.min(b.stage||0, INTERVALS.length);
-  $("#reviewBox").innerHTML =
-    '<div class="rcard">'
-    + '<div class="rmeta">今日待复习 '+due.length+' 词 · 已完成 '+done+' / '+total+' · 当前词第 '+(stage+1)+' 阶段</div>'
-    + '<div class="rw">'+esc(w)+' <button class="spk" data-spk="'+esc(w)+'">🔊</button></div>'
-    + '<div class="rm">'+(state.reviewHide ? '<span class="rm hide" id="rm">'+esc(e.meaning)+'</span>' : esc(e.meaning))+'</div>'
-    + ((EX[w] && state.showEx && !state.reviewHide) ? '<div class="rex"><div class="rex-en">'+esc(EX[w].en)+'</div><div class="rex-zh">'+esc(EX[w].zh)+'</div></div>' : '')
-    + '<div class="rmeta">' + ((LEVEL_INFO[e.level] && LEVEL_INFO[e.level].label) ? LEVEL_INFO[e.level].label + ' · ' : '')
-    + (e.no ? '词表第 ' + e.no + ' 个 · ' : '') + '复习 ' + (b.reviews||0) + ' 次 · 遗忘 ' + (b.lapses||0) + ' 次</div>'
-    + '<div class="rbtns">'
-      + '<button class="rbtn ok" data-v="ok">✅ 认识（+1 阶段）</button>'
-      + '<button class="rbtn mid" data-v="mid">🤔 模糊（明天再来）</button>'
-      + '<button class="rbtn no" data-v="no">❌ 忘了（重新开始）</button>'
-      + '<button class="rbtn" id="btnPeek">'+(state.reviewHide?"显示释义":"先遮住释义")+'</button>'
-    + '</div><div class="prog"><i style="width:'+Math.round(done/Math.max(total,1)*100)+'%"></i></div>'
-    + '<div class="rmeta" style="margin:0">词库进度 '+done+' / '+total+'</div></div>';
-  $("#reviewBox").querySelector("[data-spk]").onclick = () => speak(w);
-  $("#btnPeek").onclick = () => { state.reviewHide = !state.reviewHide; renderReview(); };
-  $$("#reviewBox .rbtn[data-v]").forEach(btn => btn.onclick = () => { review(w, btn.dataset.v); renderReview(); refreshCounts(); });
+  const rs = state.reviewSpell || (state.reviewSpell = { given:"", result:null, hintN:0 });
+
+  const seg = '<div class="segwrap"><div class="seg" id="segReview">'
+    + '<button data-m="meaning"' + (mode === "meaning" ? ' class="on"' : '') + '>📖 复习意思</button>'
+    + '<button data-m="spell"' + (mode === "spell" ? ' class="on"' : '') + '>✍️ 复习拼写</button>'
+    + '</div></div>';
+  const head = seg + '<div class="rmeta">今日待复习 ' + due.length + ' 词 · 已完成 ' + done + ' / ' + total + ' · 当前词第 ' + (stage+1) + ' 阶段</div>';
+  const tail = '<div class="prog"><i style="width:' + Math.round(done/Math.max(total,1)*100) + '%"></i></div>'
+    + '<div class="rmeta" style="margin:0">词库进度 ' + done + ' / ' + total + '</div>';
+  const gradeBtns = '<div class="rbtns">'
+    + '<button class="rbtn ok' + (rs.result === "ok" ? ' hl' : '') + '" data-v="ok">✅ 认识（+1 阶段）</button>'
+    + '<button class="rbtn mid" data-v="mid">🤔 模糊（明天再来）</button>'
+    + '<button class="rbtn no' + (rs.result === "bad" ? ' hl' : '') + '" data-v="no">❌ 忘了（重新开始）</button>'
+    + '</div>';
+  const meta2 = '<div class="rmeta">' + ((LEVEL_INFO[e.level] && LEVEL_INFO[e.level].label) ? LEVEL_INFO[e.level].label + ' · ' : '')
+    + (e.no ? '词表第 ' + e.no + ' 个 · ' : '') + '复习 ' + (b.reviews||0) + ' 次 · 遗忘 ' + (b.lapses||0) + ' 次</div>';
+
+  if (mode === "meaning") {
+    box.innerHTML = '<div class="rcard">' + head
+      + '<div class="rw">' + esc(w) + ' <button class="spk" data-spk="' + esc(w) + '">🔊</button></div>'
+      + '<div class="rm">' + (state.reviewHide ? '<span class="rm hide" id="rm">' + esc(e.meaning) + '</span>' : esc(e.meaning)) + '</div>'
+      + ((EX[w] && state.showEx && !state.reviewHide) ? '<div class="rex"><div class="rex-en">' + esc(EX[w].en) + '</div><div class="rex-zh">' + esc(EX[w].zh) + '</div></div>' : '')
+      + meta2
+      + '<div class="rbtns">'
+        + '<button class="rbtn ok" data-v="ok">✅ 认识（+1 阶段）</button>'
+        + '<button class="rbtn mid" data-v="mid">🤔 模糊（明天再来）</button>'
+        + '<button class="rbtn no" data-v="no">❌ 忘了（重新开始）</button>'
+        + '<button class="rbtn" id="btnPeek">' + (state.reviewHide ? "显示释义" : "先遮住释义") + '</button>'
+      + '</div>' + tail + '</div>';
+  } else {
+    const exEn = EX[w] ? EX[w].en : "";
+    const hint = rs.hintN > 0 ? w.slice(0, Math.min(2 * rs.hintN, w.length)) : "";
+    const feed = rs.result === "ok" ? "✅ 拼对了"
+      : rs.result === "bad" ? "❌ 正确拼写是 <b>" + esc(w) + "</b>"
+      : "　";
+    box.innerHTML = '<div class="rcard">' + head
+      + '<div class="rz">' + esc(e.meaning) + '</div>'
+      + (exEn ? '<div class="sex">' + spellBlank(exEn, w) + '</div>' : '')
+      + (rs.result ? '<div class="rw">' + esc(w) + ' <button class="spk" data-spk="' + esc(w) + '">🔊</button></div>' : '')
+      + '<input class="sp' + (rs.result === "ok" ? " ok" : rs.result === "bad" ? " bad" : "") + '" id="rvIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"'
+        + ' value="' + esc(rs.given) + '" placeholder="' + (hint ? hint + "…（共 " + w.length + " 个字母）" : "拼出这个单词，回车提交") + '">'
+      + '<div class="sfeed' + (rs.result === "ok" ? " ok" : rs.result === "bad" ? " bad" : "") + '">' + feed + '</div>'
+      + (rs.result ? '' : '<div class="srow"><button class="rbtn" id="rvCheck">检查</button><button class="rbtn" id="rvHint">提示</button></div>')
+      + meta2 + gradeBtns + tail + '</div>';
+  }
+
+  const spk = box.querySelector("[data-spk]"); if (spk) spk.onclick = () => speak(w);
+  $$("#segReview button").forEach(btn => btn.onclick = () => {
+    state.reviewMode = btn.dataset.m; store.settings.reviewMode = state.reviewMode;
+    state.reviewSpell = { given:"", result:null, hintN:0 };
+    save(true); renderReview();
+  });
+  if ($("#btnPeek")) $("#btnPeek").onclick = () => { state.reviewHide = !state.reviewHide; renderReview(); };
+  const rvIn = $("#rvIn");
+  if (rvIn) {
+    rvIn.onkeydown = ev => { if (ev.key === "Enter") { ev.preventDefault(); reviewSpellCheck(w); } };
+    if (!rs.result) rvIn.focus();
+  }
+  if ($("#rvCheck")) $("#rvCheck").onclick = () => reviewSpellCheck(w);
+  if ($("#rvHint")) $("#rvHint").onclick = () => {
+    const keep = rvIn ? rvIn.value : "";
+    state.reviewSpell.hintN++; state.reviewSpell.given = keep; renderReview();
+    const i2 = $("#rvIn"); if (i2) { i2.value = keep; i2.focus(); }
+  };
+  $$("#reviewBox .rbtn[data-v]").forEach(btn => btn.onclick = () => {
+    review(w, btn.dataset.v);
+    state.reviewSpell = { given:"", result:null, hintN:0 };
+    renderReview(); refreshCounts();
+  });
 }
+/* 复习-拼写：判分后交给用户按遗忘曲线打分 */
+function reviewSpellCheck(word){
+  const inp = $("#rvIn"); if (!inp) return;
+  const v = (inp.value || "").trim().toLowerCase().replace(/\s+/g, " ");
+  if (!v) { inp.focus(); return; }
+  state.reviewSpell.given = inp.value;
+  state.reviewSpell.result = (v === word.trim().toLowerCase()) ? "ok" : "bad";
+  renderReview();
+}
+
 
 /* ================= 视图切换 ================= */
 function go(view, opts){
@@ -925,6 +1000,7 @@ function applyMaskUI(){
   $("#swHide").classList.toggle("on", state.hideBanked);
   if (store.settings.maskMode) state.maskMode = store.settings.maskMode;
   else if (store.settings.mask === true) state.maskMode = "zh";     // 兼容旧版本
+  if (store.settings.reviewMode) state.reviewMode = store.settings.reviewMode;
   state.showEx = store.settings.ex !== false;
   syncExUI();
   if (!storageOK) { console.warn("localStorage 不可用，本次修改不会保存"); warnNoStorage(); }
@@ -1322,7 +1398,7 @@ function spellReset(shuffle){
 function spellBlank(text, word){
   if (!text) return "";
   const re = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "ig");
-  return esc(text.replace(re, "＿＿＿"));
+  return esc(text.replace(re, " ______ "));
 }
 function spellCheck(){
   const list = spellList(), e = list[state.spellIdx];
@@ -1476,7 +1552,7 @@ function selfTest(){
     ok("拼写：题源＝当前筛选结果", sl.length === ALL.length, sl.length);
     ok("拼写：例句里的答案被挖空", (function () {
       const e = sl.filter(x => x.en)[0] || sl[0];
-      return !e.en || spellBlank(e.en, e.word).indexOf("＿＿＿") >= 0;
+      return !e.en || spellBlank(e.en, e.word).indexOf("______") >= 0;
     })());
     state.spellOrder = sl.slice(0, 5).map(x => x.word).reverse();
     ok("拼写：可按自定义顺序出题", spellList()[0].word === state.spellOrder[0], spellList()[0].word);
@@ -1589,6 +1665,27 @@ function selfTest(){
     gotoPage(2);
     ok("分页：翻页逻辑生效", state.page === 2, state.page);
     state.page = 1;
+
+    // ---- 复习两种模式 ----
+    store.bank = {}; store.tomb = {};
+    bankAdd("abandon", "A", BY_WORD["abandon"]);
+    state.reviewMode = "meaning"; state.reviewSpell = { given:"", result:null, hintN:0 };
+    renderReview();
+    ok("复习-意思模式：显示单词卡片", $("#reviewBox").innerHTML.indexOf("复习意思") >= 0 && $("#reviewBox").innerHTML.indexOf('id="rvIn"') < 0);
+    state.reviewMode = "spell"; renderReview();
+    ok("复习-拼写模式：出现拼写输入框", $("#reviewBox").innerHTML.indexOf('id="rvIn"') >= 0);
+    ok("复习-拼写模式：默认不显示答案", $("#reviewBox").querySelector(".rw") === null);
+    state.reviewSpell = { given:"", result:null, hintN:0 }; renderReview();
+    $("#rvIn").value = "abandon";
+    reviewSpellCheck("abandon");
+    ok("复习-拼写：拼对判为 ok", state.reviewSpell.result === "ok", state.reviewSpell.result);
+    state.reviewSpell = { given:"", result:null, hintN:0 }; renderReview();
+    $("#rvIn").value = "zzz";
+    reviewSpellCheck("abandon");
+    ok("复习-拼写：拼错判为 bad", state.reviewSpell.result === "bad", state.reviewSpell.result);
+    state.reviewSpell = { given:"", result:null, hintN:0 };
+    bankDel("abandon"); store.tomb = {}; store.bank = {};
+    state.reviewMode = "meaning";
 
     state.view = "list";  renderList();
     state.view = "bank";  renderBank();
