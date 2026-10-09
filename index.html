@@ -171,7 +171,7 @@ html[data-theme="dark"] .ex-en{color:#c3d0e2}
 .rbtn.hl{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .segwrap{display:flex;justify-content:center;margin-bottom:12px}
 .rcard .rm{color:var(--muted);font-size:17px;min-height:26px;margin-bottom:6px}
-.rcard .rm.hide{color:transparent;background:var(--mask);border-radius:8px;display:inline-block;min-width:120px}
+.rcard .rm.hide{color:transparent;background:var(--mask);border-radius:8px;display:inline-block;min-width:120px;cursor:pointer}
 .rmeta{color:var(--muted);font-size:12.5px;margin-bottom:18px}
 .rbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .rbtn{padding:11px 20px;border-radius:11px;border:1px solid var(--line);background:var(--card2);font-weight:700}
@@ -337,7 +337,7 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 02:32 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 02:42 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -361,6 +361,8 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <label class="sw" id="swDark"><input type="checkbox" id="cbDark"></label></div>
   <div class="setrow"><div><div class="lbl">点击自动朗读</div><div class="sub">点单词时用浏览器语音朗读（无需联网）</div></div>
     <label class="sw" id="swSpeak"><input type="checkbox" id="cbSpeak"></label></div>
+  <div class="setrow"><div><div class="lbl">复习意思时自动遮住释义</div><div class="sub">每个新词先盖住中文，点一下揭晓</div></div>
+    <label class="sw" id="swRvHide"><input type="checkbox" id="cbRvHide"></label></div>
   <div class="setrow"><div><div class="lbl">拼写后自动朗读</div><div class="sub">无论拼对拼错，都读一遍正确发音</div></div>
     <label class="sw" id="swSpellSpeak"><input type="checkbox" id="cbSpellSpeak"></label></div>
   <div class="setrow"><div><div class="lbl">自测遮罩</div><div class="sub">遮中文＝看英忆中；遮英文＝看中忆英。点击该行揭晓</div></div>
@@ -445,6 +447,9 @@ function useDeck(id){
 useDeck(BUILTIN_ID);
 
 /* 收藏/复习时按用户实际收藏的那一条（级别）取词条；换了词库找不到，就用收藏时存下的快照 */
+/* 复习意思时：每个新词是否先自动遮住释义（默认开，可在设置里关） */
+const reviewMaskOn = () => store.settings.reviewAutoHide !== false;
+
 const entryOf = w => {
   const hit = BY_LW[((store.bank[w] || {}).level || "") + "|" + w] || BY_WORD[w];
   if (hit) return hit;
@@ -513,6 +518,7 @@ function review(word, verdict){
   b.reviews = (b.reviews||0) + 1;
   b.updatedAt = Date.now();
   b.last = Date.now();
+  state.reviewHide = reviewMaskOn();          // 下一个词重新遮住释义
   if (verdict === "ok") { b.stage = Math.min((b.stage||0) + 1, INTERVALS.length); b.due = today() + INTERVALS[Math.min(b.stage, INTERVALS.length) - 1]*DAY; }
   else if (verdict === "mid") { b.due = today() + DAY; }
   else { b.stage = 0; b.lapses = (b.lapses||0) + 1; b.due = today(); }
@@ -755,9 +761,12 @@ function renderReview(){
   $$("#segReview button").forEach(btn => btn.onclick = () => {
     state.reviewMode = btn.dataset.m; store.settings.reviewMode = state.reviewMode;
     state.reviewSpell = { given:"", result:null, hintN:0 };
+    state.reviewHide = reviewMaskOn();
     save(true); renderReview();
   });
   if ($("#btnPeek")) $("#btnPeek").onclick = () => { state.reviewHide = !state.reviewHide; renderReview(); };
+  const rmEl = $("#rm");
+  if (rmEl) rmEl.onclick = () => { state.reviewHide = false; renderReview(); };   // 点中文块揭晓
   const rvIn = $("#rvIn");
   if (rvIn) {
     rvIn.onkeydown = ev => { if (ev.key === "Enter") { ev.preventDefault(); reviewSpellCheck(w); } };
@@ -797,7 +806,7 @@ function go(view, opts){
   if (pb && view !== "list" && view !== "bank") pb.hidden = true;
   if (view === "list") renderList();
   else if (view === "bank") renderBank();
-  else if (view === "review") renderReview();
+  else if (view === "review") { state.reviewHide = reviewMaskOn(); renderReview(); }
   else if (view === "spell") renderSpell();
   window.scrollTo(0,0);
 }
@@ -1015,6 +1024,9 @@ function applyMaskUI(){
   $("#swResume").classList.toggle("on", store.settings.resume !== false);
   $("#cbSpellSpeak").checked = store.settings.spellSpeak !== false;
   $("#swSpellSpeak").classList.toggle("on", store.settings.spellSpeak !== false);
+  $("#cbRvHide").checked = reviewMaskOn();
+  $("#swRvHide").classList.toggle("on", reviewMaskOn());
+  state.reviewHide = reviewMaskOn();
 
   $("#swHide").classList.toggle("on", state.hideBanked);
   if (store.settings.maskMode) state.maskMode = store.settings.maskMode;
@@ -1051,6 +1063,13 @@ function applyMaskUI(){
   $("#cbDark").onchange = () => { store.settings.theme = $("#cbDark").checked ? "dark" : "light"; save(); applyTheme(); };
   $("#cbSpeak").onchange = () => { store.settings.autoSpeak = $("#cbSpeak").checked; save();
     $("#swSpeak").classList.toggle("on", store.settings.autoSpeak); };
+  $("#cbRvHide").onchange = () => {
+    store.settings.reviewAutoHide = $("#cbRvHide").checked;
+    $("#swRvHide").classList.toggle("on", store.settings.reviewAutoHide);
+    state.reviewHide = reviewMaskOn();
+    save(true);
+    if (state.view === "review") renderReview();
+  };
   $("#cbSpellSpeak").onchange = () => {
     store.settings.spellSpeak = $("#cbSpellSpeak").checked;
     $("#swSpellSpeak").classList.toggle("on", store.settings.spellSpeak);
@@ -1713,6 +1732,14 @@ function selfTest(){
     state.reviewMode = "meaning"; state.reviewSpell = { given:"", result:null, hintN:0 };
     renderReview();
     ok("复习-意思模式：显示单词卡片", $("#reviewBox").innerHTML.indexOf("复习意思") >= 0 && $("#reviewBox").innerHTML.indexOf('id="rvIn"') < 0);
+    state.reviewHide = true; renderReview();
+    ok("复习意思：新词默认遮住释义", $("#reviewBox").innerHTML.indexOf('class="rm hide"') >= 0);
+    state.reviewHide = false; renderReview();
+    ok("复习意思：揭晓后能看到中文", $("#reviewBox").innerHTML.indexOf('class="rm hide"') < 0 && $("#reviewBox").innerHTML.indexOf("放弃") >= 0);
+    state.reviewHide = false; review("abandon", "ok");
+    ok("复习意思：评分后下一个词重新遮住", state.reviewHide === true, state.reviewHide);
+    store.bank = {}; store.tomb = {};                  // 重新准备一个到期词，供下面拼写模式用
+    bankAdd("abandon", "A", BY_WORD["abandon"]);
     state.reviewMode = "spell"; renderReview();
     ok("复习-拼写模式：出现拼写输入框", $("#reviewBox").innerHTML.indexOf('id="rvIn"') >= 0);
     ok("复习-拼写模式：默认不显示答案", $("#reviewBox").querySelector(".rw") === null);
