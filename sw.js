@@ -1,5 +1,5 @@
 /* 南大词汇工具 · 离线缓存 */
-const CACHE = "nju-vocab-v11";
+const CACHE = "nju-vocab-v12";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./apple-touch-icon.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
