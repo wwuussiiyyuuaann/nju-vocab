@@ -337,7 +337,7 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 02:25 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 02:32 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -736,7 +736,6 @@ function renderReview(){
       + '</div>' + tail + '</div>';
   } else {
     const exEn = EX[w] ? EX[w].en : "";
-    const hint = rs.hintN > 0 ? w.slice(0, Math.min(2 * rs.hintN, w.length)) : "";
     const feed = rs.result === "ok" ? "✅ 拼对了"
       : rs.result === "bad" ? "❌ 正确拼写是 <b>" + esc(w) + "</b>"
       : "　";
@@ -745,9 +744,10 @@ function renderReview(){
       + (exEn ? '<div class="sex">' + spellBlank(exEn, w) + '</div>' : '')
       + (rs.result ? '<div class="rw">' + esc(w) + ' <button class="spk" data-spk="' + esc(w) + '">🔊</button></div>' : '')
       + '<input class="sp' + (rs.result === "ok" ? " ok" : rs.result === "bad" ? " bad" : "") + '" id="rvIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"'
-        + ' value="' + esc(rs.given) + '" placeholder="' + (hint ? hint + "…（共 " + w.length + " 个字母）" : "拼出这个单词，回车提交") + '">'
+        + ' value="' + esc(rs.given) + '" placeholder="拼出这个单词，回车提交">'
       + '<div class="sfeed' + (rs.result === "ok" ? " ok" : rs.result === "bad" ? " bad" : "") + '">' + feed + '</div>'
-      + (rs.result ? '' : '<div class="srow"><button class="rbtn" id="rvCheck">检查</button><button class="rbtn" id="rvHint">提示</button></div>')
+      + (rs.result ? '' : '<div class="srow"><button class="rbtn" id="rvCheck">检查</button><button class="rbtn" id="rvHint">'
+          + (rs.hintN > 0 ? "🔊 再听一遍" : "🔊 听发音") + '</button></div>')
       + meta2 + gradeBtns + tail + '</div>';
   }
 
@@ -764,10 +764,11 @@ function renderReview(){
     if (!rs.result) rvIn.focus();
   }
   if ($("#rvCheck")) $("#rvCheck").onclick = () => reviewSpellCheck(w);
-  if ($("#rvHint")) $("#rvHint").onclick = () => {
-    const keep = rvIn ? rvIn.value : "";
-    state.reviewSpell.hintN++; state.reviewSpell.given = keep; renderReview();
-    const i2 = $("#rvIn"); if (i2) { i2.value = keep; i2.focus(); }
+  if ($("#rvHint")) $("#rvHint").onclick = () => {      // 提示＝朗读发音
+    state.reviewSpell.hintN++;
+    speak(w);
+    const b = $("#rvHint"); if (b) b.textContent = "🔊 再听一遍";
+    if (rvIn) rvIn.focus();
   };
   $$("#reviewBox .rbtn[data-v]").forEach(btn => btn.onclick = () => {
     review(w, btn.dataset.v);
@@ -1320,7 +1321,7 @@ function switchDeck(id){
   useDeck(id);
   state.level = "ALL"; state.letter = ""; state.page = 1;
   state.revealed.clear(); state.selected.clear();
-  state.spellIdx = 0; state.spellOrder = null; state.spellScope = null; state.spellStat = { right:0, wrong:0 };
+  state.spellIdx = 0; state.spellOrder = null; state.spellScope = null; state.spellStat = { right:0, wrong:0, hint:0 };
   state.spellResult = null; state.spellHintN = 0; state.spellGiven = "";
   renderDeckUI();
   if (state.view === "home") renderHome(); else rerender();
@@ -1392,7 +1393,7 @@ function spellList(){
 function spellStart(scope, shuffle){
   state.spellScope = (scope && scope.length) ? scope.slice() : null;
   state.spellOrder = null;
-  state.spellIdx = 0; state.spellStat = { right:0, wrong:0 };
+  state.spellIdx = 0; state.spellStat = { right:0, wrong:0, hint:0 };
   state.spellResult = null; state.spellHintN = 0; state.spellGiven = "";
   if (shuffle) {
     const arr = spellBase().map(e => e.word);
@@ -1411,7 +1412,7 @@ function spellCurrentPage(){
   spellStart(p.slice.map(e => e.word), false);
 }
 function spellReset(shuffle){
-  state.spellIdx = 0; state.spellStat = { right:0, wrong:0 };
+  state.spellIdx = 0; state.spellStat = { right:0, wrong:0, hint:0 };
   state.spellResult = null; state.spellHintN = 0; state.spellGiven = "";
   if (shuffle) {
     const arr = spellBase().map(e => e.word);
@@ -1459,7 +1460,8 @@ function renderSpell(){
     const rate = t ? Math.round(state.spellStat.right / t * 100) : 0;
     box.innerHTML = '<div class="scard"><div class="szh">🎉 本轮拼写完成</div>'
       + '<div class="smeta">共 ' + t + ' 词 · 正确 <b style="color:var(--b)">' + state.spellStat.right + '</b> · 错误 <b style="color:#e5484d">'
-      + state.spellStat.wrong + '</b> · 正确率 ' + rate + '%</div>'
+      + state.spellStat.wrong + '</b> · 正确率 ' + rate + '%'
+      + (state.spellStat.hint ? ' · 用了 ' + state.spellStat.hint + ' 次发音提示' : '') + '</div>'
       + '<div class="smeta">范围：' + (state.spellScope ? '本页 ' + list.length + ' 词' : '当前筛选全部') + '</div>'
       + '<div class="srow"><button class="btn" id="spAgain" style="letter-spacing:0">再来一轮</button>'
       + '<button class="btn ghost" id="spShuffle2">乱序重来</button>'
@@ -1472,7 +1474,7 @@ function renderSpell(){
     return;
   }
   const e = list[state.spellIdx], res = state.spellResult;
-  const hint = state.spellHintN > 0 ? e.word.slice(0, Math.min(2 * state.spellHintN, e.word.length)) : "";
+  const hintUsed = state.spellHintN > 0;
   const ex = EX[e.word] ? EX[e.word].en : "";
   box.innerHTML = '<div class="scard">'
     + '<div class="smeta">第 ' + (state.spellIdx + 1) + ' / ' + list.length + ' 词　·　✅ ' + state.spellStat.right + '　❌ ' + state.spellStat.wrong
@@ -1484,14 +1486,14 @@ function renderSpell(){
     + (res ? '<div class="sword"' + (res === "bad" ? ' style="color:#e5484d"' : '') + '>' + esc(e.word)
         + ' <button class="spk" data-spk="' + esc(e.word) + '" title="朗读">🔊</button></div>' : '')
     + '<input class="sp' + (res === "ok" ? " ok" : res === "bad" ? " bad" : "") + '" id="spIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" '
-      + 'value="' + esc(state.spellGiven) + '" placeholder="' + (hint ? hint + "…（共 " + e.word.length + " 个字母）" : "在这里拼出这个单词，回车提交") + '">'
+      + 'value="' + esc(state.spellGiven) + '" placeholder="在这里拼出这个单词，回车提交">'
     + '<div class="sfeed' + (res === "ok" ? " ok" : res === "bad" ? " bad" : "") + '" id="spFeed">'
       + (res === "ok" ? "✅ 拼对了！" : res === "bad" ? "❌ 正确拼写是 <b>" + esc(e.word) + "</b>"
           + (store.settings.spellBank !== false ? "　（已加入个人词库）" : "") : "") + '</div>'
     + '<div class="srow">'
       + (res ? '<button class="btn" id="spNext" style="letter-spacing:0">下一题 →</button>'
              : '<button class="btn" id="spCheck" style="letter-spacing:0">检查</button>')
-      + '<button class="btn ghost" id="spHint">提示</button>'
+      + '<button class="btn ghost" id="spHint">' + (hintUsed ? "🔊 再听一遍" : "🔊 听发音") + '</button>'
       + '<button class="btn ghost" id="spSkip">跳过</button>'
       + '<button class="btn ghost" id="spShuffle">乱序重来</button>'
     + '</div>'
@@ -1511,7 +1513,13 @@ function renderSpell(){
   if ($("#spCheck")) $("#spCheck").onclick = spellCheck;
   if ($("#spNext")) $("#spNext").onclick = spellNext;
   $("#spSkip").onclick = () => { if (!state.spellResult) { state.spellStat.wrong++; if (store.settings.spellBank !== false) bankAdd(e.word, e.level, e); } spellNext(); };
-  $("#spHint").onclick = () => { state.spellHintN++; const v = inp ? inp.value : ""; renderSpell(); const i2 = $("#spIn"); if (i2) { i2.value = v; i2.focus(); } };
+  $("#spHint").onclick = () => {                        // 提示＝朗读发音，不给字母信息
+    state.spellHintN++;
+    state.spellStat.hint = (state.spellStat.hint || 0) + 1;
+    speak(e.word);
+    const b = $("#spHint"); if (b) b.textContent = "🔊 再听一遍";
+    if (inp) inp.focus();
+  };
   $("#spShuffle").onclick = () => spellReset(true);
   if ($("#spAll")) $("#spAll").onclick = () => spellStart(null, false);
   $("#spAuto").onchange = () => { store.settings.spellBank = $("#spAuto").checked; save(true); };
@@ -1580,7 +1588,7 @@ function selfTest(){
     ok("关掉遮罩后不带遮罩类", !rowsHTML(three, three).includes("masked"));
     // ---- 拼写自测 ----
     state.level = "ALL"; state.q = ""; state.letter = ""; state.page = 1; state.pageSize = 50;
-    state.spellOrder = null; state.spellIdx = 0; state.spellStat = { right:0, wrong:0 }; state.spellResult = null;
+    state.spellOrder = null; state.spellIdx = 0; state.spellStat = { right:0, wrong:0, hint:0 }; state.spellResult = null;
     const sl = spellList();
     ok("拼写：题源＝当前筛选结果", sl.length === ALL.length, sl.length);
     ok("拼写：例句里的答案被挖空", (function () {
@@ -1593,7 +1601,7 @@ function selfTest(){
     state.spellIdx = 0;
     spellNext();
     ok("拼写：下一题会前进", state.spellIdx === 1 && state.spellResult === null, state.spellIdx);
-    state.spellIdx = 0; state.spellStat = { right:0, wrong:0 };
+    state.spellIdx = 0; state.spellStat = { right:0, wrong:0, hint:0 };
     ok("一次渲染 3 行", (mh.match(/class="row/g) || []).length === 3);
     // ---- 拼写范围：只拼本页 ----
     state.level = "ALL"; state.q = ""; state.letter = ""; state.pageSize = 50; state.page = 3;
@@ -1729,11 +1737,19 @@ function selfTest(){
     speak = w => { spoken.push(w); };
     state.level = "ALL"; state.q = ""; state.letter = ""; state.page = 1; state.pageSize = 50;
     state.spellScope = null; state.spellOrder = null; state.spellIdx = 0; state.spellResult = null;
-    state.spellStat = { right:0, wrong:0 };
+    state.spellStat = { right:0, wrong:0, hint:0 };
     renderSpell();
     $("#spIn").value = spellList()[0].word;
     spellCheck();
     ok("拼对后自动朗读一遍", spoken.length === 1 && spoken[0] === spellList()[0].word, JSON.stringify(spoken));
+    spoken = []; state.spellResult = null; state.spellIdx = 0; state.spellHintN = 0;
+    state.spellStat = { right:0, wrong:0, hint:0 }; renderSpell();
+    const hintWord = spellList()[0].word;
+    $("#spHint").click();
+    ok("提示＝朗读发音（不再给字母）", spoken.length === 1 && spoken[0] === hintWord, JSON.stringify(spoken));
+    ok("提示后按钮变为「再听一遍」", $("#spHint").textContent.indexOf("再听") >= 0, $("#spHint").textContent);
+    ok("占位符不再泄露首字母与字母数", $("#spIn").placeholder.indexOf(hintWord.slice(0, 2)) < 0 && $("#spIn").placeholder.indexOf("个字母") < 0, $("#spIn").placeholder);
+    ok("提示次数计入统计", state.spellStat.hint === 1, state.spellStat.hint);
     spoken = []; state.spellResult = null; state.spellIdx = 1; renderSpell();
     $("#spIn").value = "zzz";
     spellCheck();
