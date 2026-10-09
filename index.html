@@ -185,9 +185,15 @@ html[data-theme="dark"] .ex-en{color:#c3d0e2}
 .mask{position:fixed;inset:0;background:rgba(8,12,20,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
 .mask.on{opacity:1;pointer-events:auto}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:min(380px,92vw);background:var(--card);border-left:1px solid var(--line);
-  z-index:41;padding:18px;overflow:auto;transform:translateX(102%);transition:transform .24s;box-shadow:-14px 0 40px rgba(0,0,0,.18)}
+  z-index:41;padding:0 18px calc(28px + env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain;
+  transform:translateX(102%);transition:transform .24s;box-shadow:-14px 0 40px rgba(0,0,0,.18)}
 .drawer.on{transform:none}
-.drawer h3{margin:4px 0 14px;font-size:17px}
+.drawer h3{margin:0;font-size:17px}
+.dhead{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin:0 -18px 12px;padding:14px 18px calc(12px + env(safe-area-inset-top));background:var(--card);border-bottom:1px solid var(--line)}
+.dclose{font:inherit;font-size:13.5px;font-weight:700;color:var(--text);background:var(--card2);border:1px solid var(--line);
+  border-radius:10px;padding:9px 14px;cursor:pointer;flex:none;min-width:74px}
+.dclose:hover{border-color:var(--accent);color:var(--accent)}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
 .setrow .lbl{font-size:14px}
 .setrow .sub{color:var(--muted);font-size:12px;margin-top:2px}
@@ -337,7 +343,7 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 02:45 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 02:49 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -356,7 +362,10 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
 
 <div class="mask" id="mask"></div>
 <aside class="drawer" id="drawer">
-  <h3>设置与数据</h3>
+  <div class="dhead">
+    <h3>设置与数据</h3>
+    <button class="dclose" id="btnDrawerClose" type="button">✕ 关闭</button>
+  </div>
   <div class="setrow"><div><div class="lbl">暗黑模式</div><div class="sub">切换深色背景</div></div>
     <label class="sw" id="swDark"><input type="checkbox" id="cbDark"></label></div>
   <div class="setrow"><div><div class="lbl">点击自动朗读</div><div class="sub">点单词时用浏览器语音朗读（无需联网）</div></div>
@@ -1065,7 +1074,12 @@ function applyMaskUI(){
   // 主题 / 抽屉
   $("#btnTheme").onclick = () => { store.settings.theme = store.settings.theme === "dark" ? "light" : "dark"; save(); applyTheme(); };
   const openDrawer = on => { $("#drawer").classList.toggle("on", on); $("#mask").classList.toggle("on", on); };
-  $("#btnSet").onclick = () => openDrawer(true);
+  window.__closeDrawer = () => openDrawer(false);
+  $("#btnSet").onclick = () => openDrawer(!$("#drawer").classList.contains("on"));
+  if ($("#btnDrawerClose")) $("#btnDrawerClose").onclick = () => openDrawer(false);
+  document.addEventListener("keydown", ev => {                 // Esc 关闭
+    if (ev.key === "Escape" && $("#drawer").classList.contains("on")) openDrawer(false);
+  });
   $("#mask").onclick = () => openDrawer(false);
   $("#cbDark").onchange = () => { store.settings.theme = $("#cbDark").checked ? "dark" : "light"; save(); applyTheme(); };
   $("#cbSpeak").onchange = () => { store.settings.autoSpeak = $("#cbSpeak").checked; save();
@@ -1835,7 +1849,13 @@ function selfTest(){
     ok("个人词库：揭晓后按单词记忆、重新渲染仍保持揭示", $("#rowsBank").innerHTML.indexOf("masked mask-en") < 0);
     state.maskMode = "off"; state.revealed.clear();
     bankDel("abandon"); store.bank = {}; store.tomb = {};
-    state.view = "list"; renderList();
+    // ---- 设置面板：必须有可见的关闭入口 ----
+    ok("设置面板有固定关闭按钮", !!$("#btnDrawerClose") && $("#btnDrawerClose").textContent.indexOf("关闭") >= 0);
+    ok("⚙️ 是开合切换（再点一次可关）", $("#btnSet").onclick.toString().indexOf("classList.contains") >= 0);
+    window.__closeDrawer();
+    ok("关闭函数可用", !$("#drawer").classList.contains("on"));
+
+    state.view = "list";  renderList();
     state.view = "bank";  renderBank();
     state.view = "review"; renderReview();
     ok("三个视图渲染无异常", true);
