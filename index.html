@@ -337,7 +337,7 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-08 14:15 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 02:25 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -361,6 +361,8 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <label class="sw" id="swDark"><input type="checkbox" id="cbDark"></label></div>
   <div class="setrow"><div><div class="lbl">点击自动朗读</div><div class="sub">点单词时用浏览器语音朗读（无需联网）</div></div>
     <label class="sw" id="swSpeak"><input type="checkbox" id="cbSpeak"></label></div>
+  <div class="setrow"><div><div class="lbl">拼写后自动朗读</div><div class="sub">无论拼对拼错，都读一遍正确发音</div></div>
+    <label class="sw" id="swSpellSpeak"><input type="checkbox" id="cbSpellSpeak"></label></div>
   <div class="setrow"><div><div class="lbl">自测遮罩</div><div class="sub">遮中文＝看英忆中；遮英文＝看中忆英。点击该行揭晓</div></div>
     <select id="selMask2" style="min-width:150px">
       <option value="off">关</option>
@@ -780,6 +782,7 @@ function reviewSpellCheck(word){
   if (!v) { inp.focus(); return; }
   state.reviewSpell.given = inp.value;
   state.reviewSpell.result = (v === word.trim().toLowerCase()) ? "ok" : "bad";
+  if (store.settings.spellSpeak !== false) speak(word);        // 不论对错都朗读一遍
   renderReview();
 }
 
@@ -1009,6 +1012,8 @@ function applyMaskUI(){
   $("#swSpeak").classList.toggle("on", !!store.settings.autoSpeak);
   $("#cbResume").checked = store.settings.resume !== false;
   $("#swResume").classList.toggle("on", store.settings.resume !== false);
+  $("#cbSpellSpeak").checked = store.settings.spellSpeak !== false;
+  $("#swSpellSpeak").classList.toggle("on", store.settings.spellSpeak !== false);
 
   $("#swHide").classList.toggle("on", state.hideBanked);
   if (store.settings.maskMode) state.maskMode = store.settings.maskMode;
@@ -1045,6 +1050,11 @@ function applyMaskUI(){
   $("#cbDark").onchange = () => { store.settings.theme = $("#cbDark").checked ? "dark" : "light"; save(); applyTheme(); };
   $("#cbSpeak").onchange = () => { store.settings.autoSpeak = $("#cbSpeak").checked; save();
     $("#swSpeak").classList.toggle("on", store.settings.autoSpeak); };
+  $("#cbSpellSpeak").onchange = () => {
+    store.settings.spellSpeak = $("#cbSpellSpeak").checked;
+    $("#swSpellSpeak").classList.toggle("on", store.settings.spellSpeak);
+    save(true);
+  };
   $("#cbResume").onchange = () => {
     store.settings.resume = $("#cbResume").checked;
     $("#swResume").classList.toggle("on", store.settings.resume);
@@ -1421,15 +1431,18 @@ function spellCheck(){
   const v = (inp.value || "").trim().toLowerCase().replace(/\s+/g, " ");
   if (!v) { inp.focus(); return; }
   state.spellGiven = inp.value;
-  if (v === e.word.trim().toLowerCase()) {
-    state.spellResult = "ok"; state.spellStat.right++;
-    renderSpell();
+  const right = (v === e.word.trim().toLowerCase());
+  state.spellResult = right ? "ok" : "bad";
+  if (right) state.spellStat.right++;
+  else {
+    state.spellStat.wrong++;
+    if (store.settings.spellBank !== false) bankAdd(e.word, e.level, e);
+  }
+  if (store.settings.spellSpeak !== false) speak(e.word);      // 不论对错都朗读一遍正确发音
+  renderSpell();
+  if (right) {
     const mine = state.spellIdx;
     setTimeout(() => { if (state.view === "spell" && state.spellResult === "ok" && state.spellIdx === mine) spellNext(); }, 900);
-  } else {
-    state.spellResult = "bad"; state.spellStat.wrong++;
-    if (store.settings.spellBank !== false) bankAdd(e.word, e.level, e);
-    renderSpell();
   }
 }
 function spellNext(){
@@ -1482,8 +1495,12 @@ function renderSpell(){
       + '<button class="btn ghost" id="spSkip">跳过</button>'
       + '<button class="btn ghost" id="spShuffle">乱序重来</button>'
     + '</div>'
-    + '<div class="smeta" style="margin:12px 0 0"><label class="sw" style="display:inline-flex"><input type="checkbox" id="spAuto"'
-      + (store.settings.spellBank !== false ? " checked" : "") + '> 答错的词自动加入个人词库</label></div>'
+    + '<div class="smeta" style="margin:12px 0 0">'
+      + '<label class="sw" style="display:inline-flex;margin:2px 6px"><input type="checkbox" id="spAuto"'
+      + (store.settings.spellBank !== false ? " checked" : "") + '> 答错自动加入词库</label>'
+      + '<label class="sw" style="display:inline-flex;margin:2px 6px"><input type="checkbox" id="spSpeak"'
+      + (store.settings.spellSpeak !== false ? " checked" : "") + '> 拼完自动朗读</label>'
+      + '</div>'
     + '</div>';
   const inp = $("#spIn");
   if (inp) {
@@ -1498,6 +1515,7 @@ function renderSpell(){
   $("#spShuffle").onclick = () => spellReset(true);
   if ($("#spAll")) $("#spAll").onclick = () => spellStart(null, false);
   $("#spAuto").onchange = () => { store.settings.spellBank = $("#spAuto").checked; save(true); };
+  $("#spSpeak").onchange = () => { store.settings.spellSpeak = $("#spSpeak").checked; save(true); };
 }
 
 /* ================= 演示数据 / 自检 ================= */
@@ -1703,6 +1721,38 @@ function selfTest(){
     state.reviewMode = "meaning";
 
     // ---- 个人词库视图也支持遮罩 ----
+    store.bank = {}; store.tomb = {};
+    bankAdd("abandon", "A", BY_WORD["abandon"]);
+    // ---- 拼写后自动朗读 ----
+    let spoken = [];
+    const realSpeak = speak;
+    speak = w => { spoken.push(w); };
+    state.level = "ALL"; state.q = ""; state.letter = ""; state.page = 1; state.pageSize = 50;
+    state.spellScope = null; state.spellOrder = null; state.spellIdx = 0; state.spellResult = null;
+    state.spellStat = { right:0, wrong:0 };
+    renderSpell();
+    $("#spIn").value = spellList()[0].word;
+    spellCheck();
+    ok("拼对后自动朗读一遍", spoken.length === 1 && spoken[0] === spellList()[0].word, JSON.stringify(spoken));
+    spoken = []; state.spellResult = null; state.spellIdx = 1; renderSpell();
+    $("#spIn").value = "zzz";
+    spellCheck();
+    ok("拼错也自动朗读一遍", spoken.length === 1 && spoken[0] === spellList()[1].word, JSON.stringify(spoken));
+    spoken = [];
+    store.bank = {}; store.tomb = {};
+    bankAdd("abandon", "A", BY_WORD["abandon"]);
+    state.reviewMode = "spell"; state.reviewSpell = { given:"", result:null, hintN:0 }; renderReview();
+    $("#rvIn").value = "abandon";
+    reviewSpellCheck("abandon");
+    ok("复习-拼写也会自动朗读", spoken.length === 1 && spoken[0] === "abandon", JSON.stringify(spoken));
+    spoken = [];
+    state.reviewSpell = { given:"", result:null, hintN:0 }; renderReview();
+    $("#rvIn").value = "zzz";
+    reviewSpellCheck("abandon");
+    ok("复习-拼写拼错也朗读", spoken.length === 1 && spoken[0] === "abandon", JSON.stringify(spoken));
+    speak = realSpeak;
+    store.bank = {}; store.tomb = {}; state.reviewMode = "meaning";
+
     store.bank = {}; store.tomb = {};
     bankAdd("abandon", "A", BY_WORD["abandon"]);
     state.maskMode = "en"; state.revealed.clear();
