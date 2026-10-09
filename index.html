@@ -337,7 +337,7 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 02:42 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 02:45 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -361,6 +361,8 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <label class="sw" id="swDark"><input type="checkbox" id="cbDark"></label></div>
   <div class="setrow"><div><div class="lbl">点击自动朗读</div><div class="sub">点单词时用浏览器语音朗读（无需联网）</div></div>
     <label class="sw" id="swSpeak"><input type="checkbox" id="cbSpeak"></label></div>
+  <div class="setrow"><div><div class="lbl">复习意思时自动朗读</div><div class="sub">每个新词自动读一遍发音（先听音、再回忆中文）</div></div>
+    <label class="sw" id="swRvSpeak"><input type="checkbox" id="cbRvSpeak"></label></div>
   <div class="setrow"><div><div class="lbl">复习意思时自动遮住释义</div><div class="sub">每个新词先盖住中文，点一下揭晓</div></div>
     <label class="sw" id="swRvHide"><input type="checkbox" id="cbRvHide"></label></div>
   <div class="setrow"><div><div class="lbl">拼写后自动朗读</div><div class="sub">无论拼对拼错，都读一遍正确发音</div></div>
@@ -485,7 +487,7 @@ const pageCount = (total, size) => (size ? Math.max(1, Math.ceil(total / size)) 
 const state = {
   view:"home", level:"ALL", letter:"", q:"", hideBanked:false, mask:false, batch:false, showEx:true,
   sort:"index", page:1, pageSize:50, maskMode:"off", bankLevel:"ALL", bankQ:"", selected:new Set(), revealed:new Set(),
-  reviewHide:false, reviewIndex:0, reviewMode:"meaning", reviewSpell:{given:"", result:null, hintN:0},
+  reviewHide:false, reviewIndex:0, reviewWord:null, reviewMode:"meaning", reviewSpell:{given:"", result:null, hintN:0},
   spellIdx:0, spellOrder:null, spellScope:null, spellStat:{right:0, wrong:0}, spellResult:null, spellHintN:0, spellGiven:""
 };
 const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
@@ -712,6 +714,9 @@ function renderReview(){
   const w = due[0], e = entryOf(w), b = store.bank[w];
   const stage = Math.min(b.stage||0, INTERVALS.length);
   const rs = state.reviewSpell || (state.reviewSpell = { given:"", result:null, hintN:0 });
+  const isNewCard = (state.reviewWord !== w);
+  state.reviewWord = w;
+  if (isNewCard && mode === "meaning" && store.settings.reviewSpeak !== false) speak(w);   // 新词自动读一遍
 
   const seg = '<div class="segwrap"><div class="seg" id="segReview">'
     + '<button data-m="meaning"' + (mode === "meaning" ? ' class="on"' : '') + '>📖 复习意思</button>'
@@ -1026,6 +1031,8 @@ function applyMaskUI(){
   $("#swSpellSpeak").classList.toggle("on", store.settings.spellSpeak !== false);
   $("#cbRvHide").checked = reviewMaskOn();
   $("#swRvHide").classList.toggle("on", reviewMaskOn());
+  $("#cbRvSpeak").checked = store.settings.reviewSpeak !== false;
+  $("#swRvSpeak").classList.toggle("on", store.settings.reviewSpeak !== false);
   state.reviewHide = reviewMaskOn();
 
   $("#swHide").classList.toggle("on", state.hideBanked);
@@ -1063,6 +1070,11 @@ function applyMaskUI(){
   $("#cbDark").onchange = () => { store.settings.theme = $("#cbDark").checked ? "dark" : "light"; save(); applyTheme(); };
   $("#cbSpeak").onchange = () => { store.settings.autoSpeak = $("#cbSpeak").checked; save();
     $("#swSpeak").classList.toggle("on", store.settings.autoSpeak); };
+  $("#cbRvSpeak").onchange = () => {
+    store.settings.reviewSpeak = $("#cbRvSpeak").checked;
+    $("#swRvSpeak").classList.toggle("on", store.settings.reviewSpeak);
+    save(true);
+  };
   $("#cbRvHide").onchange = () => {
     store.settings.reviewAutoHide = $("#cbRvHide").checked;
     $("#swRvHide").classList.toggle("on", store.settings.reviewAutoHide);
@@ -1738,6 +1750,20 @@ function selfTest(){
     ok("复习意思：揭晓后能看到中文", $("#reviewBox").innerHTML.indexOf('class="rm hide"') < 0 && $("#reviewBox").innerHTML.indexOf("放弃") >= 0);
     state.reviewHide = false; review("abandon", "ok");
     ok("复习意思：评分后下一个词重新遮住", state.reviewHide === true, state.reviewHide);
+    // ---- 复习意思：新词自动朗读 ----
+    let spokenRv = [];
+    const realSpeakRv = speak;
+    speak = w => { spokenRv.push(w); };
+    store.bank = {}; store.tomb = {};
+    bankAdd("abandon", "A", BY_WORD["abandon"]);
+    state.reviewMode = "meaning"; state.reviewWord = null; state.reviewHide = true;
+    renderReview();
+    ok("复习意思：新词自动朗读一遍", spokenRv.length === 1 && spokenRv[0] === "abandon", JSON.stringify(spokenRv));
+    renderReview();
+    state.reviewHide = false; renderReview();
+    ok("同一张卡片重绘 / 揭晓都不会重复朗读", spokenRv.length === 1, JSON.stringify(spokenRv));
+    state.reviewHide = true;
+    speak = realSpeakRv;
     store.bank = {}; store.tomb = {};                  // 重新准备一个到期词，供下面拼写模式用
     bankAdd("abandon", "A", BY_WORD["abandon"]);
     state.reviewMode = "spell"; renderReview();
