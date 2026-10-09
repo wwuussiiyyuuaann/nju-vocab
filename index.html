@@ -119,6 +119,8 @@ label.sw.on{color:var(--accent);border-color:var(--accent)}
 .row.masked.mask-zh .c-mean::selection,
 .row.masked.mask-en .c-word .w::selection{background:transparent}
 .row.masked .ex{visibility:hidden}                    /* 遮罩时例句一起盖住（例句里含答案） */
+.row.masked.mask-zh .c-mean .pos{visibility:hidden}   /* 遮中文时词性也不能露（否则是提示） */
+.rm.hide .pos{visibility:hidden}                      /* 复习意思：遮住时词性同样藏起来 */
 .row.masked.mask-en .c-word .spk{opacity:.35}
 .ex{display:block;margin-top:4px;padding-left:7px;border-left:2px solid var(--line)}
 .ex-en{display:block;font-family:Georgia,"Times New Roman",serif;font-size:12.5px;line-height:1.45;color:#3c4a5e}
@@ -347,7 +349,7 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 03:27 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 03:29 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -1865,6 +1867,8 @@ function selfTest(){
     // ---- 词性 ----
     ok("词条带词性字段", ALL[0].pos === "v." && ALL[1].pos === "adj.; n.", ALL[0].word + "=" + ALL[0].pos + " / " + ALL[1].word + "=" + ALL[1].pos);
     ok("列表渲染出词性标签", rowsHTML(three, three).indexOf('<span class="pos">') >= 0);
+    ok("遮中文时词性被隐藏（CSS 规则存在）", /mask-zh \.c-mean \.pos\{visibility:hidden\}/.test(document.querySelector("style").textContent));
+    ok("复习遮罩时词性被隐藏（CSS 规则存在）", /\.rm\.hide \.pos\{visibility:hidden\}/.test(document.querySelector("style").textContent));
     ok("词性标签在遮罩之内（不会提前泄底）", (function () {
       state.maskMode = "zh"; state.revealed.clear();
       const h = rowsHTML([three[0]], [three[0]]);
