@@ -235,6 +235,84 @@ html[data-theme="dark"] .warn{border-color:#6b5a2a;background:#2a2413;color:#e8d
 .deckrow .mini:hover{border-color:var(--accent);color:var(--accent)}
 .ioshint{margin:0 0 12px;padding:10px 14px;border-radius:12px;border:1px solid #a9c6ee;background:#eef4fd;color:#27456e;font-size:13.5px;line-height:1.8}
 html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#c7dbf7}
+/* ---------- 学习模式：每日目标 + 逐词学习 ---------- */
+.studycard{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+  padding:20px 20px 22px;max-width:600px;margin:24px auto 20px;text-align:center}
+.studycard .sctop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.studycard .sctitle{font-weight:800;font-size:16px}
+.studycard .scprog{font-size:13px;color:var(--muted)}
+.studycard .scprog b{color:var(--text);font-size:15px}
+.studycard .scrow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.scbar{height:9px;background:var(--card2);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:16px 0 6px}
+.scbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#7c3aed);transition:width .25s}
+.studycard .schint{color:var(--muted);font-size:12.5px;margin-top:12px;line-height:1.9;word-break:break-word}
+.studycard .schint b{color:var(--text);font-family:Georgia,serif;font-size:13.5px}
+.btn.startbtn{display:block;width:100%;max-width:420px;margin:18px auto 0;justify-content:center;
+  font-size:20px;font-weight:800;letter-spacing:5px;padding:17px 24px;border-radius:15px;
+  background:linear-gradient(135deg,var(--accent),#7c3aed);box-shadow:0 10px 26px rgba(47,93,158,.32)}
+.btn.startbtn:hover{filter:brightness(1.07)}
+.btn.startbtn.done{background:linear-gradient(135deg,#0d9488,#2563eb)}
+.studytop{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0 4px}
+.studytop .stprog{font-size:13px;color:var(--muted);text-align:right;line-height:1.6}
+.studytop .stprog b{color:var(--text);font-size:15px}
+.stcard{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+  padding:30px 22px 26px;max-width:680px;margin:8px auto 112px;text-align:center}
+.stcard .stmeta{color:var(--muted);font-size:12.5px;letter-spacing:.3px}
+.sttag{display:inline-block;padding:2px 9px;border-radius:7px;font-size:11.5px;font-weight:700;background:var(--card2);color:var(--muted)}
+.sttag.on{color:var(--b);background:color-mix(in srgb,var(--b) 14%,transparent)}
+.sttag.off{color:#e5484d;background:color-mix(in srgb,#e5484d 12%,transparent)}
+.stword{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0 10px;flex-wrap:wrap}
+.stword .stw{font-family:Georgia,"Times New Roman",serif;font-size:52px;font-weight:700;line-height:1.15;word-break:break-word}
+.stcard .spk{font-size:20px;opacity:.5;padding:4px 6px}
+.stcard .spk:hover{opacity:1;background:var(--accent-soft)}
+.ststar{font-size:30px;line-height:1;padding:3px 8px;border-radius:10px;color:var(--muted);flex:none}
+.ststar:hover{background:var(--accent-soft)}
+.ststar.on{color:#f0a500}
+.stmean{font-size:16px;margin:4px auto 0;max-width:600px;line-height:1.8;word-break:break-word}
+.stex{margin:20px auto 0;max-width:600px;text-align:left;border-left:3px solid var(--line);
+  padding:8px 0 8px 14px;cursor:pointer;border-radius:0 10px 10px 0}
+.stex:hover{border-color:var(--accent);background:var(--card2)}
+.stex .stex-en{font-family:Georgia,"Times New Roman",serif;font-size:16px;line-height:1.6;color:var(--text)}
+html[data-theme="dark"] .stex .stex-en{color:#c3d0e2}
+.stex .stex-zh{font-size:13.5px;color:var(--muted);margin-top:5px;line-height:1.6}
+.stex-tip{font-size:11.5px;color:var(--muted);margin-top:6px}
+.sttoast{margin:14px auto 0;font-size:13px;color:var(--b);min-height:20px}
+.sthint{margin:10px auto 0;font-size:11.5px;color:var(--muted);line-height:1.8}
+.stbar{position:fixed;left:0;right:0;bottom:0;z-index:36;background:var(--card);border-top:1px solid var(--line);
+  box-shadow:0 -8px 24px rgba(0,0,0,.10);padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+.stbar.off{display:none}
+.stbar .in{max-width:680px;margin:0 auto;display:flex;gap:10px;align-items:stretch}
+.stbtn{flex:1;padding:15px 8px;border-radius:13px;border:1px solid var(--line);background:var(--card2);
+  font-weight:700;font-size:15px;color:var(--text)}
+.stbtn:hover{border-color:var(--accent);color:var(--accent)}
+.stbtn:disabled{opacity:.35;cursor:not-allowed}
+.stbtn.pass{flex:.85;color:var(--muted)}
+.stbtn.pass:hover{border-color:#e5484d;color:#e5484d}
+.stbtn.next{flex:1.25;background:var(--accent);color:#fff;border-color:transparent;font-weight:800;letter-spacing:1px}
+.stbtn.next:hover{filter:brightness(1.07);color:#fff}
+.donecard{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+  padding:46px 22px;max-width:560px;margin:20px auto 40px;text-align:center}
+.donecard .big{font-size:52px;line-height:1}
+.donecard h3{margin:14px 0 8px;font-size:21px}
+.donecard p{color:var(--muted);font-size:13.5px;margin:0 0 20px;line-height:1.9}
+.badge.spell{color:#b45309;background:color-mix(in srgb,#f0a500 20%,transparent)}
+html[data-theme="dark"] .badge.spell{color:#fbbf24}
+.btn.reviewbtn{display:block;width:100%;max-width:420px;margin:12px auto 0;justify-content:center;
+  font-size:17px;font-weight:800;letter-spacing:3px;padding:14px 22px;border-radius:15px;
+  background:linear-gradient(135deg,#0d9488,#0891b2);box-shadow:0 8px 22px rgba(13,148,136,.28)}
+.btn.reviewbtn:hover{filter:brightness(1.07)}
+.btn.reviewbtn.zero{background:var(--card2);color:var(--muted);box-shadow:none;border:1px solid var(--line)}
+.btn.reviewbtn.zero:hover{border-color:var(--accent);color:var(--accent)}
+.rvpill{display:inline-block;min-width:26px;padding:1px 9px;border-radius:999px;background:rgba(255,255,255,.28);
+  font-size:14px;font-weight:800;margin-left:8px;vertical-align:1px}
+.btn.reviewbtn.zero .rvpill{background:var(--accent-soft);color:var(--accent)}
+@media (max-width:720px){
+  .stword .stw{font-size:40px}
+  .stcard{padding:24px 16px 22px;margin-bottom:104px}
+  .stbtn{font-size:14px;padding:14px 6px}
+  .btn.startbtn{font-size:18px;letter-spacing:3px}
+  .studycard{padding:18px 14px 20px}
+}
 @media (max-width:720px){
   .hero h1{font-size:27px}
   .cards{grid-template-columns:1fr}
@@ -264,8 +342,27 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
       <h1>英语词汇<br><span class="em" id="homeTitle">南大通用词汇</span></h1>
       <p id="homeSub"></p>
       <div class="cards" id="homeCards"></div>
+
+      <div class="studycard" id="studyCard">
+        <div class="sctop">
+          <span class="sctitle">🎯 今日学习目标</span>
+          <span class="scprog" id="studyProg">今天已学 <b>0</b> / 20</span>
+        </div>
+        <div class="scrow">
+          <span>每日学习单词数</span>
+          <span class="seg" id="segGoal">
+            <button data-n="10">10</button><button data-n="20">20</button><button data-n="30">30</button><button data-n="50">50</button><button data-n="100">100</button>
+          </span>
+        </div>
+        <div class="scbar"><i id="studyBar" style="width:0%"></i></div>
+        <button class="btn startbtn" id="btnStartStudy">开 始 学 习 ！</button>
+        <div class="schint" id="studyHint"></div>
+        <button class="btn reviewbtn" id="btnStartReview">今 日 份 复 习 ！<span class="rvpill" id="reviewCount">0</span></button>
+        <div class="schint" id="reviewHint"></div>
+      </div>
+
       <button class="btn" id="btnEnter">进 入 词 库</button>
-      <div class="hintrow">词表阅读 · 多维筛选 · 朗读发音 · 例句 · 释义遮罩自测 · 个人词库 · 艾宾浩斯复习</div>
+      <div class="hintrow">每日学习计划 · 词表阅读 · 多维筛选 · 朗读发音 · 例句 · 释义遮罩自测 · 个人词库 · 艾宾浩斯复习</div>
     </div>
   </section>
 
@@ -346,10 +443,27 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <div id="spellBox"></div>
   </section>
 
+  <!-- ========== 逐词学习 ========== -->
+  <section id="v-study" hidden>
+    <div class="studytop">
+      <button class="btn ghost" id="btnStudyQuit">← 退出学习</button>
+      <span class="stprog" id="studyTopProg"></span>
+    </div>
+    <div class="scbar"><i id="studyViewBar" style="width:0%"></i></div>
+    <div id="studyBox"></div>
+    <div class="stbar off" id="studyBar2">
+      <div class="in">
+        <button class="stbtn" id="btnPrev" title="上一个（←）">← 上一个</button>
+        <button class="stbtn pass" id="btnPass" title="这个词不用再复习（p）">pass</button>
+        <button class="stbtn next" id="btnNext" title="学过了，进入艾宾浩斯复习（空格 / →）">下一个 →</button>
+      </div>
+    </div>
+  </section>
+
   <footer class="foot">
     <span id="footDeck"></span> · 默认离线运行，学习进度保存在本机浏览器（localStorage）<br>
     开启「云同步」后，进度只写入<b>你自己的 GitHub Gist</b>（建议设为私有），不经过任何第三方服务器<br>
-    <span style="font-size:11.5px">版本 <b id="verStamp">v4 · 2026-10-09 03:29 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
+    <span style="font-size:11.5px">版本 <b id="verStamp">v8 · 2026-10-11 12:57 · 学习 + 复习计划 + 专属链接 · 1 套词库</b>（如果你看到的不是这个版本，说明浏览器还在用旧缓存）</span>
   </footer>
 </div>
 
@@ -382,6 +496,10 @@ html[data-theme="dark"] .ioshint{border-color:#31507a;background:#16233a;color:#
     <label class="sw" id="swRvHide"><input type="checkbox" id="cbRvHide"></label></div>
   <div class="setrow"><div><div class="lbl">拼写后自动朗读</div><div class="sub">无论拼对拼错，都读一遍正确发音</div></div>
     <label class="sw" id="swSpellSpeak"><input type="checkbox" id="cbSpellSpeak"></label></div>
+  <div class="setrow"><div><div class="lbl">学习模式自动朗读两遍</div><div class="sub">进入每个新词自动连读两遍；不想听可以关掉，仍可点 🔊 重听</div></div>
+    <label class="sw" id="swStudySpeak"><input type="checkbox" id="cbStudySpeak"></label></div>
+  <div class="setrow"><div><div class="lbl">专属分享链接</div><div class="sub" id="shareInfo">带 ?u=署名 的链接，发给别人打开就是你署名的专属词库</div></div>
+    <button class="btn ghost" id="btnCopyShare">复制链接</button></div>
   <div class="setrow"><div><div class="lbl">自测遮罩</div><div class="sub">遮中文＝看英忆中；遮英文＝看中忆英。点击该行揭晓</div></div>
     <select id="selMask2" style="min-width:150px">
       <option value="off">关</option>
@@ -484,7 +602,7 @@ let storageOK = true;
 let store = { bank:{}, tomb:{}, settings:{theme:"light", autoSpeak:false, mask:false, ex:true, resume:true} };
 try {
   const raw = localStorage.getItem(KEY);
-  if (raw) { const o = JSON.parse(raw); store.bank = o.bank||{}; store.tomb = o.tomb||{}; if (o.resume) store.resume = o.resume; Object.assign(store.settings, o.settings||{}); }
+  if (raw) { const o = JSON.parse(raw); store.bank = o.bank||{}; store.tomb = o.tomb||{}; if (o.resume) store.resume = o.resume; if (o.study) store.study = o.study; Object.assign(store.settings, o.settings||{}); }
 } catch(e){ storageOK = false; }
 try { localStorage.setItem(KEY + "__probe", "1"); localStorage.removeItem(KEY + "__probe"); } catch(e){ storageOK = false; }
 function save(skipSync){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){ storageOK=false; } if (!skipSync) scheduleSync(); }
@@ -505,7 +623,7 @@ const pageCount = (total, size) => (size ? Math.max(1, Math.ceil(total / size)) 
 const state = {
   view:"home", level:"ALL", letter:"", q:"", hideBanked:false, mask:false, batch:false, showEx:true,
   sort:"index", page:1, pageSize:50, maskMode:"off", bankLevel:"ALL", bankQ:"", selected:new Set(), revealed:new Set(),
-  reviewHide:false, reviewIndex:0, reviewWord:null, reviewMode:"meaning", reviewSpell:{given:"", result:null, hintN:0},
+  reviewHide:false, reviewIndex:0, reviewWord:null, reviewMode:"spell", reviewSpell:{given:"", result:null, hintN:0},
   spellIdx:0, spellOrder:null, spellScope:null, spellStat:{right:0, wrong:0}, spellResult:null, spellHintN:0, spellGiven:""
 };
 const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
@@ -513,13 +631,23 @@ const DAY = 86400000;
 const fmtDate = t => { const d = new Date(t); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 
 /* ================= 词库操作 ================= */
-function bankAdd(word, level, entry){
+function bankAdd(word, level, entry, opts){
   if (!BY_WORD[word] || store.bank[word]) return false;
   const now = Date.now(), e = entry || BY_WORD[word];
-  store.bank[word] = { level:level || (e && e.level) || "", addedAt:now, updatedAt:now, stage:0, due:today(),
-    reviews:0, lapses:0, m:(e && e.meaning) || "", en:(e && e.en) || "", zh:(e && e.zh) || "", pos:(e && e.pos) || "" };
+  store.bank[word] = { level:level || (e && e.level) || "", addedAt:now, updatedAt:now, stage:0,
+    due: today() + (((opts && opts.dueIn) || 0) * DAY),     // dueIn:1 = 明天开始第一次复习（艾宾浩斯第 1 天）
+    reviews:0, lapses:0, m:(e && e.meaning) || "", en:(e && e.en) || "", zh:(e && e.zh) || "", pos:(e && e.pos) || "",
+    spell: !!(opts && opts.spell) };        // spell = 重点：复习时优先用拼写模式
   delete store.tomb[word];
   save(); return true;
+}
+/* 把一个已在词库里的词升级为「重点拼写」，并拉进今天的复习计划 */
+function bankSetSpell(word){
+  const b = store.bank[word];
+  if (!b) return false;
+  b.due = Math.min(b.due || 0, today());
+  if (b.spell) { b.updatedAt = Date.now(); save(); return false; }
+  b.spell = true; b.updatedAt = Date.now(); save(); return true;
 }
 function bankDel(word){
   if (!store.bank[word]) return false;
@@ -527,7 +655,13 @@ function bankDel(word){
   store.tomb[word] = Date.now();
   save(); return true;
 }
-function bankToggle(word, level, entry){ return store.bank[word] ? (bankDel(word), false) : (bankAdd(word, level, entry), true); }
+function bankToggle(word, level, entry, opts){
+  if (store.bank[word]) {
+    if (opts && opts.spell && !store.bank[word].spell) return bankSetSpell(word);   // 已在库里的词：点星＝标为重点
+    bankDel(word); return false;
+  }
+  bankAdd(word, level, entry, opts); return true;
+}
 const bankWords = () => Object.keys(store.bank);
 const dueWords = () => bankWords().filter(w => (store.bank[w].due||0) <= today())
   .sort((a,b) => (store.bank[a].due - store.bank[b].due)
@@ -693,7 +827,7 @@ function bindRows(root){
   root.querySelectorAll(".spk").forEach(b => b.onclick = ev => { ev.stopPropagation(); speak(b.dataset.spk); });
   root.querySelectorAll("[data-star]").forEach(b => b.onclick = ev => {
     ev.stopPropagation();
-    const on = bankToggle(b.dataset.star, b.dataset.lv, BY_WORD[b.dataset.star]);
+    const on = bankToggle(b.dataset.star, b.dataset.lv, BY_WORD[b.dataset.star], { spell:true });
     b.classList.toggle("on", on); b.textContent = starSVG(on);
     b.title = on ? "移出个人词库" : "加入个人词库";
     refreshCounts();
@@ -717,7 +851,8 @@ function bindRows(root){
 }
 function refreshCounts(){ tabsHTML($("#tabs")); if (state.view === "bank") renderBank(); }
 function rerender(){ if (state.view === "bank") renderBank(); else if (state.view === "list") renderList();
-  else if (state.view === "review") renderReview(); else if (state.view === "spell") renderSpell(); }
+  else if (state.view === "review") renderReview(); else if (state.view === "spell") renderSpell();
+  else if (state.view === "study") renderStudy(); }
 
 function renderReview(){
   tabsHTML($("#tabs3"));
@@ -725,15 +860,17 @@ function renderReview(){
   const total = bankWords().length;
   const done = total - due.length;
   const box = $("#reviewBox");
-  const mode = state.reviewMode || "meaning";
+  let mode = state.reviewMode || "meaning";
   if (!total) { box.innerHTML = '<div class="empty"><div class="big">🔄</div><div>个人词库还是空的</div><div style="font-size:13px;margin-top:6px">先到「词表阅读」里点 ☆ 收藏一些单词，再回来复习</div></div>'; return; }
-  if (!due.length) { box.innerHTML = '<div class="empty"><div class="big">🎉</div><div>今天的复习任务完成啦！</div><div style="font-size:13px;margin-top:6px">共 '+total+' 词在词库中，没有到期的单词。<br>下次复习时间按 1·2·4·7·15·30 天递增。</div></div>'; return; }
+  if (!due.length) { box.innerHTML = '<div class="empty"><div class="big">🎉</div><div>今天没有到期的词，复习计划完成啦！</div><div style="font-size:13px;margin-top:6px">共 '+total+' 词在艾宾浩斯复习计划中。<br>今天新学的词明天开始第一次复习，⭐ 重点词当天就进计划。<br>复习间隔 1 · 2 · 4 · 7 · 15 · 30 天。</div></div>'; return; }
 
   const w = due[0], e = entryOf(w), b = store.bank[w];
   const stage = Math.min(b.stage||0, INTERVALS.length);
   const rs = state.reviewSpell || (state.reviewSpell = { given:"", result:null, hintN:0 });
   const isNewCard = (state.reviewWord !== w);
   state.reviewWord = w;
+  if (isNewCard && b.spell && state.reviewMode !== "spell") state.reviewMode = "spell";   // ⭐ 重点词强制拼写复习
+  mode = state.reviewMode || "spell";
   if (isNewCard && mode === "meaning" && store.settings.reviewSpeak !== false) speak(w);   // 新词自动读一遍
 
   const seg = '<div class="segwrap"><div class="seg" id="segReview">'
@@ -748,8 +885,10 @@ function renderReview(){
     + '<button class="rbtn mid" data-v="mid">🤔 模糊（明天再来）</button>'
     + '<button class="rbtn no' + (rs.result === "bad" ? ' hl' : '') + '" data-v="no">❌ 忘了（重新开始）</button>'
     + '</div>';
-  const meta2 = '<div class="rmeta">' + ((LEVEL_INFO[e.level] && LEVEL_INFO[e.level].label) ? LEVEL_INFO[e.level].label + ' · ' : '')
-    + (e.no ? '词表第 ' + e.no + ' 个 · ' : '') + '复习 ' + (b.reviews||0) + ' 次 · 遗忘 ' + (b.lapses||0) + ' 次</div>';
+  const meta2 = '<div class="rmeta">' + (b.spell ? '<span class="badge spell">⭐ 重点拼写</span> ' : '')
+    + ((LEVEL_INFO[e.level] && LEVEL_INFO[e.level].label) ? LEVEL_INFO[e.level].label + ' · ' : '')
+    + (e.no ? '词表第 ' + e.no + ' 个 · ' : '') + '复习 ' + (b.reviews||0) + ' 次 · 遗忘 ' + (b.lapses||0) + ' 次'
+    + ' · 这次答对 → +' + INTERVALS[Math.min(stage, INTERVALS.length - 1)] + ' 天后再来</div>';
 
   if (mode === "meaning") {
     box.innerHTML = '<div class="rcard">' + head
@@ -822,12 +961,15 @@ function reviewSpellCheck(word){
 
 /* ================= 视图切换 ================= */
 function go(view, opts){
+  if (studyTimer) { clearTimeout(studyTimer); studyTimer = null; }
   state.view = view; state.revealed.clear(); state.selected.clear(); batchInfo();
   if (opts !== false) syncHash();
-  ["home","list","bank","review","spell"].forEach(v => $("#v-"+v).hidden = (v !== view));
+  ["home","list","bank","review","spell","study"].forEach(v => { const el = $("#v-"+v); if (el) el.hidden = (v !== view); });
   const pb = $("#pagerBar");                      // 翻页条只在列表/词库视图出现
   if (pb && view !== "list" && view !== "bank") pb.hidden = true;
   if (view === "list") renderList();
+  else if (view === "home") renderStudyHome();
+  else if (view === "study") renderStudy();
   else if (view === "bank") renderBank();
   else if (view === "review") { state.reviewHide = reviewMaskOn(); renderReview(); }
   else if (view === "spell") renderSpell();
@@ -899,7 +1041,7 @@ function importJson(text){
 }
 function wipe(scope){
   if (scope === "bank") { if (!confirm("确定清空个人词库（"+bankWords().length+" 词）？此操作不可撤销。")) return; store.bank = {}; }
-  else { if (!confirm("确定清空全部数据（词库 + 设置）？此操作不可撤销。")) return; store.bank = {}; store.settings = {theme:"light", autoSpeak:false, mask:false}; }
+  else { if (!confirm("确定清空全部数据（词库 + 设置 + 学习进度）？此操作不可撤销。")) return; store.bank = {}; store.settings = {theme:"light", autoSpeak:false, mask:false}; delete store.study; }
   save(); applyTheme(); applyMaskUI(); go(state.view, false);
 }
 
@@ -1015,6 +1157,268 @@ function applyMaskUI(){
   if (state.view === "list") renderList(); else if (state.view === "bank") renderBank();
 }
 
+/* ================= 学习模式：每日目标 + 逐词学习 ================= */
+const GOALS = [10, 20, 30, 50, 100];
+let studyTimer = null;                    // 学完后自动回首页的计时器
+let studySpeechHook = null;               // 自测用：非 null 时只记录朗读调用，不真的发声
+let speakSeq = 0;
+
+function studyStore(){
+  if (!store.study || typeof store.study !== "object") store.study = {};
+  const s = store.study;
+  if (GOALS.indexOf(s.goal) < 0) s.goal = 20;
+  if (!s.pos || typeof s.pos !== "object") s.pos = {};
+  if (typeof s.day !== "number") s.day = 0;
+  if (typeof s.done !== "number" || s.done < 0) s.done = 0;
+  if (!s.sess || typeof s.sess !== "object" || !Array.isArray(s.sess.words)) s.sess = null;
+  return s;
+}
+/* 今天已经决定（学过或跳过）几个词：过了零点自动归零 */
+function studyToday(){ const s = studyStore(); return s.day === today() ? s.done : 0; }
+/* 当前词库学到了第几个词（下标） */
+function studyCursor(){
+  const s = studyStore(), p = s.pos[CUR];
+  return (typeof p === "number" && p >= 0 && p < ALL.length) ? p : 0;
+}
+function studyRemain(){ return Math.max(0, studyStore().goal - studyToday()); }
+/* 从 start 起按词表顺序取 n 个词；走到表尾就绕回开头（开始新一轮） */
+function buildQueue(n, start){
+  const len = Math.max(0, Math.min(n, ALL.length));
+  const queue = [];
+  for (let k = 0; k < len; k++) queue.push(ALL[(start + k) % ALL.length]);
+  return { queue:queue, wrapped:(start + len) > ALL.length };
+}
+/* 当天这一批：进行中就继续，否则按剩余目标新建 */
+function ensureStudy(){
+  const st = studyStore();
+  if (!st.sess || st.sess.day !== today()) {
+    const done = studyToday();
+    const size = done >= st.goal ? st.goal : Math.max(1, st.goal - done);
+    const bq = buildQueue(size, studyCursor());
+    if (!bq.queue.length) { st.sess = null; return false; }
+    st.sess = { day: today(), start: studyCursor(), words: bq.queue.map(e => e.word), marks:{}, idx:0 };
+    save(true);
+  }
+  const s = st.sess;
+  const decided = Object.keys(s.marks).length;
+  if (decided >= s.words.length) return false;              // 这一批已全部决定
+  if (typeof s.idx !== "number" || s.idx < 0 || s.idx > decided) s.idx = decided;
+  return true;
+}
+function startStudy(){
+  const st = studyStore();
+  if (studyToday() >= st.goal) { st.day = today(); st.done = 0; st.sess = null; save(true); }   // 今日已达标：再学一批
+  if (!ensureStudy()) { go("home"); return; }
+  go("study");
+}
+/* 决定当前词：review = 进艾宾浩斯复习；pass = 不用再复习 */
+function studyDecide(mark){
+  const st = studyStore(), s = st.sess;
+  if (!s) return;
+  const word = s.words[s.idx];
+  if (!word) return;
+  const first = !s.marks[word];
+  s.marks[word] = (mark === "pass") ? "pass" : "review";
+  if (first) {                                             // 只有第一次决定才计数与前进光标
+    const before = studyToday();                           // 先按「跨天归零」的语义取值
+    st.day = today();
+    st.done = before + 1;
+    st.pos[CUR] = (studyCursor() + 1) % Math.max(1, ALL.length);
+  }
+  const e = BY_WORD[word];
+  if (s.marks[word] === "pass") { if (store.bank[word]) bankDel(word); }      // 不用复习 → 移出词库/复习
+  else if (e && !store.bank[word]) bankAdd(word, e.level, e, { dueIn:1 });      // 明天开始第一次复习（艾宾浩斯第 1 天）
+  save(true);
+  const decided = Object.keys(s.marks).length;
+  if (s.idx < decided) s.idx = Math.min(s.idx + 1, decided);
+  if (decided >= s.words.length) { finishStudy(); return; }
+  renderStudy();
+}
+function studyNext(){ studyDecide("review"); }
+function studyPass(){ studyDecide("pass"); }
+function studyPrev(){
+  const s = studyStore().sess; if (!s || s.idx <= 0) return;
+  s.idx -= 1; save(true); renderStudy();
+}
+function studyReplay(){
+  const s = studyStore().sess; if (!s) return;
+  const w = s.words[s.idx]; if (w) speak(w);
+}
+/* ⭐ = 重点：加入个人词库并标记「复习时优先拼写」；再点一次移出 */
+function studyStar(){
+  const s = studyStore().sess; if (!s) return;
+  const word = s.words[s.idx]; if (!word) return;
+  const e = BY_WORD[word], b = store.bank[word];
+  let on;
+  if (!b) { bankAdd(word, e ? e.level : "", e, { spell:true }); on = true; }
+  else if (!b.spell) { bankSetSpell(word); on = true; }
+  else { bankDel(word); on = false; }
+  if (on && s.marks[word] === "pass") s.marks[word] = "review";   // 收藏了当然要复习
+  save(true);
+  renderStudy(); refreshCounts();
+  const t = $("#stToast");
+  if (t) t.textContent = on ? "⭐ 已标为重点（复习时优先拼写）" : "已移出个人词库";
+}
+function finishStudy(){
+  const st = studyStore();
+  st.sess = null;
+  const bar = $(".stbar"); if (bar) bar.classList.add("off");
+  const vb = $("#studyViewBar"); if (vb) vb.style.width = "100%";
+  const box = $("#studyBox");
+  if (box) {
+    box.innerHTML = '<div class="donecard"><div class="big">🎉</div><h3>今日目标完成！</h3>'
+      + '<p>今天已学 <b>' + studyToday() + '</b> 个单词（目标 ' + st.goal + ' 个）。<br>'
+      + '没 pass 的词已进「今日复习」，按 1·2·4·7·15·30 天重复；⭐ 标记的重点词会用拼写复习。</p>'
+      + '<button class="btn ghost" id="btnStudyHome">返回首页</button></div>';
+    const b = $("#btnStudyHome"); if (b) b.onclick = () => go("home");
+  }
+  studyTimer = setTimeout(() => { studyTimer = null; go("home"); }, 2400);   // 自动回首页
+}
+/* 朗读：连读两遍（第二遍稍慢，并带兜底，避免个别浏览器把同一句吞掉） */
+function speakTwice(w){
+  if (!canSpeak) return;
+  try {
+    const seq = ++speakSeq;
+    speechSynthesis.cancel();
+    const mk = r => { const u = new SpeechSynthesisUtterance(w); u.lang = "en-US"; u.rate = r; return u; };
+    let second = false;
+    const go2 = () => {
+      if (second || seq !== speakSeq) return;
+      second = true;
+      try { speechSynthesis.speak(mk(.86)); } catch(e){}
+    };
+    const u1 = mk(.92);
+    u1.onend = go2; u1.onerror = go2;
+    speechSynthesis.speak(u1);
+    setTimeout(go2, 2000);
+  } catch(e){}
+}
+function studySay(w, times){
+  if (studySpeechHook) { for (let i = 0; i < times; i++) studySpeechHook.push(w); return; }
+  if (store.settings.studySpeak === false) return;
+  if (times >= 2) speakTwice(w); else speak(w);
+}
+/* 学习卡片 */
+function renderStudy(){
+  const box = $("#studyBox"); if (!box) return;
+  const bar = $(".stbar");
+  if (!ensureStudy()) { if (bar) bar.classList.add("off"); renderStudyDoneState(); return; }
+  if (bar) bar.classList.remove("off");
+  const st = studyStore(), s = st.sess, word = s.words[s.idx];
+  const decided = Object.keys(s.marks).length, done = studyToday(), goal = st.goal;
+  const e = BY_WORD[word] || { word:word, meaning:"", level:"", no:"", pos:"" };
+  const ex = EX[word], b = store.bank[word], mark = s.marks[word];
+  const top = $("#studyTopProg");
+  if (top) top.innerHTML = '今日已学 <b>' + done + '</b> / ' + goal
+    + ' · 本批第 ' + (s.idx + 1) + ' / ' + s.words.length + ' 个';
+  const vb = $("#studyViewBar");
+  if (vb) vb.style.width = Math.min(100, Math.round(done / Math.max(goal, 1) * 100)) + "%";
+  const pv = $("#btnPrev"); if (pv) pv.disabled = (s.idx <= 0);
+  const info = LEVEL_INFO[e.level];
+  const tag = mark === "pass" ? '<span class="sttag off">不用复习</span>'
+    : mark === "review" ? '<span class="sttag on">✓ 已进复习</span>'
+    : '<span class="sttag">未标记</span>';
+  const starred = !!(b && b.spell);
+  box.innerHTML = '<div class="stcard">'
+    + '<div class="stmeta">' + tag
+      + (info ? ' · ' + info.label : (e.level ? ' · ' + e.level + ' 级' : ''))
+      + (e.no ? ' · 词表第 ' + e.no + ' 个' : '') + '</div>'
+    + '<div class="stword"><span class="stw" id="stWord">' + esc(word) + '</span>'
+      + '<button class="spk" id="stSpk" title="再听一遍（r）">🔊</button>'
+      + '<button class="ststar' + (starred ? ' on' : '') + '" id="stStar" title="'
+      + (starred ? '取消重点（移出个人词库）' : '标为重点：复习时优先拼写') + '">' + starSVG(starred) + '</button></div>'
+    + '<div class="stmean">' + posHTML(e) + esc(e.meaning) + '</div>'
+    + (ex
+        ? '<div class="stex" id="stEx" title="点击听例句朗读"><div class="stex-en">' + esc(ex.en) + '</div>'
+          + (ex.zh ? '<div class="stex-zh">' + esc(ex.zh) + '</div>' : '')
+          + '<div class="stex-tip">🔊 点击例句听朗读</div></div>'
+        : '<div class="stex-tip" style="margin-top:22px">（这个级别暂时没有例句，可点单词旁的 🔊 听发音）</div>')
+    + '<div class="sttoast" id="stToast"></div>'
+    + '<div class="sthint">⭐ 重点＝复习时优先拼写 · 「下一个」的词进艾宾浩斯复习 · pass 的词不再复习</div>'
+    + '</div>';
+  const spk = $("#stSpk"); if (spk) spk.onclick = () => speak(word);
+  const exEl = $("#stEx"); if (exEl) exEl.onclick = () => speak(ex.en);
+  const star = $("#stStar"); if (star) star.onclick = studyStar;
+  if (s.spoken !== s.idx) { s.spoken = s.idx; studySay(word, 2); }      // 每个新词自动读两遍
+}
+function renderStudyDoneState(){
+  const box = $("#studyBox"); if (!box) return;
+  const st = studyStore();
+  box.innerHTML = '<div class="donecard"><div class="big">✅</div><h3>今天的 ' + st.goal + ' 个已经学完</h3>'
+    + '<p>想继续可以点「再学一批」。<br>学习位置已经记住，明天会自动从下一个词接着往下。</p>'
+    + '<button class="btn" id="btnStudyMore">再学一批</button> '
+    + '<button class="btn ghost" id="btnStudyHome2">返回首页</button></div>';
+  const b1 = $("#btnStudyMore"); if (b1) b1.onclick = () => startStudy();
+  const b2 = $("#btnStudyHome2"); if (b2) b2.onclick = () => go("home");
+}
+/* 首页卡片：目标选择 + 进度 + 下一个词 */
+function renderStudyHome(){
+  const box = $("#studyCard"); if (!box) return;
+  const st = studyStore(), done = studyToday(), goal = st.goal;
+  $$("#segGoal button").forEach(b => b.classList.toggle("on", parseInt(b.dataset.n, 10) === goal));
+  const bar = $("#studyBar");
+  if (bar) bar.style.width = Math.min(100, Math.round(done / Math.max(goal, 1) * 100)) + "%";
+  const pr = $("#studyProg"); if (pr) pr.innerHTML = "今天已学 <b>" + done + "</b> / " + goal;
+  const s = st.sess;
+  let nw = ALL.length ? ALL[studyCursor()].word : "";
+  if (s && s.day === today()) { const k = Object.keys(s.marks).length; if (k < s.words.length) nw = s.words[k]; }
+  const hint = $("#studyHint"), btn = $("#btnStartStudy");
+  if (hint) hint.innerHTML = done >= goal
+    ? "今天的目标已完成 ✅ 点下面的按钮可以再学一批；明天从「<b>" + esc(nw) + "</b>」接着往下"
+    : (done > 0
+        ? "接着上次的位置，下一个是「<b>" + esc(nw) + "</b>」（今日第 " + (done + 1) + " 个）"
+        : "按词表顺序接着学，下一个是「<b>" + esc(nw) + "</b>」（全表第 " + (studyCursor() + 1) + " 个）");
+  if (btn) {
+    btn.textContent = done >= goal ? "再 学 一 批 ！" : (done > 0 ? "继 续 学 习 ！" : "开 始 学 习 ！");
+    btn.classList.toggle("done", done >= goal);
+  }
+  const due = dueWords().length, bankN = bankWords().length;
+  const rbtn = $("#btnStartReview"), rcnt = $("#reviewCount"), rht = $("#reviewHint");
+  if (rcnt) rcnt.textContent = String(due);
+  if (rbtn) rbtn.classList.toggle("zero", due === 0);
+  if (rht) rht.innerHTML = !bankN
+    ? "还没有进复习计划的词：学习时按「下一个」自动入库，或点 ⭐ 标重点"
+    : (due
+        ? "艾宾浩斯 1·2·4·7·15·30 天 · 今天到期 <b>" + due + "</b> 词（看中文拼出单词）"
+        : "今天的复习已完成 ✅ 共 " + bankN + " 词在计划中，到期时会自动出现");
+}
+/* 快捷键：空格/→ 下一个、← 上一个、p pass、s 重点、r 重听 */
+document.addEventListener("keydown", ev => {
+  if (state.view !== "study") return;
+  if (/input|select|textarea/i.test(ev.target.tagName || "")) return;
+  if (ev.key === "ArrowLeft") { ev.preventDefault(); studyPrev(); }
+  else if (ev.key === " " || ev.key === "ArrowRight" || ev.key === "Enter") { ev.preventDefault(); studyNext(); }
+  else if (ev.key === "p" || ev.key === "P") { ev.preventDefault(); studyPass(); }
+  else if (ev.key === "s" || ev.key === "S") { ev.preventDefault(); studyStar(); }
+  else if (ev.key === "r" || ev.key === "R") { ev.preventDefault(); studyReplay(); }
+});
+
+/* ================= 专属署名（?u=weeping） ================= */
+let OWNER = "";
+const SHARE_BASE = (!location.origin || location.origin === "null" || location.protocol === "file:")
+  ? "https://wwuussiiyyuuaann.github.io/nju-vocab/" : (location.origin + location.pathname);
+/* 只留字母数字下划线连字符与中文，防止把链接里的内容当代码注入 */
+function ownerName(v){ return String(v == null ? "" : v).replace(/[^\w\u4e00-\u9fa5-]/g, "").slice(0, 24); }
+function shareURL(){ return SHARE_BASE + "?u=" + encodeURIComponent(OWNER || "weeping"); }
+function applyOwner(v){
+  const name = ownerName(v);
+  if (!name) return "";
+  OWNER = name;
+  document.title = deckById(CUR).name + " · " + OWNER + " 的专属词库";
+  try { renderDeckUI(); renderHome(); if (state.view === "study") renderStudy(); } catch(e){}
+  const sm = document.querySelector(".brand small");
+  if (sm) sm.textContent = OWNER + " 的专属词库";
+  const si = $("#shareInfo");
+  if (si) si.textContent = "专属链接：" + shareURL();
+  return OWNER;
+}
+function copyShare(){
+  const u = shareURL(), si = $("#shareInfo");
+  const done = () => { if (si) si.textContent = "已复制 ✅ " + u; };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, () => prompt("复制这个专属链接：", u));
+  else prompt("复制这个专属链接：", u);
+}
+
 /* ================= 初始化 & 事件 ================= */
 (function init(){
   // 首字母下拉
@@ -1080,6 +1484,34 @@ function applyMaskUI(){
   // 首页
   $("#btnEnter").onclick = () => go("list");
   if ($("#btnSpellPage")) $("#btnSpellPage").onclick = () => spellCurrentPage();
+
+  // 学习模式
+  $$("#segGoal button").forEach(b => b.onclick = () => {
+    const g = parseInt(b.dataset.n, 10);
+    const wasFull = studyToday() >= studyStore().goal;
+    studyStore().goal = g;
+    if (wasFull) { studyStore().day = today(); studyStore().done = 0; studyStore().sess = null; }
+    save(true); renderStudyHome();
+  });
+  if ($("#btnStartStudy")) $("#btnStartStudy").onclick = () => startStudy();
+  if ($("#btnStartReview")) $("#btnStartReview").onclick = () => go("review");
+  if ($("#btnStudyQuit")) $("#btnStudyQuit").onclick = () => go("home");
+  if ($("#btnCopyShare")) {
+    $("#btnCopyShare").onclick = () => copyShare();
+    const si = $("#shareInfo"); if (si) si.textContent = "专属链接：" + shareURL();
+  }
+  if ($("#btnNext")) $("#btnNext").onclick = () => studyNext();
+  if ($("#btnPrev")) $("#btnPrev").onclick = () => studyPrev();
+  if ($("#btnPass")) $("#btnPass").onclick = () => studyPass();
+  if ($("#cbStudySpeak")) {
+    $("#cbStudySpeak").checked = store.settings.studySpeak !== false;
+    $("#swStudySpeak").classList.toggle("on", store.settings.studySpeak !== false);
+    $("#cbStudySpeak").onchange = () => {
+      store.settings.studySpeak = $("#cbStudySpeak").checked;
+      $("#swStudySpeak").classList.toggle("on", $("#cbStudySpeak").checked);
+      save(true);
+    };
+  }
   // 主题 / 抽屉
   $("#btnTheme").onclick = () => { store.settings.theme = store.settings.theme === "dark" ? "light" : "dark"; save(); applyTheme(); };
   const openDrawer = on => { $("#drawer").classList.toggle("on", on); $("#mask").classList.toggle("on", on); };
@@ -1153,7 +1585,7 @@ function applyMaskUI(){
   $("#btnSelAll").onclick = () => { const list = state.view === "bank" ? bankList() : baseList();
     pageOf(list).slice.forEach(e => state.selected.add(e.word)); rerender(); batchInfo(); };
   $("#btnSelNone").onclick = () => { state.selected.clear(); rerender(); batchInfo(); };
-  $("#btnBatchAdd").onclick = () => { let n = 0; state.selected.forEach(w => { if (bankAdd(w)) n++; }); state.selected.clear();
+  $("#btnBatchAdd").onclick = () => { let n = 0; state.selected.forEach(w => { if (bankAdd(w, null, null, { spell:true })) n++; }); state.selected.clear();
     rerender(); batchInfo(); refreshCounts();
     if (!n) alert("勾选的单词都已经在词库里了"); };
   $("#btnBatchDel").onclick = () => { let n = 0; state.selected.forEach(w => { if (bankDel(w)) n++; }); state.selected.clear();
@@ -1407,8 +1839,9 @@ function renderHome(){
   const t = $("#homeTitle"), s = $("#homeSub"), c = $("#homeCards");
   if (!t || !c) return;
   const n = (d.entries || []).length;
-  t.textContent = d.name;
-  s.innerHTML = (d.desc ? esc(d.desc) + "<br>" : "") + "共 " + n.toLocaleString() + " 词 · 手机离线可用 · 打开即回到上次位置";
+  t.textContent = OWNER ? (OWNER + " 的专属词库") : d.name;
+  s.innerHTML = (OWNER ? "<b>" + esc(OWNER) + "</b> 的专属词库 · " : "") + (d.desc ? esc(d.desc) + "<br>" : "")
+    + "共 " + n.toLocaleString() + " 词 · 手机离线可用 · 打开即回到上次位置";
   const lv = d.levels || [];
   const meta = { A:["A 级 · 四级高频词","分级考 / 期末考重点"], B:["B 级 · 四级次高频词","期末考 / 学位考重点"], C:["C 级 · 六级词","暂不作要求"] };
   const cls = { A:"a", B:"b", C:"c" };
@@ -1421,6 +1854,7 @@ function renderHome(){
     : '<div class="card"><div class="n">' + n.toLocaleString() + '</div><div class="t">' + esc(d.name) + '</div><div class="d">' + esc(d.desc || "") + '</div></div>';
   c.innerHTML = cards;
   c.style.gridTemplateColumns = lv.length >= 3 ? "" : (lv.length === 2 ? "repeat(2,1fr)" : "1fr");
+  renderStudyHome();
 }
 (function initDeckUI(){
   renderDeckUI();
@@ -1884,6 +2318,148 @@ function selfTest(){
       return p === "v.";
     })());
 
+    // ---- 学习模式 ----
+    (function(){
+      const bk = JSON.stringify(store);
+      const hook = [];
+      store.bank = {}; store.tomb = {};
+      store.study = { goal:20, pos:{}, day:today(), done:0, sess:null };
+      studySpeechHook = hook;
+      ok("每日目标选项 10/20/30/50/100", GOALS.join(",") === "10,20,30,50,100");
+      ok("默认每日 20 词", studyStore().goal === 20);
+      ok("队列按词表顺序取 N 个", (function(){ const b = buildQueue(3, 0);
+        return b.queue.length === 3 && b.queue[0].word === ALL[0].word && b.queue[2].word === ALL[2].word && !b.wrapped; })());
+      ok("队列走到表尾会绕回开头", (function(){ const b = buildQueue(3, ALL.length - 1);
+        return b.queue[0].word === ALL[ALL.length-1].word && b.queue[1].word === ALL[0].word && b.wrapped === true; })());
+      ok("首页有开始学习按钮与 5 档目标", !!$("#btnStartStudy") && $$("#segGoal button").length === 5);
+      ok("学习区有 上一个 / 下一个 / pass 三个键", !!$("#btnPrev") && !!$("#btnNext") && !!$("#btnPass"));
+      ok("操作栏固定在底部", /\.stbar\{position:fixed/.test(document.querySelector("style").textContent));
+
+      state.view = "study";
+      ensureStudy();
+      const sess = studyStore().sess;
+      ok("建立当日批次：默认 20 个", !!sess && sess.words.length === 20, sess && sess.words.length);
+      const w1 = sess.words[0], w2 = sess.words[1];
+      renderStudy();
+      ok("卡片：单词 / 词性释义 / 例句都在", $("#studyBox").innerHTML.indexOf(">" + w1 + "<") >= 0
+        && $("#studyBox").innerHTML.indexOf("stmean") >= 0 && $("#studyBox").innerHTML.indexOf("stex") >= 0);
+      ok("卡片：例句在释义之后", $("#studyBox").innerHTML.indexOf("stmean") < $("#studyBox").innerHTML.indexOf("stex"));
+      ok("新词自动朗读两遍", hook.length === 2 && hook[0] === w1 && hook[1] === w1, JSON.stringify(hook));
+      hook.length = 0; renderStudy();
+      ok("同一张卡片重绘不重复朗读", hook.length === 0, JSON.stringify(hook));
+      ok("第 1 个词时「上一个」禁用", $("#btnPrev").disabled === true);
+      ok("未决定时状态是「未标记」", $("#studyBox").innerHTML.indexOf("未标记") >= 0);
+      ok("未决定时星标是空心", $("#stStar").textContent === starSVG(false));
+
+      studyNext();
+      ok("「下一个」：今日已学 +1", studyToday() === 1, studyToday());
+      ok("「下一个」：进个人词库", !!store.bank[w1]);
+      ok("「下一个」：明天开始第一次复习（dueIn:1）", !!store.bank[w1] && store.bank[w1].due === today() + DAY);
+      ok("「下一个」：光标前移，下次不再重复", studyCursor() === 1, studyCursor());
+      ok("「下一个」后该词标记为 review", (studyStore().sess.marks[w1] || "") === "review", studyStore().sess.marks[w1]);
+
+      studyPrev();
+      ok("「上一个」：回到 w1 且不改变计数", $("#studyBox").innerHTML.indexOf(">" + w1 + "<") >= 0 && studyToday() === 1);
+      ok("回到第一个词时「上一个」置灰", $("#btnPrev").disabled === true);
+      studyNext();
+      ok("前进到第 2 个词后「上一个」恢复可用", $("#btnPrev").disabled === false);
+      ok("再「下一个」回到第 2 个词", $("#studyBox").innerHTML.indexOf(">" + w2 + "<") >= 0 && studyToday() === 1);
+
+      studyPass();
+      ok("pass：也算今天学过（计数 +1）", studyToday() === 2, studyToday());
+      ok("pass：这个词不进复习队列", !store.bank[w2] && !dueWords().includes(w2));
+      studyPrev();
+      ok("回看 pass 过的词：状态显示「不用复习」", $("#studyBox").innerHTML.indexOf("不用复习") >= 0);
+      studyNext();
+      ok("对 pass 过的词点「下一个」→ 改为进复习", !!store.bank[w2] && studyStore().sess.marks[w2] === "review" && store.bank[w2].due === today() + DAY);
+      ok("改标记不会重复计数", studyToday() === 2, studyToday());
+
+      studyPrev();
+      const cntBefore = studyToday();
+      studyStar();
+      ok("⭐：加入个人词库", !!store.bank[w2]);
+      ok("⭐：带「重点拼写」标记", store.bank[w2].spell === true);
+      ok("⭐：不影响今日已学计数", studyToday() === cntBefore);
+      ok("⭐：星标变实心", $("#stStar").textContent === starSVG(true));
+      studyStar();
+      ok("再点 ⭐：移出词库并变回空心", !store.bank[w2] && $("#stStar").textContent === starSVG(false));
+
+      let guard = 0;
+      while (sess && Object.keys(sess.marks).length < sess.words.length && guard++ < 60) studyNext();
+      ok("整批决定完 → 出现完成卡片", $("#studyBox").innerHTML.indexOf("donecard") >= 0);
+      ok("完成后自动回首页已排定", !!studyTimer);
+      if (studyTimer) { clearTimeout(studyTimer); studyTimer = null; }
+
+      // 重点词：复习时默认切到拼写模式，并带徽章
+      store.bank = {}; store.tomb = {}; store.study = null;
+      bankAdd("abandon", "A", BY_WORD["abandon"], { spell:true });
+      state.reviewMode = "meaning"; state.reviewWord = null; state.reviewSpell = { given:"", result:null, hintN:0 };
+      renderReview();
+      ok("重点词：复习自动切到拼写模式", state.reviewMode === "spell", state.reviewMode);
+      ok("重点词：卡片上有「重点拼写」徽章", $("#reviewBox").innerHTML.indexOf("重点拼写") >= 0);
+      // 重点词强制拼写；普通词沿用当前模式
+      store.bank = {}; store.tomb = {}; store.study = null;
+      bankAdd("abandon", "A", BY_WORD["abandon"], { spell:true });
+      state.reviewMode = "meaning"; state.reviewWord = null; state.reviewSpell = { given:"", result:null, hintN:0 };
+      renderReview();
+      ok("⭐ 重点词：复习强制切到拼写模式", state.reviewMode === "spell", state.reviewMode);
+      ok("⭐ 重点词：卡片上有「重点拼写」徽章", $("#reviewBox").innerHTML.indexOf("重点拼写") >= 0);
+      ok("⭐ 重点词：bank 记录带 spell 标记", store.bank["abandon"].spell === true);
+      store.bank = {}; store.tomb = {};
+      bankAdd("abstract", "A", BY_WORD["abstract"]);
+      state.reviewMode = "meaning"; state.reviewWord = null;
+      renderReview();
+      ok("普通词：沿用当前复习模式（可切回意思）", state.reviewMode === "meaning", state.reviewMode);
+      ok("默认复习模式＝拼写（看中文拼单词）", /reviewMode:"spell"/.test(document.querySelector("script").textContent));
+      bankDel("abstract"); store.tomb = {}; store.bank = {};
+
+      // ---- 首页「今日份复习！」按钮 + 进复习计划的时间 ----
+      ok("首页有「今日份复习！」按钮", !!$("#btnStartReview"));
+      ok("复习按钮在「开始学习！」下方",
+        $("#studyCard").innerHTML.indexOf('id="btnStartStudy"') < $("#studyCard").innerHTML.indexOf('id="btnStartReview"'));
+      store.bank = {}; store.tomb = {}; store.study = { goal:20, pos:{}, day:today(), done:0, sess:null };
+      state.study = null;
+      ensureStudy();
+      const nw0 = studyStore().sess.words[0];
+      studyNext();
+      ok("新学的词明天才开始第一次复习（艾宾浩斯第 1 天）", store.bank[nw0].due === today() + DAY, fmtDate(store.bank[nw0].due));
+      ok("新学的词默认不是重点拼写", store.bank[nw0].spell !== true);
+      studyPrev(); studyStar();
+      ok("⭐ 重点词当天就进复习计划", store.bank[nw0].due === today() && store.bank[nw0].spell === true);
+      renderStudyHome();
+      ok("首页复习按钮显示今日到期数", $("#reviewCount").textContent === String(dueWords().length), $("#reviewCount").textContent);
+      ok("首页有复习计划说明", $("#reviewHint").innerHTML.length > 0);
+      store.study = null; store.bank = {}; store.tomb = {};
+      delete store.settings.reviewMode;
+
+      // ---- 专属署名链接（?u=weeping） ----
+      (function(){
+        const t0 = document.title;
+        const sm = document.querySelector(".brand small"), sm0 = sm ? sm.textContent : "";
+        const h0 = $("#homeTitle").textContent, s0 = $("#homeSub").innerHTML;
+        applyOwner("weeping");
+        ok("专属：浏览器标题带署名", document.title.indexOf("weeping 的专属词库") >= 0, document.title);
+        ok("专属：首页大标题带署名", $("#homeTitle").textContent.indexOf("weeping") >= 0, $("#homeTitle").textContent);
+        ok("专属：说明行带署名", $("#homeSub").innerHTML.indexOf("weeping") >= 0);
+        ok("专属：页头小字带署名", (document.querySelector(".brand small") || {}).textContent.indexOf("weeping") >= 0);
+        ok("专属：分享链接含 weeping", /\?u=weeping$/.test(shareURL()), shareURL());
+        ok("专属：设置里有复制链接按钮", !!$("#btnCopyShare"));
+        ok("专属：非法字符被过滤（防注入）", (function(){
+          applyOwner("<img src=x onerror=alert(1)>");
+          return OWNER.indexOf("<") < 0 && document.title.indexOf("<") < 0;
+        })(), OWNER);
+        OWNER = "";
+        document.title = t0;
+        if (sm) sm.textContent = sm0;
+        $("#homeTitle").textContent = h0;
+        $("#homeSub").innerHTML = s0;
+      })();
+
+      studySpeechHook = null;
+      store = JSON.parse(bk);
+      state.study = null; state.reviewWord = null; state.reviewMode = "meaning"; state.view = "list";
+    })();
+
     state.view = "list";  renderList();
     state.view = "bank";  renderBank();
     state.view = "review"; renderReview();
@@ -1900,6 +2476,7 @@ function selfTest(){
 (function bootExtras(){
   const raw = ((location.search || "").replace(/^\?/, "") + "&" + (location.hash || "").replace(/^#/, ""));
   const QP = new URLSearchParams(raw.replace(/^&/, ""));
+  if (QP.get("u") || QP.get("owner")) applyOwner(QP.get("u") || QP.get("owner"));   // ?u=weeping → 专属署名
   if (QP.get("theme")) { store.settings.theme = QP.get("theme") === "dark" ? "dark" : "light"; save(); applyTheme(); }
   if (QP.get("sync")) {
     try {
