@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f5d9e">
+<title>weeping 的专属词库 · 正在打开…</title>
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<style>
+  html,body{margin:0;height:100%}
+  body{background:#f4f6fb;color:#16233a;display:grid;place-items:center;padding:24px;
+    font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif}
+  .box{background:#fff;border:1px solid #e2e8f2;border-radius:18px;padding:40px 28px;text-align:center;
+    max-width:380px;box-shadow:0 1px 3px rgba(20,35,60,.06),0 8px 24px rgba(20,35,60,.06)}
+  .logo{width:54px;height:54px;margin:0 auto 16px;border-radius:16px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#2f5d9e,#7c3aed);color:#fff;font-size:26px;font-weight:800}
+  h1{font-size:21px;margin:0 0 8px;letter-spacing:.5px}
+  p{color:#6b7789;font-size:13px;margin:0 0 18px}
+  a{color:#2f5d9e;font-weight:700;text-decoration:none}
+  .bar{height:6px;background:#e8eefb;border-radius:4px;overflow:hidden;margin:0 auto;max-width:200px}
+  .bar i{display:block;height:100%;width:40%;background:linear-gradient(90deg,#2f5d9e,#7c3aed);
+    border-radius:4px;animation:run 1s ease-in-out infinite}
+  @keyframes run{0%{margin-left:-40%}100%{margin-left:100%}}
+</style>
+<script>
+  /* 专属入口：/nju-vocab/weeping/ → /nju-vocab/?u=weeping */
+  (function () {
+    var OWNER = "weeping";
+    var target = "../?u=" + encodeURIComponent(OWNER);
+    try { location.replace(target); } catch (e) {}
+    setTimeout(function () { if (location.pathname.indexOf("weeping") >= 0) location.href = target; }, 900);
+  })();
+</script>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">N</div>
+    <h1>weeping 的专属词库</h1>
+    <p>正在打开…</p>
+    <div class="bar"><i></i></div>
+    <p style="margin:18px 0 0"><a href="../?u=weeping">没反应？点这里手动进入</a></p>
+  </div>
+</body>
+</html>
